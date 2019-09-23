@@ -1,0 +1,89 @@
+body {font-family: Verdana, sans-serif;}
+
+#calendar {
+    width: 270px;
+    font-size: 15px;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    
+}
+
+#calendar ul {
+  list-style-type: none;
+}
+
+/* Month header */
+.month {
+  /* padding: 7px 0px; */
+  background: #2c3e50;
+  text-align: center;
+  margin-bottom: 10px;
+  height: 35px;
+  line-height: 35px;
+}
+
+/* Month list */
+.month ul {
+  margin: 0;
+  padding: 0;
+}
+
+.month ul li {
+  color: white;
+  font-size: 18px;
+}
+
+/* Previous button inside month header */
+.month .prev {
+  float: left;
+  cursor: pointer;
+  display: block;
+  width: 35px;
+}
+
+/* Next button */
+.month .next {
+  float: right;
+  cursor: pointer;
+  display: block;
+  width: 35px;
+}
+
+.month .next:hover, .month .prev:hover {
+  background-color: #34495e;
+}
+
+/* Weekdays (Mon-Sun) */
+.weekdays {
+  margin: 0;
+  padding: 7px 0;
+  background-color:#7f8c8d;
+}
+
+.weekdays li {
+  display: inline-block;
+  width: 14.28%;
+  text-align: center;
+}
+
+/* Days (1-31) */
+.days {
+  padding: 7px 0;
+  background: #bdc3c7;
+  margin: 0;
+}
+
+.days li {
+  list-style-type: none;
+  display: inline-block;
+  width: 14.28%;
+  text-align: center;
+  line-height: 32px;
+}
+
+/* Highlight the "current" day */
+.days li .active {
+  background: #2c3e50;
+  color: #bdc3c7 !important;
+  display: block;
+}
