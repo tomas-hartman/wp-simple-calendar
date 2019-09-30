@@ -2,7 +2,7 @@ const run = () => {
     const weekdayNames = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
     const monthNames = ["leden","únor","březen","duben","květen","červen","červenec","srpen","září","říjen","listopad","prosinec"];
 
-    const anchor = document.getElementById("main");
+    const anchor = document.getElementById("swp-cal-mini-main");
     const mainElm = document.createElement("div");
     const daysElm = document.createElement("ul");
     const today = new Date();
