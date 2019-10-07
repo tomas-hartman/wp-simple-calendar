@@ -2,9 +2,9 @@
 /*
 Plugin Name: Simple WordPress calendar
 Plugin URI: https://github.com/tomas-hartman/wp-simple-calendar
-Description: Nothing yet
+Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Nothing more yet. 
 Author: Tomas Hartman
-Version: 0.1.0
+Version: 0.2.0
 Author URI: https://github.com/tomas-hartman/wp-simple-calendar
 Text Domain: simple-wp-calendar
 */
@@ -335,8 +335,7 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
  */
 
 function swp_cal_scripts() {
-	// wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'assets/js/ajax.js', array('jquery'), '1.0.0', true );
-	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/ajax.js', true );
+	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/ajax.js', array(), '1.0.0', true );
 	wp_localize_script( 'script-name', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
 	// wp_localize_script( 'script-name', 'eventListCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-cal' ) ));
 	// wp_localize_script( 'script-name', 'eventListMiniCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-mini-cal' ) ));
@@ -349,7 +348,7 @@ function swp_cal_callback() {
  
 	// $cal_output = "";
 	
-	// $month = intval( $_POST["month"] );
+	// $month = intval( $_POST["month"] ); // tohle můžu použít pro optimalizaci, např. backendové renderování linků apod.
 	// $year = intval( $_POST["year"] );
 
 	// $calendar_month = strtotime($year."-".$month."-01");
@@ -363,42 +362,74 @@ function swp_cal_callback() {
 
 	// $events = array();
 
-	// $args = array(
-	// 			'post_type'			=> 'swp-cal-event',
-	// 			'posts_per_page'	=> -1,
-	// 		);
-	// $loop = new WP_Query( $args );
-	
-	// while ( $loop->have_posts() ) : $loop->the_post();
-	// 	$event_date = get_post_custom_values('event-date');
-	// 	$event_date = strtotime($event_date[0]);
-	// 	$event_time = get_post_custom_values('event-time');
-	// 	$event_time = $event_time[0];
-	// 	$event_days = get_post_custom_values('event-days');
-	// 	$event_days = $event_days[0];
-	// 	$event_repeat = get_post_custom_values('event-repeat');
-	// 	$event_repeat = $event_repeat[0];
-	// 	$event_end = get_post_custom_values('event-end');
-	// 	$event_end = $event_end[0];
-	// 	if($event_repeat > 0) {
-	// 		$event_repeat_schedule = $event_repeat;
-	// 	} else {
-	// 		$event_repeat_schedule = 0;
-	// 	}
+	$i = 0;
+	$output = "";
+	$args = array(
+				'post_type'			=> 'swp-cal-event', // Takhle se to jmenuje správně
+				'posts_per_page'	=> -1,
+			);
+	$loop = new WP_Query( $args );
+
+	$output .= "[";	
+	while ( $loop->have_posts() ) : $loop->the_post();
+		if($i >= 1){
+			$object = ",{";
+		} else {
+			$object = "{";
+		}
+		
+	/**
+	 * 1. title
+	 * 2. permalink
+	 * 3. event date
+	 * 4. event time
+	 * 5. event days 
+	 * 6. $event_end
+	 * 7. $event_repeat_schedule
+	 * 8. the excerpt
+	 */
+
+		$title = get_the_title();
+		$object .= '"title": "'.$title.'",';
+
+		$permalink = get_permalink($loop->ID);
+		$object .= '"permalink": "'.$permalink.'",';
+
+		$event_date = get_post_custom_values('event-date');
+		$object .= '"eventDate": "'.$event_date[0].'",';
+
+		$event_time = get_post_custom_values('event-time');
+		$object .= '"eventTime": "'.$event_time[0].'",';
+
+		$event_days = get_post_custom_values('event-days');
+		$object .= '"eventDays": "'.$event_time[0].'",';
+
+		$event_repeat = get_post_custom_values('event-repeat');
+		$object .= '"eventRepeat": "'.$event_repeat[0].'",';
+
+		$event_end = get_post_custom_values('event-end');
+		$object .= '"eventEnd": "'.$event_end[0].'",';
+
+		if($event_repeat > 0) {
+					$object .= '"eventRepeatSchedule": "'.$event_repeat[0].'",';
+		} else {
+					$object .= '"eventRepeatSchedule": 0,';
+		}
+
+		$excerpt = get_the_excerpt();
+		$object .= '"excerpt": "'.$excerpt.'"';
+
 	// 	$events[] = "<a href=\"".get_permalink($loop->ID)."\">".get_the_title()."</a>==".$event_date."==".$event_time."==<a href=\"".get_permalink($loop->ID)."\">&nbsp;</a>".get_the_excerpt()."==".$event_days."==".$event_repeat_schedule."==".$event_end;
-	// endwhile;
+		
+		$object .= "}";
+		$output .= $object;
+		$i++;
+	endwhile;
+	$output .= "]";
 
-	$cal_output = "ahoj";
+	echo $output;
 
-	// $cal_output .= "
-	// 	<table class=\"event-list-cal\" id=\"".$month."-".$year."-full-".get_bloginfo('language')."\">
-	// 		<thead>
-	// 			<tr>";
-
-	echo $cal_output;
-	// printf($loop);
-
-	die();
+	wp_die();
 }
 add_action( 'wp_ajax_swp-cal-event', 'swp_cal_callback' );
 add_action( 'wp_ajax_nopriv_swp-cal-event', 'swp_cal_callback' );

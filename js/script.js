@@ -86,22 +86,34 @@ const run = () => {
      * @param {*} params Parametry k jednotlivým dnům, zejména popisky událostí
      * @todo
      */
-    const createElm = (date, params) => {
+    const createElm = (originDate, params) => {
         const elm = document.createElement("li");
+        const span = document.createElement("span");
+        let date = originDate;
 
-        if(firstDayOfMonth.getMonth() === today.getMonth() && date === today.getDate()){
-            const todayElm = document.createElement("span");
-            todayElm.setAttribute("class", "active");
-            todayElm.innerText = date;
-            elm.appendChild(todayElm);
+        // Chci, aby datum v classe bylo ve formátu 05, 06 apod.
+        if(typeof date !== "undefined" && date < 10){
+
+            date = `0${originDate}`;
+            console.log(date);
+        }
+
+        if(firstDayOfMonth.getMonth() === today.getMonth() && originDate === today.getDate()){
+            // const todayElm = document.createElement("span");
+            span.setAttribute("class", "active");
+            span.setAttribute("id", `day-${date}`);
+            span.innerText = originDate;
+            elm.appendChild(span);
 
             return elm;
         }
         if(date){
-            elm.innerText = date;
+            span.innerText = originDate;
+            span.setAttribute("id", `day-${date}`);
+            elm.appendChild(span);
         }
         if(params){
-            elm.appendChild(document.createElement("span"));
+            // elm.appendChild(document.createElement("span"));
             // add more
         }
         return elm;
