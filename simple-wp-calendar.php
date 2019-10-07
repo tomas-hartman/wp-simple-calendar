@@ -330,9 +330,78 @@ function swp_cal_admin_script_style( $hook ) {
 add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
 
 
+/**
+ * AJAX
+ */
+
+function swp_cal_scripts() {
+	// wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'assets/js/ajax.js', array('jquery'), '1.0.0', true );
+	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/ajax.js', true );
+	wp_localize_script( 'script-name', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
+	// wp_localize_script( 'script-name', 'eventListCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-cal' ) ));
+	// wp_localize_script( 'script-name', 'eventListMiniCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-mini-cal' ) ));
+}
+add_action( 'wp_enqueue_scripts', 'swp_cal_scripts' );
 
 
+function swp_cal_callback() {
+	check_ajax_referer( 'simple-wp-calendar', 'security' );
+ 
+	// $cal_output = "";
+	
+	// $month = intval( $_POST["month"] );
+	// $year = intval( $_POST["year"] );
 
+	// $calendar_month = strtotime($year."-".$month."-01");
+	// $current_month = 1;
+
+	// if($year == date('Y', time()) && $month == date('m', time())) {
+	// 	$current_month = 1;
+	// } else {
+	// 	$current_month = 0;
+	// }	
+
+	// $events = array();
+
+	// $args = array(
+	// 			'post_type'			=> 'swp-cal-event',
+	// 			'posts_per_page'	=> -1,
+	// 		);
+	// $loop = new WP_Query( $args );
+	
+	// while ( $loop->have_posts() ) : $loop->the_post();
+	// 	$event_date = get_post_custom_values('event-date');
+	// 	$event_date = strtotime($event_date[0]);
+	// 	$event_time = get_post_custom_values('event-time');
+	// 	$event_time = $event_time[0];
+	// 	$event_days = get_post_custom_values('event-days');
+	// 	$event_days = $event_days[0];
+	// 	$event_repeat = get_post_custom_values('event-repeat');
+	// 	$event_repeat = $event_repeat[0];
+	// 	$event_end = get_post_custom_values('event-end');
+	// 	$event_end = $event_end[0];
+	// 	if($event_repeat > 0) {
+	// 		$event_repeat_schedule = $event_repeat;
+	// 	} else {
+	// 		$event_repeat_schedule = 0;
+	// 	}
+	// 	$events[] = "<a href=\"".get_permalink($loop->ID)."\">".get_the_title()."</a>==".$event_date."==".$event_time."==<a href=\"".get_permalink($loop->ID)."\">&nbsp;</a>".get_the_excerpt()."==".$event_days."==".$event_repeat_schedule."==".$event_end;
+	// endwhile;
+
+	$cal_output = "ahoj";
+
+	// $cal_output .= "
+	// 	<table class=\"event-list-cal\" id=\"".$month."-".$year."-full-".get_bloginfo('language')."\">
+	// 		<thead>
+	// 			<tr>";
+
+	echo $cal_output;
+	// printf($loop);
+
+	die();
+}
+add_action( 'wp_ajax_swp-cal-event', 'swp_cal_callback' );
+add_action( 'wp_ajax_nopriv_swp-cal-event', 'swp_cal_callback' );
 
 
 
