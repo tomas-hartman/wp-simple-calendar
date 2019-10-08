@@ -191,6 +191,9 @@ const swpCal = {
         document.querySelector("#calendar li.prev").addEventListener("click", this);
     },
 
+    /**
+     * Funkce, která handluje všechny eventy, zavěšený na tomto objektu (kouzlo!)
+     */
     handleEvent: (ev) => {
         let target = ev.target.className;
         
@@ -235,6 +238,7 @@ const ajax = () => {
     /**
      * MOCKUP Funkce
      * @param {object} result 
+     * @todo Prakticky celý předělat
      */
     const resultCallback = (result) => {
         const events = JSON.parse(result);
@@ -249,11 +253,23 @@ const ajax = () => {
         events.forEach(event => {
             const date = event.eventDate.split("-");
             if (date[1] === thisMonth) {
+                const a = document.createElement("a");
+                const span = document.createElement("span");
+                
+                a.setAttribute("href", event.permalink);
+                a.innerText = event.title;
+
+                span.classList.add("day-events");
+                span.appendChild(a);
+
                 // console.log(date[2]);
                 let elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${date[2]}`);
                 // console.log(elm);
                 // elm.setAttribute("class", "event");
-                elm.classList += " event";
+                elm.classList.add("event");
+                elm.classList.add("tooltip");
+
+                elm.appendChild(span);
             }
             // console.log(date);
         });
