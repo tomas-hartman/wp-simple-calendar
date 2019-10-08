@@ -1,3 +1,6 @@
+/**
+ * Není potřeba, nahrazeno funkcí ajax() v script.js
+ */
 document.addEventListener("DOMContentLoaded", () => {
     
     /**

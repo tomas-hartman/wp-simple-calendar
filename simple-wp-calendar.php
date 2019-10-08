@@ -4,7 +4,7 @@ Plugin Name: Simple WordPress calendar
 Plugin URI: https://github.com/tomas-hartman/wp-simple-calendar
 Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Nothing more yet. 
 Author: Tomas Hartman
-Version: 0.2.0
+Version: 0.3.0
 Author URI: https://github.com/tomas-hartman/wp-simple-calendar
 Text Domain: simple-wp-calendar
 */
@@ -335,7 +335,8 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
  */
 
 function swp_cal_scripts() {
-	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/ajax.js', array(), '1.0.0', true );
+	// wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/ajax.js', array(), '1.0.0', true );
+	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/script.js', array(), '1.0.0', true );
 	wp_localize_script( 'script-name', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
 	// wp_localize_script( 'script-name', 'eventListCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-cal' ) ));
 	// wp_localize_script( 'script-name', 'eventListMiniCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-mini-cal' ) ));
@@ -456,7 +457,7 @@ function swp_cal_css() {
 add_action( 'wp_head', 'swp_cal_css' );
 
 function swp_cal_javascript() {
-	echo '<script type="text/javascript" src="'.plugin_dir_url(__FILE__).'js/script.js"></script>';
+	// echo '<script type="text/javascript" src="'.plugin_dir_url(__FILE__).'js/script.js"></script>';
 }
 add_action( 'wp_footer', 'swp_cal_javascript' );
 
