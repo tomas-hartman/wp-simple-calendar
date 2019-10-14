@@ -403,7 +403,7 @@ function swp_cal_callback() {
 		$object .= '"eventTime": "'.$event_time[0].'",';
 
 		$event_days = get_post_custom_values('event-days');
-		$object .= '"eventDays": "'.$event_time[0].'",';
+		$object .= '"eventDays": "'.$event_days[0].'",';
 
 		$event_repeat = get_post_custom_values('event-repeat');
 		$object .= '"eventRepeat": "'.$event_repeat[0].'",';

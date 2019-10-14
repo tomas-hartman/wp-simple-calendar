@@ -145,6 +145,17 @@ body {font-family: Verdana, sans-serif;}
   text-decoration: none;
 }
 
+.tooltip .day-events a:hover {
+  text-decoration: underline;
+}
+
+.day-events li {
+  width: auto;
+  text-align: left;
+  padding: 0 10px;
+  line-height: normal;
+}
+
 /*
  * @todo Najs to have, označení víkendů 
  */
