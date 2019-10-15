@@ -27,6 +27,7 @@ const swpCal = {
         this.firstDayOfMonth = new Date(this.today.getFullYear(), this.today.getMonth() + relMonth);
         this.firstDayOfNextMonth = new Date(this.firstDayOfMonth.getFullYear(), this.firstDayOfMonth.getMonth() + 1);
         this.lastDayOfMonth = new Date(this.firstDayOfMonth.getFullYear(), this.firstDayOfMonth.getMonth() + 1, 0);
+        this.lastDayOfPrevMonth = new Date(this.firstDayOfMonth.getFullYear(), this.firstDayOfMonth.getMonth(), 0);
         this.displayedMonth = this.firstDayOfMonth.getMonth() + 1;
         this.numOfDays = Math.floor((this.firstDayOfNextMonth - this.firstDayOfMonth) / (1000 * 60 * 60 * 24)); // při přeměně času na zimní může mít jiný počet hodin
         this.daysArr = [];
@@ -118,9 +119,9 @@ const swpCal = {
     },
 
     /**
-     * @todo Opravit bug, kdy se při rychlém překlikávání přidávají některé akce 2x a víckrát
      * @param {object} event Událost, kterou budu připojovat
      * @param {DOM Element} elm Elm v kalendáři se dnem ke kterému budu novou událost připojovat
+     * @todo opravit bug 2.11. --> po dvojkliku se zdvojí "Opakující se vícedenní akce"
      */
     createEventElm(event, elm){
         
@@ -131,7 +132,9 @@ const swpCal = {
         li.appendChild(a);
 
         const checkElm = elm.querySelector(".day-events ul");
-        if(checkElm){
+        const checkHref = elm.querySelector(`a[href='${event.permalink}']`);
+        
+        if(checkElm && !checkHref){
             checkElm.appendChild(li);
         } else {
             const span = document.createElement("span");
@@ -218,21 +221,54 @@ const swpCal = {
     },
 
     addEventMultipleDays (event, thisMonthStr) {
-        return "hi";
+        /**
+         * Dva edge casy: událost, která trvá do dalšího měsíce DONE
+         * událost, která pokračuje z minulého měsíce DONE
+         * potenciální víceměsíční akce! @todo
+         */
+
+        const date = event.eventDate.split("-");
+        const thisMonth = this.firstDayOfMonth.getMonth() + 1;
+        const thisYear = this.firstDayOfMonth.getFullYear();
+        const numOfDays = this.lastDayOfMonth.getDate();
+        const eventEndDate = parseInt(date[2]) + parseInt(event.eventDays);
+        const lastDayOfPrevMonth = this.lastDayOfPrevMonth.getDate();
+
+        // case 1 - tento měsíc
+        if (parseInt(date[1]) === thisMonth && parseInt(date[0]) === thisYear) {
+            for(let i=0;i<event.eventDays;i++){
+                let idDate = parseInt(date[2]) + i;
+                
+                if(idDate <= numOfDays){
+                    idDate = idDate.toString();
+                    if(idDate.length < 2){ idDate = `0${idDate}` };
+
+                    const elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${idDate}`);
+                    this.createEventElm(event, elm);
+                }
+            }
+        }
+        // case 2 akce z minulého měsíce: začíná minulý měsíc a zároveň jeho datumStartu + početDní je větší, než počet dní toho měsíce
+        else if(parseInt(date[1]) === thisMonth-1 && eventEndDate > lastDayOfPrevMonth){
+            const diff = eventEndDate-lastDayOfPrevMonth;
+            
+            for(let i=1;i<diff;i++){
+                let idDate = i.toString();
+                if(idDate.length < 2){ idDate = `0${idDate}` };
+
+                const elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${idDate}`);
+                this.createEventElm(event, elm);
+            }
+        }
     },
 
     addEventRepeated (event) {
         const thisMonth = this.firstDayOfMonth.getMonth() + 1;
         const date = event.eventDate.split("-");
         /**
-         * Check periodicity of repetition
-         * 0 = none
-         * 1 = weekly
-         * 2 = monthly
-         * 3 = yearly
+         * Check periodicity of repetition: 0 = none; 1 = weekly; 2 = monthly; 3 = yearly
          * 
-         * Check month.
-         * show.
+         * Check month -> show.
          */
         switch (parseInt(event.eventRepeat)) {
             case 1:
@@ -267,7 +303,7 @@ const swpCal = {
         }
 
         /**
-         * @todo Upravit, aby se neopakovalo před prvním datem opakování
+         * @todo Upravit, aby se nezobrazovalo před prvním datem opakování
          */
         function addRepeatedWeekly(){
             /**
@@ -304,9 +340,7 @@ const swpCal = {
                 
                 eventStartDate = eventStartDate + 7;
             }
-            
         }
-        // return "hi";
     },
 
     run () {
@@ -395,8 +429,8 @@ const ajax = () => {
                 // console.log(event);
                 swpCal.addEventMultipleDays(event);
             } else if(event.eventRepeat !== "0"){
-                console.log("repeated");
-                console.log(event);
+                // console.log("repeated");
+                // console.log(event);
                 swpCal.addEventRepeated(event);
             } else if(parseInt(event.eventDays) === 1){
                 // console.log("oneday");
