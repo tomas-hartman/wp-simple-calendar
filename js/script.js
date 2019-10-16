@@ -2,7 +2,8 @@ const swpCal = {
     weekdayNames: ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"],
     monthNames: ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"],
 
-    anchor: document.getElementById("swp-cal-mini-main"),
+    anchorMiniCal: document.getElementById("swp-cal-mini-main"),
+    anchorList: document.getElementById("swp-cal-list-main"),
     mainElm: document.createElement("div"),
     daysElm: document.createElement("ul"),
     today: new Date(),
@@ -165,20 +166,27 @@ const swpCal = {
 
         if (firstDay === 0) { firstDay = 7 }
 
+        /**
+         * @todo if(i === 6 || i ===7) console.log(daysArrItem); mi ukazuje, který dny jsou víkendové, s tím mohu pracovat!
+         */
         while (this.daysArr.length > 0) {
             for (let i = 1; i < 8; i++) {
-                if (i >= firstDay && !firstWeekConst) { // Následně už je jedno, jakou hodnotu má i, ale v první iteraci je to důležité
+                if (i >= firstDay && !firstWeekConst) { // Případ, kdy měsíc začíná o víkendu
                     let daysArrItem = this.daysArr.shift();
+                    let dayElm = this.createElm(daysArrItem)
+                    if(i === 6 || i ===7) dayElm.classList.add("weekend");
                     firstWeekConst = true;
 
-                    days.appendChild(this.createElm(daysArrItem)); // RENDER FULL
+                    days.appendChild(dayElm); // RENDER FULL
                     continue;
                 }
 
                 if (firstWeekConst && this.daysArr.length > 0) {
                     let daysArrItem = this.daysArr.shift();
+                    let dayElm = this.createElm(daysArrItem)
+                    if(i === 6 || i ===7) dayElm.classList.add("weekend");
 
-                    days.appendChild(this.createElm(daysArrItem)); // RENDER FULL
+                    days.appendChild(dayElm); // RENDER FULL
                     continue;
                 }
 
@@ -346,18 +354,24 @@ const swpCal = {
     run () {
         this.getMonths(this.relMonth);
 
-        this.mainElm.setAttribute("id", "calendar");
-        this.daysElm.setAttribute("class", "days");
+        if(this.anchorList){
+            console.log("zaciname");
+        }
 
-        // Skládání kalendáře dohromady 
-        this.mainElm.appendChild(this.createHeaderMonth());
-        this.mainElm.appendChild(this.createHeaderWeekdays());
-        this.mainElm.appendChild(this.getWeeks());
-
-        this.anchor.appendChild(this.mainElm);
-
-        document.querySelector("#calendar li.next").addEventListener("click", this);
-        document.querySelector("#calendar li.prev").addEventListener("click", this);
+        if(this.anchorMiniCal) {
+            this.mainElm.setAttribute("id", "calendar");
+            this.daysElm.setAttribute("class", "days");
+    
+            // Skládání kalendáře dohromady 
+            this.mainElm.appendChild(this.createHeaderMonth());
+            this.mainElm.appendChild(this.createHeaderWeekdays());
+            this.mainElm.appendChild(this.getWeeks());
+    
+            this.anchorMiniCal.appendChild(this.mainElm);
+    
+            document.querySelector("#calendar li.next").addEventListener("click", this);
+            document.querySelector("#calendar li.prev").addEventListener("click", this);
+        }
     },
 
     /**
@@ -414,38 +428,50 @@ const ajax = () => {
         
         console.log(events);
 
-        for(let i = 0; i < events.length;i++){
-            let event = events[i];
-
-            /**
-             * 1. jednodenní akce
-             * 2. vícedenní akce
-             * 3. opakující se akce
-             * 4. (vícedenní opakující se akce?)
-             */
-
-            if(parseInt(event.eventDays) > 1){
-                // console.log("multiple");
-                // console.log(event);
-                swpCal.addEventMultipleDays(event);
-            } else if(event.eventRepeat !== "0"){
-                // console.log("repeated");
-                // console.log(event);
-                swpCal.addEventRepeated(event);
-            } else if(parseInt(event.eventDays) === 1){
-                // console.log("oneday");
-                // console.log(event);
-                swpCal.addEventOneDay(event);
-            } else {
-                console.error("Not sure what kind of event is it.");
+        // Renderování malého kalendáře
+        if(document.getElementById("swp-cal-mini-main")){
+            for(let i = 0; i < events.length;i++){
+                let event = events[i];
+    
+                /**
+                 * 1. jednodenní akce
+                 * 2. vícedenní akce
+                 * 3. opakující se akce
+                 * 4. (vícedenní opakující se akce?)
+                 */
+    
+                if(parseInt(event.eventDays) > 1){
+                    // console.log("multiple");
+                    // console.log(event);
+                    swpCal.addEventMultipleDays(event);
+                } else if(event.eventRepeat !== "0"){
+                    // console.log("repeated");
+                    // console.log(event);
+                    swpCal.addEventRepeated(event);
+                } else if(parseInt(event.eventDays) === 1){
+                    // console.log("oneday");
+                    // console.log(event);
+                    swpCal.addEventOneDay(event);
+                } else {
+                    console.error("Not sure what kind of event is it.");
+                }
             }
         }
+
+        // Renderování planneru
+        /**
+         * if - planer placement je na místě
+         */
+
+
     }
 }
 
 const setEventListeners = () => {
-    document.querySelector("#calendar li.next").addEventListener("click", ajax);
-    document.querySelector("#calendar li.prev").addEventListener("click", ajax);
+    if(swpCal.anchorMiniCal){
+        document.querySelector("#calendar li.next").addEventListener("click", ajax);
+        document.querySelector("#calendar li.prev").addEventListener("click", ajax);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", setEventListeners);

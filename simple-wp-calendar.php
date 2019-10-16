@@ -448,6 +448,13 @@ function swp_cal_mini() {
 }
 add_shortcode('mini-calendar', 'swp_cal_mini');
 
+function swp_cal_list() {    
+    $output = '<div id="swp-cal-list-main"></div>';
+
+    return $output;
+}
+add_shortcode('calendar-list', 'swp_cal_list');
+
 /**
  * Invoke styles and scripts
  */

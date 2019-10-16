@@ -101,6 +101,15 @@ body {font-family: Verdana, sans-serif;}
   box-shadow: 0 4px #9b59b6 inset;
 }
 
+li.weekend {
+  background-color: rgba(0,0,0,0.2);
+}
+
+li.weekend .event {
+  background-color: #8e44ad;
+  box-shadow: 0 4px #6b3483 inset;
+}
+
 .tooltip {
   position: relative;
   display: inline-block;
@@ -137,6 +146,7 @@ body {font-family: Verdana, sans-serif;}
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
+  color: #6b3483;
   border-color: transparent transparent black transparent;
 }
 
