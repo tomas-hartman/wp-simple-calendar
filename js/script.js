@@ -30,7 +30,7 @@ const swpCal = {
         this.lastDayOfMonth = new Date(this.firstDayOfMonth.getFullYear(), this.firstDayOfMonth.getMonth() + 1, 0);
         this.lastDayOfPrevMonth = new Date(this.firstDayOfMonth.getFullYear(), this.firstDayOfMonth.getMonth(), 0);
         this.displayedMonth = this.firstDayOfMonth.getMonth() + 1;
-        this.numOfDays = Math.floor((this.firstDayOfNextMonth - this.firstDayOfMonth) / (1000 * 60 * 60 * 24)); // při přeměně času na zimní může mít jiný počet hodin
+        this.numOfDays = Math.floor((this.firstDayOfNextMonth - this.firstDayOfMonth) / (1000 * 60 * 60 * 24)); // při přeměně času na zimní může mít jiný počet hodin @todo je správně floor?!
         this.daysArr = [];
 
         for (let i = 1; i <= this.numOfDays; i++) {
@@ -196,6 +196,25 @@ const swpCal = {
         return days;
     },
 
+    /**
+     * Konvertuje datum na date string, který používám v event.eventDate
+     * @todo uplatnit na více místech, kde to potřebuju; možná nikde
+     * @param {Date} date 
+     */
+    getDateString (date, daysOffset = 0){        
+        const newDate = new Date(date);
+        newDate.setDate(newDate.getDate()+daysOffset);
+        let dayString = newDate.getDate().toString();
+        
+        if(dayString.length === 1){
+            dayString = `0${dayString}`;
+        };
+        
+        const dateString = `${newDate.getFullYear()}-${newDate.getMonth()+1}-${dayString}`;
+
+        return dateString;
+    },
+
     // Posouvání v kalendáři dopředu a dozadu a jeho refreshe //  
     refreshData (relMonth) {
         const monthHeader = document.querySelector("#calendar li.month-header")
@@ -351,6 +370,90 @@ const swpCal = {
         }
     },
 
+    /**
+     * 
+     * @param {array} events výsledek XHR requestu
+     * @param {number} size počet dní, pro které chci akci vykreslit -> tolikrát se maximálně může za sebou událost zobrazit
+     */
+    renderList (events, size) {
+        // @todo pokud mám nastávajících událostí míň, než je size, pak vykreslit správně! 
+        const container = document.createElement("div");
+        const upcomingEvents = [];
+
+
+        /**
+         * @arr of @objs upcoming events => event
+         * loop ->
+         *  is event >= today?
+         *  or: is event repeated?
+         *      then => is repeated weekly?
+         *          then => @todo would it happen after today*size
+         *      then or => is repeated monthly?
+         *          then => event + reference month*size
+         *      then or => is repeated daily?
+         *          then => event*size
+         * or: is multiple day? (jak s nima?)
+         * events sort & render size of them
+         */
+
+        /** @mock */
+        for(let i=0;i<events.length;i++){
+            let repeatMode = parseInt(events[i].eventRepeat);
+            let daysLen = parseInt(events[i].eventDays);
+            const eventStartDate = new Date(events[i].eventDate);
+            const eventEndDate = new Date(events[i].eventDate);
+            eventEndDate.setHours(eventEndDate.getHours() + daysLen * 24);
+
+            // console.log(eventStartDate);
+            // console.log(eventEndDate);
+
+            // obyč nadcházející jednorázové akce
+            if(eventStartDate >= this.today && repeatMode === 0 && daysLen === 1){
+                upcomingEvents.push(events[i]);
+                console.log(events[i]);
+            }
+            // vícedenní akce @todo vícedenní opakované akce!
+            // dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
+            else if(daysLen > 1 && (eventStartDate >= this.today || eventEndDate >= this.today)){
+                // případ kdy akce končí po dnešku, ale začíná někdy dříve
+                if(eventStartDate < this.today && eventEndDate >= this.today){
+                    const day = 24*60*60*1000;
+                    const dayDiff = Math.ceil((eventEndDate - this.today) / day);
+
+                    for(let n=0;n<dayDiff;n++){
+                        if(n >= size) break;
+
+                        let eventCopy = JSON.parse(JSON.stringify(events[i])); // ohack na kopii objektu
+                        eventCopy.eventDate = this.getDateString(this.today, n);
+
+                        upcomingEvents.push(eventCopy);
+                    }
+                    continue;
+                }
+
+                // standardní případ, kdy akce začíná v budoucnosti
+                for(let n=0;n<daysLen;n++){
+                    if(n >= size) break;
+
+                    let eventCopy = JSON.parse(JSON.stringify(events[i])); // ohack na kopii objektu
+                    eventCopy.eventDate = this.getDateString(eventStartDate, n);
+
+                    upcomingEvents.push(eventCopy);
+                }
+            } //@ tady pokračuju
+        }
+        
+        upcomingEvents.sort((a,b) => {
+            return new Date(b.eventDate) - new Date(a.eventDate);
+        });
+
+        console.log("allover:");
+        console.log(upcomingEvents);
+        
+
+        this.anchorList.appendChild(container);
+    },
+
     run () {
         this.getMonths(this.relMonth);
 
@@ -401,7 +504,7 @@ const ajax = () => {
         month: 10, //inactive
         security: simpleWPCal.security
     };
-    // toto by šlo přepsat lépe, ale podle toho můžu backendově filtrovat pouze tento měsíc, opakující se a vícedenní
+    // toto by šlo přepsat lépe, ale podle toho můžu backendově filtrovat pouze "tento" měsíc, opakující se a vícedenní a tím si posílat míň dat
     const data = `action=${dataSet.action}&year=${dataSet.year}&month=${dataSet.month}&security=${dataSet.security}`;
 
     const xhr = new XMLHttpRequest();
@@ -419,7 +522,7 @@ const ajax = () => {
     xhr.send(data);
 
     /**
-     * MOCKUP Funkce
+     * Renderování přijatých dat
      * @param {object} result 
      * @todo Prakticky celý předělat
      */
@@ -429,7 +532,7 @@ const ajax = () => {
         console.log(events);
 
         // Renderování malého kalendáře
-        if(document.getElementById("swp-cal-mini-main")){
+        if(swpCal.anchorMiniCal){
             for(let i = 0; i < events.length;i++){
                 let event = events[i];
     
@@ -462,7 +565,10 @@ const ajax = () => {
         /**
          * if - planer placement je na místě
          */
-
+        if(swpCal.anchorList){
+            // render result to placeholders
+            swpCal.renderList(events, 5);
+        }
 
     }
 }
