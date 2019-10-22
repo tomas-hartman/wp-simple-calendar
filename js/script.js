@@ -152,6 +152,19 @@ const swpCal = {
     },
 
     /**
+     * Funkce, která vrací kopii objektu s upraveným datem konání
+     * Vkládá se do objektu pro vytváření nadcházejících událostí
+     * @param {object} event 
+     * @param {Date} date 
+     */
+    createEventForList (event, date, dateOffset = 0) {
+        let eventCopy = JSON.parse(JSON.stringify(event)); // ohack na kopii objektu
+        eventCopy.eventDate = this.getDateString(date, dateOffset);
+
+        return eventCopy;
+    },
+
+    /**
      * Hlavní funkce
      * Vygeneruje strukturu kalendáře pro jednotlivé dny
      * @returns DOM s vytvořenými elementy pro jednotlivé dny
@@ -205,12 +218,17 @@ const swpCal = {
         const newDate = new Date(date);
         newDate.setDate(newDate.getDate()+daysOffset);
         let dayString = newDate.getDate().toString();
+        let monthString = (newDate.getMonth() + 1).toString();
         
         if(dayString.length === 1){
             dayString = `0${dayString}`;
         };
+
+        if(monthString.length === 1){
+            monthString = `0${monthString}`;
+        };
         
-        const dateString = `${newDate.getFullYear()}-${newDate.getMonth()+1}-${dayString}`;
+        const dateString = `${newDate.getFullYear()}-${monthString}-${dayString}`;
 
         return dateString;
     },
@@ -380,23 +398,6 @@ const swpCal = {
         const container = document.createElement("div");
         const upcomingEvents = [];
 
-
-        /**
-         * @arr of @objs upcoming events => event
-         * loop ->
-         *  is event >= today?
-         *  or: is event repeated?
-         *      then => is repeated weekly?
-         *          then => @todo would it happen after today*size
-         *      then or => is repeated monthly?
-         *          then => event + reference month*size
-         *      then or => is repeated daily?
-         *          then => event*size
-         * or: is multiple day? (jak s nima?)
-         * events sort & render size of them
-         */
-
-        /** @mock */
         for(let i=0;i<events.length;i++){
             let repeatMode = parseInt(events[i].eventRepeat);
             let daysLen = parseInt(events[i].eventDays);
@@ -410,7 +411,6 @@ const swpCal = {
             // obyč nadcházející jednorázové akce
             if(eventStartDate >= this.today && repeatMode === 0 && daysLen === 1){
                 upcomingEvents.push(events[i]);
-                console.log(events[i]);
             }
             // vícedenní akce @todo vícedenní opakované akce!
             // dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
@@ -423,33 +423,102 @@ const swpCal = {
                     for(let n=0;n<dayDiff;n++){
                         if(n >= size) break;
 
-                        let eventCopy = JSON.parse(JSON.stringify(events[i])); // ohack na kopii objektu
-                        eventCopy.eventDate = this.getDateString(this.today, n);
-
-                        upcomingEvents.push(eventCopy);
+                        upcomingEvents.push(this.createEventForList(events[i],this.today, n));
                     }
                     continue;
                 }
-
                 // standardní případ, kdy akce začíná v budoucnosti
                 for(let n=0;n<daysLen;n++){
                     if(n >= size) break;
 
-                    let eventCopy = JSON.parse(JSON.stringify(events[i])); // ohack na kopii objektu
-                    eventCopy.eventDate = this.getDateString(eventStartDate, n);
-
-                    upcomingEvents.push(eventCopy);
+                    upcomingEvents.push(this.createEventForList(events[i],eventStartDate, n));
                 }
-            } //@ tady pokračuju
+            } 
+            // opakující se akce
+            /**
+             * @todo case 2 a case 3 jsou úplně totožné, rozdíl je v tom, že u jednoho se přičítá jednička ke dni, u druhého k roku
+             * @todo case 1 je kromě offsetu v případě prvního výskytu hodně blízký dalším casům
+             */
+            else if(repeatMode > 0){
+                switch (repeatMode) {
+                    case 1: // týdně
+                        /**
+                         * budu checkovat v jakej den se koná a přidám 'size' jejich instancí po datu today
+                         * @todo this.relmonth bude dělat chyby v tomhle případě!
+                         */
+                        let dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                            
+                            for(let n=0;n<size;n++){ 
+                                if(dayOfWeeklyEvent >= this.today){
+                                    upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
+                                } else {
+                                    // tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce 
+                                    let diff = this.today - dayOfWeeklyEvent;
+                                    let yearMs = 24*60*60*1000;
+                                    let daysOffset = Math.floor(diff/yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
+                                    let weeksOffset = Math.ceil(daysOffset/7); // rozdíl v týdnech - ten potřebuju, abych zachoval týdenní rozestupy
+
+                                    dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7*weeksOffset);
+                                    upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
+                                }
+
+                                dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7);
+                            }
+                        break;
+                        
+                        case 2: // měsíční akce
+                            let dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                            
+                            for(let n=0;n<size;n++){ 
+                                if(dayOfEvent >= this.today){
+                                    upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
+                                } else {
+                                    dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
+                                    upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
+                                }
+
+                                dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
+                            }
+                        break;
+
+                    case 3: // roční akce
+                        console.log(`roční akce`);
+                        console.log(events[i]);
+                        let dayOfYearlyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                            
+                        for(let n=0;n<size;n++){ 
+                            if(dayOfYearlyEvent >= this.today){
+                                upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
+                            } else {
+                                dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
+                                upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
+                            }
+
+                            dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
+                        }
+
+                        break;
+                    default:
+                        console.log(`event repeatMode not standard: ${repeatMode}`);
+                        break;
+                }
+            }
         }
-        
-        upcomingEvents.sort((a,b) => {
+
+        upcomingEvents.sort((b,a) => {
             return new Date(b.eventDate) - new Date(a.eventDate);
         });
-
+        
         console.log("allover:");
         console.log(upcomingEvents);
         
+        /**
+         * @todo Frontend
+         */
+        for(let y=0; y<size; y++){
+            container.innerHTML += upcomingEvents[y].title;
+            container.innerHTML += "<br>";
+        }
 
         this.anchorList.appendChild(container);
     },
