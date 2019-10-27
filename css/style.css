@@ -172,3 +172,54 @@ li.weekend .event {
 .weekend {
   background-color: rgba(0,0,0,0.2);
 }
+
+
+.swp-list > li {
+  height: 55px;
+  background-color: red;
+  margin-bottom: 5px;
+  display: flex;
+}
+
+.swp-list-date {
+  height: 55px;
+  width: 55px;
+}
+
+.swp-list-date > span {
+  display: flex;
+}
+
+span.swp-list-day-month {
+  display: block;
+  text-align: center;
+  background-color: rgb(236, 240, 241);
+  font-size: 15px;
+  height: 30px;
+  line-height: 30px;
+  margin-left: -5px;
+  margin-right: 5px;
+  box-shadow: 4px 0px grey;
+}
+
+.swp-list-year {
+  width: auto;
+  text-align: center;
+  display: block;
+  background-color: rgb(155, 89, 182);
+  height: 20px;
+  margin-left: 5px;
+  line-height: 20px;
+  box-shadow: 0px 4px rgb(127, 140, 141) inset;
+  padding-top: 5px;
+  margin-right: 1px;
+}
+
+.swp-list-title {
+  display: flex;
+  height: 45px;
+  padding: 9px 5px 1px 10px;
+  background-color: #BDC3C7;
+  box-shadow: 4px 0px #808080, 2px 2px 0px 2px #7F8C8D;
+  transition: 0.05s;
+}

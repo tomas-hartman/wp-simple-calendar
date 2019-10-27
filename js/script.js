@@ -395,7 +395,9 @@ const swpCal = {
      */
     renderList (events, size) {
         // @todo pokud mám nastávajících událostí míň, než je size, pak vykreslit správně! 
-        const container = document.createElement("div");
+        // const container = document.createElement("div");
+        const container = document.createElement("ul");
+        container.classList += "swp-list";
         const upcomingEvents = [];
 
         for(let i=0;i<events.length;i++){
@@ -516,11 +518,65 @@ const swpCal = {
          * @todo Frontend
          */
         for(let y=0; y<size; y++){
-            container.innerHTML += upcomingEvents[y].title;
-            container.innerHTML += "<br>";
+            
+            let eventElm = this.createListItem(upcomingEvents[y], y);
+            
+            container.appendChild(eventElm);
+            
+            
+            
+            
+            
+            // container.innerHTML += upcomingEvents[y].title;
+            // container.innerHTML += "<br>";
+
+
         }
 
         this.anchorList.appendChild(container);
+    },
+
+        // <li class="upcoming-event-1">
+        //     <div class="event-list-cal-date">
+        //         <span class="event-list-cal-day-month">29. 10.</span>
+        //         <span class="event-list-cal-year">2019</span>
+        //     </div>
+        //     <span class="event-list-cal-title">
+        //         <a href="https://www.skolahradecns.cz/event/podzimni-prazdniny-2/">Podzimní prázdniny</a>
+        //     </span>
+        // </li>
+
+    createListItem (event, iter) {
+        const date = event.eventDate.split("-");
+        const year = date[0];
+        const dayMonth = `${date[2]}. ${date[1]}.`;
+
+        const li = document.createElement("li");
+        const div = document.createElement("div");
+        const spanDate = document.createElement("span");
+        const spanYear = document.createElement("span");
+        const spanEvent = document.createElement("span");
+        const aElm = document.createElement("a");
+
+        li.classList += `swp-upcoming-event-${iter}`;
+        div.classList += `swp-list-date`;
+        spanDate.classList += 'swp-list-day-month';
+        spanDate.innerText = dayMonth;
+        spanYear.classList += 'swp-list-year';
+        spanYear.innerText = year;
+
+        spanEvent.classList += "swp-list-title";
+        aElm.setAttribute("href", event.permalink);
+        aElm.innerText = event.title;
+
+        div.appendChild(spanDate);
+        div.appendChild(spanYear);
+        spanEvent.appendChild(aElm);
+
+        li.appendChild(div);
+        li.appendChild(spanEvent);
+
+        return li;
     },
 
     run () {
