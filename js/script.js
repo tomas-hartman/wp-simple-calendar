@@ -14,6 +14,8 @@ const swpCal = {
     numOfDays: "",
     daysArr: [],
     displayedMonth: "",
+    listRendered: false,
+    listNumEvents: 5,
 
     /**
      * Helper funkce. Nastavuje základní proměnné pro jednotlivé funkce podle relativního měsíce.
@@ -389,17 +391,48 @@ const swpCal = {
     },
 
     /**
+     * Renders placeholder for events list
+     * @param {number} size 
+     */
+    renderListPlaceholder (size){
+        const ulElm = document.createElement("ul");
+        ulElm.classList.add("swp-list");
+
+        for(let i=0;i<size;i++){
+            const liElm = document.createElement("li");
+            const divDate = document.createElement("div");
+            const divTitle = document.createElement("div");
+
+
+            liElm.classList.add(`swp-upcoming-event-${i}`);
+
+            divDate.classList.add("swp-list-date-placeholder");
+            divTitle.classList.add("swp-list-title-placeholder");
+
+            liElm.appendChild(divDate);
+            liElm.appendChild(divTitle);
+
+            ulElm.appendChild(liElm);
+        }
+
+        this.anchorList.appendChild(ulElm);
+    },
+
+    /**
      * 
      * @param {array} events výsledek XHR requestu
      * @param {number} size počet dní, pro které chci akci vykreslit -> tolikrát se maximálně může za sebou událost zobrazit
      */
     renderList (events, size) {
         // @todo pokud mám nastávajících událostí míň, než je size, pak vykreslit správně! 
-        // const container = document.createElement("div");
-        const container = document.createElement("ul");
+        let container = document.createElement("ul");
         container.classList += "swp-list";
         const upcomingEvents = [];
+        this.listRendered = true;
 
+        /**
+         * Pole s akcemi
+         */
         for(let i=0;i<events.length;i++){
             let repeatMode = parseInt(events[i].eventRepeat);
             let daysLen = parseInt(events[i].eventDays);
@@ -515,47 +548,56 @@ const swpCal = {
         console.log(upcomingEvents);
         
         /**
-         * @todo Frontend
+         * Renderování polí
          */
+
+        const isContainer = document.querySelector("ul.swp-list") ? true : false
+        if(isContainer) container = document.querySelector("ul.swp-list");
+        
         for(let y=0; y<size; y++){
             
             let eventElm = this.createListItem(upcomingEvents[y], y);
             
+            if(isContainer){
+                document.querySelector(`ul.swp-list .swp-upcoming-event-${y}`).remove();
+            }
             container.appendChild(eventElm);
-            
-            
-            
-            
+                        
             
             // container.innerHTML += upcomingEvents[y].title;
             // container.innerHTML += "<br>";
-
-
         }
-
         this.anchorList.appendChild(container);
     },
 
-        // <li class="upcoming-event-1">
-        //     <div class="event-list-cal-date">
-        //         <span class="event-list-cal-day-month">29. 10.</span>
-        //         <span class="event-list-cal-year">2019</span>
-        //     </div>
-        //     <span class="event-list-cal-title">
-        //         <a href="https://www.skolahradecns.cz/event/podzimni-prazdniny-2/">Podzimní prázdniny</a>
-        //     </span>
-        // </li>
+    /**
+     * Vytvoří DOM Node s jednou položkou do listu
+     * @param {object} event Objekt s událostí
+     * @param {number} iter číslo eventu
+     * 
+     * @example Struktura Nodu
+     * <li class="swp-upcoming-event-1">
+     *     <div class="swp-list-date">
+     *         <span class="swp-list-day-month">29. 10.</span>
+     *         <span class="swp-list-year">2019</span>
+     *     </div>
+     *     <div class="swp-list-title">
+     *         <a href="https://www.skolahradecns.cz/event/podzimni-prazdniny-2/">Podzimní prázdniny</a>
+     *     </div>
+     * </li>
+     */
 
     createListItem (event, iter) {
         const date = event.eventDate.split("-");
         const year = date[0];
-        const dayMonth = `${date[2]}. ${date[1]}.`;
+        const dayMonth = `${parseInt(date[2])}. ${parseInt(date[1])}.`;
+        const yearFits = this.today.getFullYear() === parseInt(year) ? true : false;
 
         const li = document.createElement("li");
         const div = document.createElement("div");
         const spanDate = document.createElement("span");
         const spanYear = document.createElement("span");
-        const spanEvent = document.createElement("span");
+        const divEvent = document.createElement("div");
         const aElm = document.createElement("a");
 
         li.classList += `swp-upcoming-event-${iter}`;
@@ -565,16 +607,17 @@ const swpCal = {
         spanYear.classList += 'swp-list-year';
         spanYear.innerText = year;
 
-        spanEvent.classList += "swp-list-title";
+        divEvent.classList += "swp-list-title";
         aElm.setAttribute("href", event.permalink);
         aElm.innerText = event.title;
 
         div.appendChild(spanDate);
-        div.appendChild(spanYear);
-        spanEvent.appendChild(aElm);
+        if(!yearFits) div.appendChild(spanYear);
+        // div.appendChild(spanYear);
+        divEvent.appendChild(aElm);
 
         li.appendChild(div);
-        li.appendChild(spanEvent);
+        li.appendChild(divEvent);
 
         return li;
     },
@@ -584,6 +627,7 @@ const swpCal = {
 
         if(this.anchorList){
             console.log("zaciname");
+            this.renderListPlaceholder(this.listNumEvents);
         }
 
         if(this.anchorMiniCal) {
@@ -689,10 +733,11 @@ const ajax = () => {
         // Renderování planneru
         /**
          * if - planer placement je na místě
+         * @todo: checknout, jestli to náhodou už není vyrenderované
          */
         if(swpCal.anchorList){
             // render result to placeholders
-            swpCal.renderList(events, 5);
+            if(!swpCal.listRendered) swpCal.renderList(events, swpCal.listNumEvents);
         }
 
     }
