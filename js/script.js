@@ -159,9 +159,11 @@ const swpCal = {
      * @param {object} event 
      * @param {Date} date 
      */
-    createEventForList (event, date, dateOffset = 0) {
+    createEventForList (event, date, dateEnd) {
+
         let eventCopy = JSON.parse(JSON.stringify(event)); // ohack na kopii objektu
-        eventCopy.eventDate = this.getDateString(date, dateOffset);
+        eventCopy.eventDate = this.getDateString(date);
+        if(dateEnd) eventCopy.eventEndDate = this.getDateString(dateEnd);
 
         return eventCopy;
     },
@@ -216,9 +218,8 @@ const swpCal = {
      * @todo uplatnit na více místech, kde to potřebuju; možná nikde
      * @param {Date} date 
      */
-    getDateString (date, daysOffset = 0){        
+    getDateString (date){        
         const newDate = new Date(date);
-        newDate.setDate(newDate.getDate()+daysOffset);
         let dayString = newDate.getDate().toString();
         let monthString = (newDate.getMonth() + 1).toString();
         
@@ -426,7 +427,7 @@ const swpCal = {
     renderList (events, size) {
         // @todo pokud mám nastávajících událostí míň, než je size, pak vykreslit správně! 
         let container = document.createElement("ul");
-        container.classList += "swp-list";
+        container.classList.add("swp-list");
         const upcomingEvents = [];
         this.listRendered = true;
 
@@ -438,38 +439,28 @@ const swpCal = {
             let daysLen = parseInt(events[i].eventDays);
             const eventStartDate = new Date(events[i].eventDate);
             const eventEndDate = new Date(events[i].eventDate);
-            eventEndDate.setHours(eventEndDate.getHours() + daysLen * 24);
+            // eventEndDate.setHours(eventEndDate.getHours() + daysLen * 24);
+            eventEndDate.setDate(eventEndDate.getDate() + daysLen);
 
-            // console.log(eventStartDate);
-            // console.log(eventEndDate);
-
-            // obyč nadcházející jednorázové akce
+            // 1. obyč nadcházející jednorázové akce
             if(eventStartDate >= this.today && repeatMode === 0 && daysLen === 1){
                 upcomingEvents.push(events[i]);
             }
-            // vícedenní akce @todo vícedenní opakované akce!
+
+            // 2. vícedenní akce @todo vícedenní opakované akce!
             // dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
             else if(daysLen > 1 && (eventStartDate >= this.today || eventEndDate >= this.today)){
-                // případ kdy akce končí po dnešku, ale začíná někdy dříve
+                // případ kdy akce končí po dnešku, ale začíná někdy dříve - i ty potřebuju použít
                 if(eventStartDate < this.today && eventEndDate >= this.today){
-                    const day = 24*60*60*1000;
-                    const dayDiff = Math.ceil((eventEndDate - this.today) / day);
 
-                    for(let n=0;n<dayDiff;n++){
-                        if(n >= size) break;
-
-                        upcomingEvents.push(this.createEventForList(events[i],this.today, n));
-                    }
+                    upcomingEvents.push(this.createEventForList(events[i], eventStartDate, eventEndDate));
                     continue;
                 }
                 // standardní případ, kdy akce začíná v budoucnosti
-                for(let n=0;n<daysLen;n++){
-                    if(n >= size) break;
-
-                    upcomingEvents.push(this.createEventForList(events[i],eventStartDate, n));
-                }
+                upcomingEvents.push(this.createEventForList(events[i], eventStartDate, eventEndDate));
             } 
-            // opakující se akce
+
+            // 3. opakující se akce
             /**
              * @todo case 2 a case 3 jsou úplně totožné, rozdíl je v tom, že u jednoho se přičítá jednička ke dni, u druhého k roku
              * @todo case 1 je kromě offsetu v případě prvního výskytu hodně blízký dalším casům
@@ -501,7 +492,7 @@ const swpCal = {
                             }
                         break;
                         
-                        case 2: // měsíční akce
+                    case 2: // měsíční akce
                             let dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
                             
                             for(let n=0;n<size;n++){ 
@@ -517,8 +508,6 @@ const swpCal = {
                         break;
 
                     case 3: // roční akce
-                        console.log(`roční akce`);
-                        console.log(events[i]);
                         let dayOfYearlyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
                             
                         for(let n=0;n<size;n++){ 
@@ -533,6 +522,7 @@ const swpCal = {
                         }
 
                         break;
+
                     default:
                         console.log(`event repeatMode not standard: ${repeatMode}`);
                         break;
@@ -544,8 +534,8 @@ const swpCal = {
             return new Date(b.eventDate) - new Date(a.eventDate);
         });
         
-        console.log("allover:");
-        console.log(upcomingEvents);
+        // console.log("allover:");
+        // console.log(upcomingEvents);
         
         /**
          * Renderování polí
@@ -590,8 +580,15 @@ const swpCal = {
     createListItem (event, iter) {
         const date = event.eventDate.split("-");
         const year = date[0];
-        const dayMonth = `${parseInt(date[2])}. ${parseInt(date[1])}.`;
         const yearFits = this.today.getFullYear() === parseInt(year) ? true : false;
+        let dayMonth = "";
+        
+        if(parseInt(event.eventDays) > 1 && typeof event.eventEndDate !== 'undefined'){
+            const dateEnd = event.eventEndDate.split("-");
+            dayMonth = `${parseInt(date[2])}. ${parseInt(date[1])}. 
+                        <span class="swp-till">&#8208;</span> 
+                        ${parseInt(dateEnd[2])}. ${parseInt(dateEnd[1])}.`;
+        } else dayMonth = `${parseInt(date[2])}. ${parseInt(date[1])}.`;
 
         const li = document.createElement("li");
         const div = document.createElement("div");
@@ -603,7 +600,8 @@ const swpCal = {
         li.classList += `swp-upcoming-event-${iter}`;
         div.classList += `swp-list-date`;
         spanDate.classList += 'swp-list-day-month';
-        spanDate.innerText = dayMonth;
+        // spanDate.innerText = dayMonth;
+        spanDate.innerHTML = dayMonth;
         spanYear.classList += 'swp-list-year';
         spanYear.innerText = year;
 
@@ -626,7 +624,7 @@ const swpCal = {
         this.getMonths(this.relMonth);
 
         if(this.anchorList){
-            console.log("zaciname");
+            // console.log("zaciname");
             this.renderListPlaceholder(this.listNumEvents);
         }
 
@@ -698,7 +696,7 @@ const ajax = () => {
     const resultCallback = (result) => {
         const events = JSON.parse(result);
         
-        console.log(events);
+        // console.log(events);
 
         // Renderování malého kalendáře
         if(swpCal.anchorMiniCal){

@@ -4,7 +4,7 @@ Plugin Name: Simple WordPress calendar
 Plugin URI: https://github.com/tomas-hartman/wp-simple-calendar
 Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Invokes by shortcode: swp_cal_mini and swp_cal_list. Nothing more yet. 
 Author: Tomas Hartman
-Version: 0.4.0
+Version: 0.7.0
 Author URI: https://github.com/tomas-hartman/wp-simple-calendar
 Text Domain: simple-wp-calendar
 */
