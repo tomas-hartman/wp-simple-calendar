@@ -4,7 +4,7 @@ Plugin Name: Simple WordPress calendar
 Plugin URI: https://github.com/tomas-hartman/wp-simple-calendar
 Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Invokes by shortcode: swp_cal_mini and swp_cal_list. Nothing more yet. 
 Author: Tomas Hartman
-Version: 0.7.0
+Version: 0.7.1
 Author URI: https://github.com/tomas-hartman/wp-simple-calendar
 Text Domain: simple-wp-calendar
 */
@@ -44,6 +44,7 @@ function swp_cal_columns( $cols ) {
 		'cb'			=>	'<input type="checkbox" />',
 		'title'			=>	_x('Název události', 'simple-wp-calendar'),
 		'event-date'	=>	__('Datum události', 'simple-wp-calendar'),
+		'event-end'		=>	__('Konec události', 'simple-wp-calendar'),
 		'event-repeat'	=>	__('Opakování události', 'simple-wp-calendar'),
 		'event-days'	=>	__('Trvání události', 'simple-wp-calendar'),
 		'categories'	=>	__('Kategorie', 'simple-wp-calendar'),
@@ -83,18 +84,24 @@ function swp_cal_columns_data( $column, $post_id ) {
             $event_days = $event_days.__(' dní', 'simple-wp-calendar');
           }
           echo $event_days;
-          break;
+		  break;
+		case "event-end":
+			$event_end = get_post_meta( $post_id, 'event-end', true);
+			echo $event_end;
+			break;
     }
 }
 add_action( 'manage_posts_custom_column', 'swp_cal_columns_data', 10, 2 );
 
-function swp_cal_sortable_columns( $columns ) {
+function swp_cal_sortable_columns( $cols ) {
+	$cols['title'] = 'title';
 	$cols['event-date'] = 'event-date';
 	$cols['event-repeat'] = 'event-repeat';
 	$cols['event-days'] = 'event-days';
+	$cols['event-end'] = 'event-end';
 	return $cols;
 }
-add_filter( 'manage_edit-swp-cal_sortable_columns', 'swp_cal_sortable_columns' );
+add_filter( 'manage_edit-swp-cal-event_sortable_columns', 'swp_cal_sortable_columns' );
 
 
 
@@ -130,8 +137,9 @@ function swp_cal_above_content($content) {
 						break;
 				}
 			}
-			if($key == 'event-end' && $value[0] != 0) {
-				$event_end .= date($date_format, strtotime($value[0]));
+			if($key == 'event-end' && $value[0] == 0) {
+				$date = strtotime($value[0]);
+				$event_end = date($date_format, $date);
 			}
 		}
 		$event_data .= '<div class="swp-cal-info"><div class="swp-cal-singular-date"><b>'.__('Datum události: ', 'simple-wp-calendar').$event_date;
@@ -164,7 +172,7 @@ add_filter( 'the_content', 'swp_cal_above_content' );
 function swp_cal_metabox() {
 	add_meta_box(
 		'swp-cal-metabox',
-		__( 'Datum události &amp; Čas', 'simple-wp-calendar' ),
+		__( 'Datum události &amp; čas', 'simple-wp-calendar' ),
 		'swp_cal_add_metabox',
 		'swp-cal-event',
 		'normal',
@@ -172,7 +180,7 @@ function swp_cal_metabox() {
 	);
 	add_meta_box(
 		'swp-cal-metabox-repeat',
-		__( 'Volitelné: Několikadenní událost a opakování události ročně, týdně, měsíčně', 'simple-wp-calendar' ),
+		__( 'Volitelné: Opakovaná událost - ročně, týdně, měsíčně', 'simple-wp-calendar' ),
 		'swp_cal_add_metabox_longer',
 		'swp-cal-event',
 		'normal',
@@ -186,37 +194,57 @@ function swp_cal_add_metabox( $post ) {
 
 	$event_date = get_post_meta( $post->ID, 'event-date', true );
 	$event_time = get_post_meta( $post->ID, 'event-time', true );
+	$event_end = get_post_meta( $post->ID, 'event-end', true);
+	$event_days = get_post_meta( $post->ID, 'event-days', true);
 
 	if(empty($event_date)) {
 		$event_date = date('Y-m-d', time());
 	}
+	// if(empty($event_end)) {
+	// 	$event_end = date('Y-m-d', time());
+	// }
+	if(empty($event_days)) {
+		$event_days = 1;
+	}
+	if(!empty($event_end) || $event_end != 0) {
+		$checked = ' checked="checked"';
+	} else {
+		$checked = '';
+	}
 
 ?>
 	<div>
-		<label for="swp-cal-event-date" style="width: 100px; display: inline-block;"><?php _e( 'Datum události *', 'simple-wp-calendar' ); ?></label>
+    	<label for="swp-cal-event-date-end-chck" style="width: 100px; display: inline-block;">Vícedenní událost</label>
+    	<input id="swp-cal-event-date-end-chck" type="checkbox" name="swp-cal-event-date-end-chck" value="1" <?php echo $checked?>>
+  	</div>
+	<div>
+    	<label for="swp-cal-event-date" style="width: 100px; display: inline-block;"><?php _e( 'Datum události *', 'simple-wp-calendar' ); ?></label>
 		<input id="swp-cal-event-date" type="text" name="swp-cal-event-date" placeholder="YYYY-MM-DD" value="<?php echo $event_date; ?>">
-	</div>
-	<div style="padding-top: 1em;">
-		<label for="swp-cal-event-time" style="width: 100px; display: inline-block;"><?php _e( 'Čas události', 'simple-wp-calendar' ); ?></label>
-		<input id="swp-cal-event-time" type="text" name="swp-cal-event-time" placeholder="<?php _e( '13:00-14:30, celý den', 'simple-wp-calendar' ); ?>" value="<?php echo $event_time; ?>">
-	</div>
+		<label for="swp-cal-event-date-end"><?php _e( 'Datum konce události', 'simple-wp-calendar' ); ?></label>
+		<input id="swp-cal-event-date-end" type="text" name="swp-cal-event-date-end" placeholder="Jednodenní událost" value="<?php echo $event_end; ?>"> <!-- TBD -->
+		<span>Počet dní: <span id="swp-cal-event-num-days"><?php echo $event_days; ?><span></span>
+  	</div>
+  	<div style="padding-top: 1em;">
+    	<label for="swp-cal-event-time" style="width: 100px; display: inline-block;"><?php _e( 'Čas události', 'simple-wp-calendar' ); ?></label>
+    	<input id="swp-cal-event-time" type="text" name="swp-cal-event-time" placeholder="<?php _e( '13:00-14:30, 15:25', 'simple-wp-calendar' ); ?>" value="<?php echo $event_time; ?>">
+  	</div>
+
 <?php
 }
 
 function swp_cal_add_metabox_longer( $post ) {
 	wp_nonce_field( basename( __FILE__ ), 'swp-cal-nonce' );
 
-	$event_days = get_post_meta( $post->ID, 'event-days', true );
+	// $event_days = get_post_meta( $post->ID, 'event-days', true );
 	$event_repeat = get_post_meta( $post->ID, 'event-repeat', true );
-	$event_end = get_post_meta( $post->ID, 'event-end', true );
 	
 	$weekly = '';
 	$monthly = '';
 	$yearly = ' selected="selected"';
 	
-	if(empty($event_days)) {
-		$event_days = 1;
-	}
+	// if(empty($event_days)) {
+	// 	$event_days = 1;
+	// }
 
 	if($event_repeat > 0) {
 		$checked = ' checked="checked"';
@@ -231,19 +259,11 @@ function swp_cal_add_metabox_longer( $post ) {
 	} else {
 		$checked = '';
 	}
-
-	if(!$event_end) {
-		$checked_2 = ' checked="checked"';
-		$event_end = '';
-		$end_display = ' display: none;';
-	} else {
-		$checked_2 = '';
-	}
 ?>
-	<div id="swp-cal-days-div">
-		<label for="swp-cal-event-days" style="width: 100px; display: inline-block;"><?php _e( 'Dny trvání události', 'simple-wp-calendar' ); ?></label>
-		<input id="swp-cal-event-days" type="number" name="swp-cal-event-days" min="1" max="31" value="<?php echo $event_days; ?>">
-	</div>
+	<!-- <div id="swp-cal-days-div">
+		<label for="swp-cal-event-days" style="width: 100px; display: inline-block;"><?php //_e( 'Dny trvání události', 'simple-wp-calendar' ); ?></label>
+		<input id="swp-cal-event-days" type="number" name="swp-cal-event-days" min="1" max="31" value="<?php //echo $event_days; ?>">
+	</div> -->
 	<div id="swp-cal-repeat-div" style="padding-top: 1em;">
 		<label for="swp-cal-event-repeat" style="width: 100px; display: inline-block;"><?php _e( 'Opakovat událost?', 'simple-wp-calendar' ); ?></label>
 		<input id="swp-cal-event-repeat" type="checkbox" name="swp-cal-event-repeat" value="1"<?php echo $checked; ?>>
@@ -255,16 +275,7 @@ function swp_cal_add_metabox_longer( $post ) {
 				<option value="3"<?php echo $yearly; ?>><?php _e( 'Ročně', 'simple-wp-calendar' ); ?></option>
 			</select>
 		</div>
-		<div id="swp-cal-repeat-end-div" style="display: none;">
-			<div id="swp-cal-event-repeat-end-div" style="padding-top: 1em;">
-				<label for="swp-cal-event-end-checkbox" style="width: 100px; display: inline-block;"> <?php _e( 'Neomezeně dlouho?', 'simple-wp-calendar' ); ?></label>
-				<input id="swp-cal-event-end-checkbox" type="checkbox" name="swp-cal-event-end-checkbox" value="1"<?php echo $checked_2; ?>>
-			</div>
-			<div id="swp-cal-event-repeat-end-date-div" style="padding-top: 1em;<?php echo $end_display; ?>">
-				<label for="swp-cal-event-end" style="width: 100px; display: inline-block;"> <?php _e( 'Datum konce', 'simple-wp-calendar' ); ?></label>
-				<input id="swp-cal-event-end" type="text" name="swp-cal-event-end" placeholder="YYYY-MM-DD" value="<?php echo $event_end; ?>">
-			</div>
-		</div>
+		<span style="font-style: italic;">Pozn. pokud má událost nastavené 'datum konce', událost se po tomto datu přestane opakovat. TODO</span>
 	</div>
 <?php
 }
@@ -289,11 +300,24 @@ function swp_cal_meta( $post_id ) {
 	if ( isset( $_POST['swp-cal-event-time'] ) ) {
 		update_post_meta( $post_id, 'event-time', $_POST['swp-cal-event-time'] );
 	}
-	if(($_POST['swp-cal-event-days'] > 1 && $_POST['swp-cal-event-days'] <= 31) || !isset($_POST['swp-cal-event-repeat'])) {
+	// NEW
+	if ( isset( $_POST['swp-cal-event-date'] ) && isset( $_POST['swp-cal-event-date-end'] ) && $_POST['swp-cal-event-date-end'] != 0 ) {
+		// PHP 5.3+
+		$first = new DateTime($_POST['swp-cal-event-date']);
+		$second = new DateTime($_POST['swp-cal-event-date-end']);
+		$days = $second->diff($first)->format("%a");
 
-		update_post_meta( $post_id, 'event-days', $_POST['swp-cal-event-days'] );
+		update_post_meta( $post_id, 'event-end', $_POST['swp-cal-event-date-end'] );
+		update_post_meta( $post_id, 'event-days', $days + 1 ); // +1 proto, aby jednodenní akce neměla délku "0 dní"; včetně 1. dne
+	} else if ($_POST['swp-cal-event-date-end'] == 0) {
+		update_post_meta( $post_id, 'event-end', "" );
+		update_post_meta( $post_id, 'event-days', 1 );
+	}
+	// ENDNEW
+	if(!isset($_POST['swp-cal-event-repeat'])) {
+
 		update_post_meta( $post_id, 'event-repeat', 0 );
-		update_post_meta( $post_id, 'event-end', 0 );
+		//update_post_meta( $post_id, 'event-end', 0 );
 
 	} else {
 
@@ -303,9 +327,9 @@ function swp_cal_meta( $post_id ) {
 			update_post_meta( $post_id, 'event-repeat', $_POST['swp-cal-event-repeat-schedule'] );
 
 			if(!isset($_POST['swp-cal-event-end-checkbox'])) {
-				update_post_meta( $post_id, 'event-end', $_POST['swp-cal-event-end'] );
+				//update_post_meta( $post_id, 'event-end', $_POST['swp-cal-event-end'] );
 			} else {
-				update_post_meta( $post_id, 'event-end', 0 );
+				// update_post_meta( $post_id, 'event-end', 0 );
 			}
 
 		}

@@ -125,6 +125,7 @@ const swpCal = {
      * @param {object} event Událost, kterou budu připojovat
      * @param {DOM Element} elm Elm v kalendáři se dnem ke kterému budu novou událost připojovat
      * @todo opravit bug 2.11. --> po dvojkliku se zdvojí "Opakující se vícedenní akce"
+     * @returns Vytvoří HTML pro event a připojí ho k elm   
      */
     createEventElm(event, elm){
         
@@ -183,9 +184,6 @@ const swpCal = {
 
         if (firstDay === 0) { firstDay = 7 }
 
-        /**
-         * @todo if(i === 6 || i ===7) console.log(daysArrItem); mi ukazuje, který dny jsou víkendové, s tím mohu pracovat!
-         */
         while (this.daysArr.length > 0) {
             for (let i = 1; i < 8; i++) {
                 if (i >= firstDay && !firstWeekConst) { // Případ, kdy měsíc začíná o víkendu
@@ -376,7 +374,7 @@ const swpCal = {
 
             let eventStartDate = diff + 1; // tento den se akce koná v tomto měsíci poprvé; všechny další event days jsou toto + 7
 
-            while(eventStartDate < swpCal.lastDayOfMonth.getDate()){
+            while(eventStartDate <= swpCal.lastDayOfMonth.getDate()){
                     let str = eventStartDate.toString();
                     if(str.length < 2){
                         str = `0${str}`;
@@ -438,9 +436,18 @@ const swpCal = {
             let repeatMode = parseInt(events[i].eventRepeat);
             let daysLen = parseInt(events[i].eventDays);
             const eventStartDate = new Date(events[i].eventDate);
-            const eventEndDate = new Date(events[i].eventDate);
-            // eventEndDate.setHours(eventEndDate.getHours() + daysLen * 24);
-            eventEndDate.setDate(eventEndDate.getDate() + daysLen);
+            let eventEndDate = "";
+            
+            if(events[i].eventEnd && events[i].eventEnd !== "0"){
+                eventEndDate = new Date(events[i].eventEnd);
+            } else {
+                eventEndDate = new Date(events[i].eventDate);
+                // eventEndDate.setHours(eventEndDate.getHours() + daysLen * 24);
+                eventEndDate.setDate(eventEndDate.getDate() + (daysLen - 1));
+            }
+
+
+
 
             // 1. obyč nadcházející jednorázové akce
             if(eventStartDate >= this.today && repeatMode === 0 && daysLen === 1){
@@ -578,11 +585,19 @@ const swpCal = {
      */
 
     createListItem (event, iter) {
+        console.log(event);
         const date = event.eventDate.split("-");
         const year = date[0];
         const yearFits = this.today.getFullYear() === parseInt(year) ? true : false;
+        const eventTime = event.eventTime || null;
         let dayMonth = "";
-        
+        let eventTimeToDisplay = "";
+        console.log(eventTime);
+
+        if(eventTime){
+            eventTimeToDisplay = eventTime.split("-")[0];
+        }
+
         if(parseInt(event.eventDays) > 1 && typeof event.eventEndDate !== 'undefined'){
             const dateEnd = event.eventEndDate.split("-");
             dayMonth = `${parseInt(date[2])}. ${parseInt(date[1])}. 
@@ -600,17 +615,23 @@ const swpCal = {
         li.classList += `swp-upcoming-event-${iter}`;
         div.classList += `swp-list-date`;
         spanDate.classList += 'swp-list-day-month';
-        // spanDate.innerText = dayMonth;
         spanDate.innerHTML = dayMonth;
         spanYear.classList += 'swp-list-year';
-        spanYear.innerText = year;
-
+        
         divEvent.classList += "swp-list-title";
         aElm.setAttribute("href", event.permalink);
         aElm.innerText = event.title;
 
         div.appendChild(spanDate);
-        if(!yearFits) div.appendChild(spanYear);
+        if(eventTime && parseInt(event.eventDays) === 1){
+            spanYear.classList.add("time");
+            spanYear.innerText = eventTimeToDisplay;
+            div.appendChild(spanYear);
+        } else if(!yearFits){
+            spanYear.innerText = year;
+            div.appendChild(spanYear);
+        } 
+            
         // div.appendChild(spanYear);
         divEvent.appendChild(aElm);
 
@@ -696,7 +717,7 @@ const ajax = () => {
     const resultCallback = (result) => {
         const events = JSON.parse(result);
         
-        // console.log(events);
+        console.log(events);
 
         // Renderování malého kalendáře
         if(swpCal.anchorMiniCal){
