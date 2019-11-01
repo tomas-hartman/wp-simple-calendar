@@ -1,4 +1,4 @@
-body {font-family: Verdana, sans-serif;}
+/* body {font-family: Verdana, sans-serif;} */
 
 #calendar {
     width: 270px;
@@ -55,14 +55,7 @@ body {font-family: Verdana, sans-serif;}
 /* Weekdays (Mon-Sun) */
 .weekdays {
   margin: 0;
-  padding: 7px 0;
   background-color:#7f8c8d;
-}
-
-.weekdays li {
-  display: inline-block;
-  width: calc(270px / 7);
-  text-align: center;
 }
 
 /* Days (1-31) */
@@ -73,13 +66,31 @@ body {font-family: Verdana, sans-serif;}
   cursor: default;
 }
 
-.days li {
+.weekdays li, .days li, .day-events #swp-cal-mini-main li {
   list-style-type: none;
   display: inline-block;
   width: calc(270px / 7);
   text-align: center;
   line-height: 32px;
 }
+
+.day-events #swp-cal-mini-main li{
+  padding: 0;
+  margin: 0;
+  color: black;
+}
+
+.day-events #swp-cal-mini-main .month li {
+  color: #fff;
+}
+
+.day-events #swp-cal-mini-main .month li.month-header {
+  width: auto;
+}
+
+
+
+
 
 /* Highlight the "current" day */
 .days li .active {
@@ -164,6 +175,12 @@ li.weekend .event {
   padding: 0 10px;
   line-height: normal;
 }
+
+/* .day-events #swp-cal-mini-main li {
+  padding: auto;
+  text-align: center;
+  width
+} */
 
 /*
  * @todo Najs to have, označení víkendů 

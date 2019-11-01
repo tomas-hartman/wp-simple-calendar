@@ -4,6 +4,7 @@ const swpCal = {
 
     anchorMiniCal: document.getElementById("swp-cal-mini-main"),
     anchorList: document.getElementById("swp-cal-list-main"),
+    anchorAdminMetabox: document.getElementById("swp-cal-metabox"),
     mainElm: document.createElement("div"),
     daysElm: document.createElement("ul"),
     today: new Date(),
@@ -121,6 +122,24 @@ const swpCal = {
         return elm;
     },
 
+    createTooltip(elm, width = null){        
+        // width: 270px;
+        // margin-left: calc(-270px/2);
+
+        const span = document.createElement("span");
+        span.classList.add("day-events");
+
+        elm.classList.add("event");
+        elm.classList.add("tooltip");
+
+        if(width){
+            const style = `width: ${width}px; margin-left: calc(-${width}px/2);`;
+            span.setAttribute("style", style);
+        }
+
+        return span;
+    },
+
     /**
      * @param {object} event Událost, kterou budu připojovat
      * @param {DOM Element} elm Elm v kalendáři se dnem ke kterému budu novou událost připojovat
@@ -141,14 +160,16 @@ const swpCal = {
         if(checkElm && !checkHref){
             checkElm.appendChild(li);
         } else {
-            const span = document.createElement("span");
+            const span = this.createTooltip(elm);
+
+            // const span = document.createElement("span");
             const ul = document.createElement("ul");
-            span.classList.add("day-events");
+            // span.classList.add("day-events");
             ul.appendChild(li);
             span.appendChild(ul);
 
-            elm.classList.add("event");
-            elm.classList.add("tooltip");
+            // elm.classList.add("event");
+            // elm.classList.add("tooltip");
 
             elm.appendChild(span);
         }
@@ -393,7 +414,7 @@ const swpCal = {
      * Renders placeholder for events list
      * @param {number} size 
      */
-    renderListPlaceholder (size){
+    getListPlaceholder (size){
         const ulElm = document.createElement("ul");
         ulElm.classList.add("swp-list");
 
@@ -641,28 +662,73 @@ const swpCal = {
         return li;
     },
 
+    getCalendar () {
+        this.mainElm.setAttribute("id", "calendar");
+        this.daysElm.setAttribute("class", "days");
+
+        // Skládání kalendáře dohromady 
+        this.mainElm.appendChild(this.createHeaderMonth());
+        this.mainElm.appendChild(this.createHeaderWeekdays());
+        this.mainElm.appendChild(this.getWeeks());
+        
+        this.mainElm.querySelector("#calendar li.next").addEventListener("click", this);
+        this.mainElm.querySelector("#calendar li.prev").addEventListener("click", this);
+
+
+        return;
+
+        this.anchorMiniCal.appendChild(this.mainElm);
+
+        document.querySelector("#calendar li.next").addEventListener("click", this);
+        document.querySelector("#calendar li.prev").addEventListener("click", this);
+    },
+
     run () {
         this.getMonths(this.relMonth);
 
         if(this.anchorList){
             // console.log("zaciname");
-            this.renderListPlaceholder(this.listNumEvents);
+            this.getListPlaceholder(this.listNumEvents);
         }
 
         if(this.anchorMiniCal) {
-            this.mainElm.setAttribute("id", "calendar");
-            this.daysElm.setAttribute("class", "days");
-    
-            // Skládání kalendáře dohromady 
-            this.mainElm.appendChild(this.createHeaderMonth());
-            this.mainElm.appendChild(this.createHeaderWeekdays());
-            this.mainElm.appendChild(this.getWeeks());
-    
-            this.anchorMiniCal.appendChild(this.mainElm);
-    
-            document.querySelector("#calendar li.next").addEventListener("click", this);
-            document.querySelector("#calendar li.prev").addEventListener("click", this);
+            this.getCalendar();       
+            this.anchorMiniCal.appendChild(this.mainElm);     
         }
+    },
+
+    handleAdminEvents (ev) {
+        // console.log(ev.target.getAttribute("id"));
+        switch (ev.target.getAttribute("id")) {
+            case "swp-cal-event-date":
+                console.log(ev.target.value);
+                const tooltip = this.createTooltip(ev.target.parentElement, 270);
+                const containerDiv = document.createElement("div");
+                containerDiv.setAttribute("id", "swp-cal-mini-main");
+                tooltip.innerText = ev.target.value;
+                this.getCalendar();
+                containerDiv.appendChild(this.mainElm)
+                tooltip.appendChild(containerDiv);
+                ev.target.parentElement.appendChild(tooltip);
+                // this.createEventElm({permalink: "https://www.aaa.cz", title: ev.target.value}, ev.target.parentElement);
+                break;
+
+            case "swp-cal-event-date-end":
+
+                break;
+
+            case "swp-cal-event-time":
+                console.log(ev.target.value);
+                break;
+
+            case "swp-cal-event-date-end-chck":
+                console.log(ev.target.checked);
+                break;
+        
+            default:
+                break;
+        }
+        console.log(ev);
     },
 
     /**
@@ -769,7 +835,17 @@ const setEventListeners = () => {
     }
 }
 
-document.addEventListener("DOMContentLoaded", setEventListeners);
-document.addEventListener("DOMContentLoaded", ajax);
+// Pokud jsem v admin módu, toto se nevykoná
+if(swpCal.anchorList || swpCal.anchorMiniCal){
+    document.addEventListener("DOMContentLoaded", setEventListeners);
+    document.addEventListener("DOMContentLoaded", ajax);
+}
+
+// Pokud jsem v admin módu, vykoná se toto
+if(swpCal.anchorAdminMetabox){
+    swpCal.anchorAdminMetabox.onclick = function(ev){
+        swpCal.handleAdminEvents(ev);
+    }
+}
 
 swpCal.run();

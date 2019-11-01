@@ -218,10 +218,14 @@ function swp_cal_add_metabox( $post ) {
     	<input id="swp-cal-event-date-end-chck" type="checkbox" name="swp-cal-event-date-end-chck" value="1" <?php echo $checked?>>
   	</div>
 	<div>
-    	<label for="swp-cal-event-date" style="width: 100px; display: inline-block;"><?php _e( 'Datum události *', 'simple-wp-calendar' ); ?></label>
-		<input id="swp-cal-event-date" type="text" name="swp-cal-event-date" placeholder="YYYY-MM-DD" value="<?php echo $event_date; ?>">
+		<label for="swp-cal-event-date" style="width: 100px; display: inline-block;"><?php _e( 'Datum události *', 'simple-wp-calendar' ); ?></label>
+		<span class="event-date">
+			<input id="swp-cal-event-date" type="text" name="swp-cal-event-date" placeholder="YYYY-MM-DD" value="<?php echo $event_date; ?>">
+		</span>
 		<label for="swp-cal-event-date-end"><?php _e( 'Datum konce události', 'simple-wp-calendar' ); ?></label>
-		<input id="swp-cal-event-date-end" type="text" name="swp-cal-event-date-end" placeholder="Jednodenní událost" value="<?php echo $event_end; ?>"> <!-- TBD -->
+		<span class = event-end-date>
+			<input id="swp-cal-event-date-end" type="text" name="swp-cal-event-date-end" placeholder="Jednodenní událost" value="<?php echo $event_end; ?>"> <!-- TBD -->
+		</span>
 		<span>Počet dní: <span id="swp-cal-event-num-days"><?php echo $event_days; ?><span></span>
   	</div>
   	<div style="padding-top: 1em;">
@@ -347,7 +351,10 @@ add_action( 'save_post', 'swp_cal_meta' );
 function swp_cal_admin_script_style( $hook ) {
 
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
-		wp_enqueue_script( 'events', plugin_dir_url(__FILE__) . 'assets/js/scripts.js', array( 'jquery', 'jquery-ui-datepicker' ), '0.1', true );
+		wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/script.js', array(), '1.0.0', true );
+		wp_enqueue_style( 'style', plugin_dir_url(__FILE__).'css/style.css');
+		// wp_enqueue_script( 'events', plugin_dir_url(__FILE__) . 'js/scripts.js', array( 'jquery', 'jquery-ui-datepicker' ), '0.1', true );
+		// wp_enqueue_script( 'events', plugin_dir_url(__FILE__) . 'assets/js/scripts.js', array( 'jquery', 'jquery-ui-datepicker' ), '0.1', true );
 		wp_enqueue_style( 'jquery-ui-calendar', plugin_dir_url(__FILE__) . 'assets/css/jquery-ui.css', false, '1.11.1', 'all' );
 	}
 }
