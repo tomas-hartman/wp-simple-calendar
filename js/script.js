@@ -42,9 +42,12 @@ const swpCal = {
     },
 
     createHeaderWeekdays () {
+        // if(this.mainElm.querySelector("#swp-cal-weekdays")) return null;
+        
         const ulWeekdays = document.createElement("ul");
 
         ulWeekdays.setAttribute("class", "weekdays");
+        ulWeekdays.setAttribute("id", "swp-cal-weekdays");
 
         for (let i = 0; i < 7; i++) {
             let elm = document.createElement("li");
@@ -133,7 +136,7 @@ const swpCal = {
         elm.classList.add("tooltip");
 
         if(width){
-            const style = `width: ${width}px; margin-left: calc(-${width}px/2);`;
+            const style = `width: ${width}px; margin-left: calc(-${width}px/2); visibility: visible;`;
             span.setAttribute("style", style);
         }
 
@@ -662,25 +665,23 @@ const swpCal = {
         return li;
     },
 
+    /**
+     * @todo zbytečně nepřidávat podruhé ty listenery
+     * @todo možná půjde odstranit oprava proti zdvojování kalendáři v userovi!
+     */
     getCalendar () {
         this.mainElm.setAttribute("id", "calendar");
         this.daysElm.setAttribute("class", "days");
 
-        // Skládání kalendáře dohromady 
-        this.mainElm.appendChild(this.createHeaderMonth());
-        this.mainElm.appendChild(this.createHeaderWeekdays());
-        this.mainElm.appendChild(this.getWeeks());
+        // Skládání kalendáře dohromady - oprava zdvojování kalendáře po zavření apod.
+        if(!this.mainElm.querySelector("div.month")) this.mainElm.appendChild(this.createHeaderMonth());
+        if(!this.mainElm.querySelector("#swp-cal-weekdays")) this.mainElm.appendChild(this.createHeaderWeekdays());
+        if(!this.mainElm.querySelector("ul.days")) this.mainElm.appendChild(this.getWeeks());
         
         this.mainElm.querySelector("#calendar li.next").addEventListener("click", this);
         this.mainElm.querySelector("#calendar li.prev").addEventListener("click", this);
 
-
         return;
-
-        this.anchorMiniCal.appendChild(this.mainElm);
-
-        document.querySelector("#calendar li.next").addEventListener("click", this);
-        document.querySelector("#calendar li.prev").addEventListener("click", this);
     },
 
     run () {
@@ -697,19 +698,40 @@ const swpCal = {
         }
     },
 
+    /**
+     * @todo refaktor!
+     * @param {MouseEvent} ev 
+     */
     handleAdminEvents (ev) {
-        // console.log(ev.target.getAttribute("id"));
         switch (ev.target.getAttribute("id")) {
             case "swp-cal-event-date":
-                console.log(ev.target.value);
-                const tooltip = this.createTooltip(ev.target.parentElement, 270);
-                const containerDiv = document.createElement("div");
-                containerDiv.setAttribute("id", "swp-cal-mini-main");
-                tooltip.innerText = ev.target.value;
-                this.getCalendar();
-                containerDiv.appendChild(this.mainElm)
-                tooltip.appendChild(containerDiv);
-                ev.target.parentElement.appendChild(tooltip);
+                if(!document.querySelector(".event .day-events")){
+
+                    const tooltip = this.createTooltip(ev.target.parentElement, 270);
+                          tooltip.innerText = ev.target.value;
+                    const calendarContainer = document.createElement("div");
+                          calendarContainer.setAttribute("id", "swp-cal-mini-main");
+
+                    this.today = new Date(ev.target.value);
+                    this.getCalendar(); // uloží se do swpCal.mainDiv, někdy se přidávaly další elementy - opraveno
+
+                    calendarContainer.appendChild(this.mainElm);
+                    tooltip.appendChild(calendarContainer); // přidám ho do bubliny
+                    ev.target.parentElement.appendChild(tooltip); // --> musím si předat do samostatné funkce
+
+                    /**
+                     * Autoclose
+                     * @todo safari si s tím prý nerozumí
+                     */
+                    document.onclick = (innerEv) => {
+                        const input = document.querySelector("#swp-cal-metabox span.event-date");
+                        const datepicker = document.querySelector(".event .day-events");
+                        if(datepicker && !input.contains(innerEv.target)){
+                            datepicker.remove();
+                        }
+                    }
+                }
+
                 // this.createEventElm({permalink: "https://www.aaa.cz", title: ev.target.value}, ev.target.parentElement);
                 break;
 
@@ -726,8 +748,11 @@ const swpCal = {
                 break;
         
             default:
+                console.log("klikls mimo");
                 break;
         }
+
+        
         console.log(ev);
     },
 
