@@ -213,6 +213,7 @@ function swp_cal_add_metabox( $post ) {
 	}
 
 ?>
+	<div id="validate"><ul><ul></div>
 	<div>
     	<label for="swp-cal-event-date-end-chck" style="width: 100px; display: inline-block;">Vícedenní událost</label>
     	<input id="swp-cal-event-date-end-chck" type="checkbox" name="swp-cal-event-date-end-chck" value="1" <?php echo $checked?>>
@@ -352,6 +353,7 @@ function swp_cal_admin_script_style( $hook ) {
 
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
 		wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/script.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'admin-script', plugin_dir_url(__FILE__).'js/admin.js', array(), '1.0.0', true );
 		wp_enqueue_style( 'style', plugin_dir_url(__FILE__).'css/style.css');
 		// wp_enqueue_script( 'events', plugin_dir_url(__FILE__) . 'js/scripts.js', array( 'jquery', 'jquery-ui-datepicker' ), '0.1', true );
 		// wp_enqueue_script( 'events', plugin_dir_url(__FILE__) . 'assets/js/scripts.js', array( 'jquery', 'jquery-ui-datepicker' ), '0.1', true );

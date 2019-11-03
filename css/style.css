@@ -288,3 +288,7 @@ span.swp-till {
   flex-shrink: 1;
   margin-left: 3px;
 }
+
+#validate {
+  padding: 0px 10px;
+}

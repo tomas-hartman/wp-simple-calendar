@@ -699,64 +699,6 @@ const swpCal = {
     },
 
     /**
-     * @todo refaktor!
-     * @param {MouseEvent} ev 
-     */
-    handleAdminEvents (ev) {
-        switch (ev.target.getAttribute("id")) {
-            case "swp-cal-event-date":
-                if(!document.querySelector(".event .day-events")){
-
-                    const tooltip = this.createTooltip(ev.target.parentElement, 270);
-                          tooltip.innerText = ev.target.value;
-                    const calendarContainer = document.createElement("div");
-                          calendarContainer.setAttribute("id", "swp-cal-mini-main");
-
-                    this.today = new Date(ev.target.value);
-                    this.getCalendar(); // uloží se do swpCal.mainDiv, někdy se přidávaly další elementy - opraveno
-
-                    calendarContainer.appendChild(this.mainElm);
-                    tooltip.appendChild(calendarContainer); // přidám ho do bubliny
-                    ev.target.parentElement.appendChild(tooltip); // --> musím si předat do samostatné funkce
-
-                    /**
-                     * Autoclose
-                     * @todo safari si s tím prý nerozumí
-                     */
-                    document.onclick = (innerEv) => {
-                        const input = document.querySelector("#swp-cal-metabox span.event-date");
-                        const datepicker = document.querySelector(".event .day-events");
-                        if(datepicker && !input.contains(innerEv.target)){
-                            datepicker.remove();
-                        }
-                    }
-                }
-
-                // this.createEventElm({permalink: "https://www.aaa.cz", title: ev.target.value}, ev.target.parentElement);
-                break;
-
-            case "swp-cal-event-date-end":
-
-                break;
-
-            case "swp-cal-event-time":
-                console.log(ev.target.value);
-                break;
-
-            case "swp-cal-event-date-end-chck":
-                console.log(ev.target.checked);
-                break;
-        
-            default:
-                console.log("klikls mimo");
-                break;
-        }
-
-        
-        console.log(ev);
-    },
-
-    /**
      * Funkce, která handluje všechny eventy, zavěšený na tomto objektu (kouzlo!)
      */
     handleEvent: (ev) => {
@@ -866,11 +808,6 @@ if(swpCal.anchorList || swpCal.anchorMiniCal){
     document.addEventListener("DOMContentLoaded", ajax);
 }
 
-// Pokud jsem v admin módu, vykoná se toto
-if(swpCal.anchorAdminMetabox){
-    swpCal.anchorAdminMetabox.onclick = function(ev){
-        swpCal.handleAdminEvents(ev);
-    }
-}
+swpCal.run(); 
 
-swpCal.run();
+// export { swpCal };
