@@ -196,6 +196,11 @@ function swp_cal_add_metabox( $post ) {
 	$event_time = get_post_meta( $post->ID, 'event-time', true );
 	$event_end = get_post_meta( $post->ID, 'event-end', true);
 	$event_days = get_post_meta( $post->ID, 'event-days', true);
+	$is_disabled;
+	
+	if(!isset($event_end) || $event_end == ""){
+		$is_disabled = true;
+	} else $is_disabled = false;
 
 	if(empty($event_date)) {
 		$event_date = date('Y-m-d', time());
@@ -215,7 +220,7 @@ function swp_cal_add_metabox( $post ) {
 ?>
 	<div id="validate"><ul><ul></div>
 	<div>
-    	<label for="swp-cal-event-date-end-chck" style="width: 100px; display: inline-block;">Vícedenní událost</label>
+    	<label for="swp-cal-event-date-end-chck" style="width: 100px; display: inline-block;"><?php _e( 'Vícedenní událost', 'simple-wp-calendar' ); ?></label>
     	<input id="swp-cal-event-date-end-chck" type="checkbox" name="swp-cal-event-date-end-chck" value="1" <?php echo $checked?>>
   	</div>
 	<div>
@@ -225,9 +230,9 @@ function swp_cal_add_metabox( $post ) {
 		</span>
 		<label for="swp-cal-event-date-end"><?php _e( 'Datum konce události', 'simple-wp-calendar' ); ?></label>
 		<span class = event-end-date>
-			<input id="swp-cal-event-date-end" type="text" name="swp-cal-event-date-end" placeholder="Jednodenní událost" value="<?php echo $event_end; ?>"> <!-- TBD -->
+			<input id="swp-cal-event-date-end" type="text" name="swp-cal-event-date-end" placeholder="<?php _e( 'Jednodenní událost', 'simple-wp-calendar' ); ?>" value="<?php echo $event_end; ?>" disabled="<?php echo $is_disabled?>"> <!-- TBD -->
 		</span>
-		<span>Počet dní: <span id="swp-cal-event-num-days"><?php echo $event_days; ?><span></span>
+		<span><?php _e( 'Počet dní', 'simple-wp-calendar' ); ?> <span id="swp-cal-event-num-days"><?php echo $event_days; ?><span></span>
   	</div>
   	<div style="padding-top: 1em;">
     	<label for="swp-cal-event-time" style="width: 100px; display: inline-block;"><?php _e( 'Čas události', 'simple-wp-calendar' ); ?></label>
@@ -240,16 +245,12 @@ function swp_cal_add_metabox( $post ) {
 function swp_cal_add_metabox_longer( $post ) {
 	wp_nonce_field( basename( __FILE__ ), 'swp-cal-nonce' );
 
-	// $event_days = get_post_meta( $post->ID, 'event-days', true );
 	$event_repeat = get_post_meta( $post->ID, 'event-repeat', true );
+	$is_disabled = "";
 	
 	$weekly = '';
 	$monthly = '';
 	$yearly = ' selected="selected"';
-	
-	// if(empty($event_days)) {
-	// 	$event_days = 1;
-	// }
 
 	if($event_repeat > 0) {
 		$checked = ' checked="checked"';
@@ -263,6 +264,7 @@ function swp_cal_add_metabox_longer( $post ) {
 		}
 	} else {
 		$checked = '';
+		$is_disabled = "disabled";
 	}
 ?>
 	<!-- <div id="swp-cal-days-div">
@@ -271,10 +273,10 @@ function swp_cal_add_metabox_longer( $post ) {
 	</div> -->
 	<div id="swp-cal-repeat-div" style="padding-top: 1em;">
 		<label for="swp-cal-event-repeat" style="width: 100px; display: inline-block;"><?php _e( 'Opakovat událost?', 'simple-wp-calendar' ); ?></label>
-		<input id="swp-cal-event-repeat" type="checkbox" name="swp-cal-event-repeat" value="1"<?php echo $checked; ?>>
+		<input id="swp-cal-event-repeat-chck" type="checkbox" name="swp-cal-event-repeat" value="1"<?php echo $checked; ?>>
 		<div id="repeat-schedule" style="display: inline-block;">
 			<label for="swp-cal-event-repeat-schedule" style="width: 100px; display: none;"><?php _e( 'Jak často', 'simple-wp-calendar' ); ?></label>
-			<select id="swp-cal-event-repeat-schedule" name="swp-cal-event-repeat-schedule">
+			<select id="swp-cal-event-repeat-schedule" name="swp-cal-event-repeat-schedule" <?php echo $is_disabled; ?>>
 				<option value="1"<?php echo $weekly; ?>><?php _e( 'Týdně', 'simple-wp-calendar' ); ?></option>
 				<option value="2"<?php echo $monthly; ?>><?php _e( 'Měsíčně', 'simple-wp-calendar' ); ?></option>
 				<option value="3"<?php echo $yearly; ?>><?php _e( 'Ročně', 'simple-wp-calendar' ); ?></option>

@@ -111,6 +111,17 @@
   box-shadow: 0 4px #9b59b6 inset;
 }
 
+.days > li > span {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.datepicker .days li > span:hover {
+  background-color: rgba(44, 62, 80, 0.220);
+  cursor: pointer;
+}
+
 li.weekend {
   background-color: rgba(0,0,0,0.2);
 }
@@ -128,7 +139,7 @@ li.weekend .event {
 .tooltip .day-events {
   visibility: hidden;
   width: 120px;
-  background-color: black;
+  background-color: #23282d;
   color: #fff;
   text-align: center;
 
