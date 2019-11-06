@@ -354,12 +354,10 @@ add_action( 'save_post', 'swp_cal_meta' );
 function swp_cal_admin_script_style( $hook ) {
 
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
-		wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/script.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'admin-script', plugin_dir_url(__FILE__).'js/admin.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js-babel/script.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'admin-script', plugin_dir_url(__FILE__).'js-babel/admin.js', array(), '1.0.0', true );
 		wp_enqueue_style( 'style', plugin_dir_url(__FILE__).'css/style.css');
-		// wp_enqueue_script( 'events', plugin_dir_url(__FILE__) . 'js/scripts.js', array( 'jquery', 'jquery-ui-datepicker' ), '0.1', true );
-		// wp_enqueue_script( 'events', plugin_dir_url(__FILE__) . 'assets/js/scripts.js', array( 'jquery', 'jquery-ui-datepicker' ), '0.1', true );
-		wp_enqueue_style( 'jquery-ui-calendar', plugin_dir_url(__FILE__) . 'assets/css/jquery-ui.css', false, '1.11.1', 'all' );
+		// wp_enqueue_style( 'jquery-ui-calendar', plugin_dir_url(__FILE__) . 'assets/css/jquery-ui.css', false, '1.11.1', 'all' );
 	}
 }
 add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
@@ -371,7 +369,7 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
 
 function swp_cal_scripts() {
 	// wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/ajax.js', array(), '1.0.0', true );
-	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/script.js', array(), '1.0.0', true );
+	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js-babel/script.js', array(), '1.0.0', true );
 	wp_localize_script( 'script-name', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
 	// wp_localize_script( 'script-name', 'eventListCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-cal' ) ));
 	// wp_localize_script( 'script-name', 'eventListMiniCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-mini-cal' ) ));

@@ -636,13 +636,13 @@ const swpCal = {
         const divEvent = document.createElement("div");
         const aElm = document.createElement("a");
 
-        li.classList += `swp-upcoming-event-${iter}`;
-        div.classList += `swp-list-date`;
-        spanDate.classList += 'swp-list-day-month';
+        li.classList.add(`swp-upcoming-event-${iter}`);
+        div.classList.add(`swp-list-date`);
+        spanDate.classList.add('swp-list-day-month');
         spanDate.innerHTML = dayMonth;
-        spanYear.classList += 'swp-list-year';
+        spanYear.classList.add('swp-list-year');
         
-        divEvent.classList += "swp-list-title";
+        divEvent.classList.add("swp-list-title");
         aElm.setAttribute("href", event.permalink);
         aElm.innerText = event.title;
 
