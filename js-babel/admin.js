@@ -60,7 +60,7 @@ swpCal.resetDatepicker = function (datepicker) {
   // RESET a Autoclose:
   datepicker.parentNode.classList.remove("tooltip");
   datepicker.parentNode.classList.remove("event");
-  datepicker.remove();
+  datepicker.parentNode.removeChild(datepicker);
   this.relMonth = 0;
   this.mainElm = document.createElement("div");
 };
@@ -177,7 +177,7 @@ swpCal.adminValidate = function (el) {
   var titleElement = document.getElementsByName("post_title")[0];
   var validateErrors = document.querySelectorAll(".notice.validation-error");
   validateErrors.forEach(function (notice) {
-    notice.remove();
+    notice.parentNode.removeChild(notice);
   });
   var regexYear = /(\d{4}-(0\d|(10|11|12))-(0[1-9]|[1-2]\d|(30|31)))|(^$)/g;
   var regexHour = /((\D\d|1\d|2[0-3]):[0-5]\d-(\d{1}|1\d|2[0-3]):[0-5]\d|(\D\d|1\d|2[0-3]):[0-5]\d)|(^$)/g;

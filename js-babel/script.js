@@ -247,7 +247,8 @@ var swpCal = {
     var monthHeader = document.querySelector("#calendar li.month-header");
     this.getMonths(relMonth);
     monthHeader.innerHTML = this.createMonthTitle(this.firstDayOfMonth);
-    this.mainElm.querySelector("ul.days").remove();
+    var elm = this.mainElm.querySelector("ul.days");
+    elm.parentNode.removeChild(elm);
     this.mainElm.appendChild(this.getWeeks());
   },
   fcnNext: function fcnNext() {
