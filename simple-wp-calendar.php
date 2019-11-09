@@ -352,10 +352,15 @@ add_action( 'save_post', 'swp_cal_meta' );
  * Vyřeší issue #2
  */
 function swp_cal_admin_script_style( $hook ) {
+	$path = "js/";
+
+	if(is_legacy_browser()){
+		$path = "js-babel/";
+	}
 
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
-		wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js-babel/script.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'admin-script', plugin_dir_url(__FILE__).'js-babel/admin.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'admin-script', plugin_dir_url(__FILE__).$path.'admin.js', array(), '1.0.0', true );
 		wp_enqueue_style( 'style', plugin_dir_url(__FILE__).'css/style.css');
 		// wp_enqueue_style( 'jquery-ui-calendar', plugin_dir_url(__FILE__) . 'assets/css/jquery-ui.css', false, '1.11.1', 'all' );
 	}
@@ -368,11 +373,14 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
  */
 
 function swp_cal_scripts() {
-	// wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js/ajax.js', array(), '1.0.0', true );
-	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).'js-babel/script.js', array(), '1.0.0', true );
-	wp_localize_script( 'script-name', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
-	// wp_localize_script( 'script-name', 'eventListCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-cal' ) ));
-	// wp_localize_script( 'script-name', 'eventListMiniCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'event-list-mini-cal' ) ));
+	$path = "js/";
+
+	if(is_legacy_browser()){
+		$path = "js-babel/";
+	}
+
+	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
+	// wp_localize_script( 'script-name', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
 }
 add_action( 'wp_enqueue_scripts', 'swp_cal_scripts' );
 
@@ -474,9 +482,8 @@ add_action( 'wp_ajax_nopriv_swp-cal-event', 'swp_cal_callback' );
 /**
  * @todo Bude třeba předělat i pro ten malej kalendářík s výpisem událostí
  */
-function swp_cal_mini() {    
+function swp_cal_mini() {
     $output = '<div id="swp-cal-mini-main"></div>';
-
     return $output;
 }
 add_shortcode('mini-calendar', 'swp_cal_mini');
@@ -500,5 +507,21 @@ add_action( 'wp_head', 'swp_cal_css' );
 	// echo '<script type="text/javascript" src="'.plugin_dir_url(__FILE__).'js/script.js"></script>';
 }
 add_action( 'wp_footer', 'swp_cal_javascript' ); */
+
+function is_legacy_browser(){
+	$browser = get_browser();
+
+	if(($browser->browser == "IE" || $browser->browser == "MSIE") && version_compare($browser->version, "11.0") <= 0){
+		return true;
+	} elseif($browser->browser == "Edge" && version_compare($browser->version, "17.0") <= 0){
+		return true;
+	} elseif($browser->browser == "Chrome" && version_compare($browser->version, "69.0") <= 0){
+		return true;
+	} elseif($browser->browser == "Firefox" && version_compare($browser->version, "60.0") <= 0) {
+		return true;
+	} elseif($browser->browser == "Safari" && version_compare($browser->version, "11.1") <= 0) {
+		return true;
+	} else return false;
+}
 
 ?>

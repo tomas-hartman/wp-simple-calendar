@@ -1,6 +1,15 @@
 "use strict";
 
-// import { swpCal } from "./script.js";
+// Polyfill
+if (window.NodeList && !NodeList.prototype.forEach) {
+  NodeList.prototype.forEach = function (callback, thisArg) {
+      thisArg = thisArg || window;
+      for (var i = 0; i < this.length; i++) {
+          callback.call(thisArg, this[i], i, this);
+      }
+  };
+}
+
 swpCal.adminGetCalendar = function (ev) {
   var _this = this;
 
@@ -41,7 +50,8 @@ swpCal.adminGetCalendar = function (ev) {
 
         if (datepicker && ulDays && ulDays.contains(innerEv.target) && innerEv.target.nodeName === "SPAN" && innerEv.target.innerText !== "") {
           var day = innerEv.target.innerText;
-          var date = new Date("".concat(_this.firstDayOfMonth.getFullYear(), "-").concat(_this.firstDayOfMonth.getMonth() + 1, "-").concat(day));
+          // var date = new Date("".concat(_this.firstDayOfMonth.getFullYear(), "-").concat(_this.firstDayOfMonth.getMonth() + 1, "-").concat(day));
+          var date = new Date(_this.firstDayOfMonth.getFullYear(), _this.firstDayOfMonth.getMonth(), day);
 
           var dateString = _this.getDateString(date);
 
@@ -57,12 +67,12 @@ swpCal.adminGetCalendar = function (ev) {
 };
 
 swpCal.resetDatepicker = function (datepicker) {
-  // RESET a Autoclose:
-  datepicker.parentNode.classList.remove("tooltip");
-  datepicker.parentNode.classList.remove("event");
-  datepicker.parentNode.removeChild(datepicker);
-  this.relMonth = 0;
-  this.mainElm = document.createElement("div");
+    // RESET a Autoclose:
+    datepicker.parentNode.classList.remove("tooltip");
+    datepicker.parentNode.classList.remove("event");
+    datepicker.parentNode.removeChild(datepicker);
+    this.relMonth = 0;
+    this.mainElm = document.createElement("div");
 };
 
 swpCal.adminGetNumDays = function () {
@@ -156,7 +166,7 @@ swpCal.adminValidationErr = function (text, origin) {
   var placeholder = document.querySelector(".wp-header-end");
   var messageDiv = document.createElement("div");
   messageDiv.id = "message";
-  messageDiv.classList += "notice notice-error is-dismissible validation-error";
+  messageDiv.classList.add("notice", "notice-error", "is-dismissible", "validation-error");
   var errorMsgUl = document.createElement("ul");
   var errorMsg = document.createElement("li");
   errorMsg.classList.add("error");
@@ -185,19 +195,19 @@ swpCal.adminValidate = function (el) {
   if (titleElement.value.trim() === "") {
     var text = "Vyplňte název události.";
     this.adminValidationErr(text, titleElement);
-    el.preventDefault();
+    el.preventDefault ? el.preventDefault() : (el.returnValue = false);
   }
 
   if (!eventStartElement.value.match(regexYear)) {
     var _text = "Datum události je ve špatném formátu. Napište datum ve formátu 2019-11-04 nebo jej vyberte z kalendáře.";
     this.adminValidationErr(_text, eventStartElement);
-    el.preventDefault();
+    el.preventDefault ? el.preventDefault() : (el.returnValue = false);
   }
 
   if (!eventEndElement.disabled && !eventEndElement.value.match(regexYear)) {
     var _text2 = "Datum konce události je ve špatném formátu. Napište datum ve formátu 2019-11-04 nebo jej vyberte z kalendáře.";
     this.adminValidationErr(_text2, eventEndElement);
-    el.preventDefault();
+    el.preventDefault ? el.preventDefault() : (el.returnValue = false);
   }
 
   if (numOfDaysElm.innerText === "NaN" || parseInt(numOfDaysElm.innerText) < 1) {
@@ -209,13 +219,13 @@ swpCal.adminValidate = function (el) {
       this.adminValidationErr(_text4, numOfDaysElm, false);
     }
 
-    el.preventDefault();
+    el.preventDefault ? el.preventDefault() : (el.returnValue = false);
   }
 
   if (!hoursElement.value === "" || !hoursElement.value.match(regexHour)) {
     var _text5 = "Čas události je ve špatném formátu. Zadejte čas ve formátu 8:45, 18:00 nebo rozmezí 12:30-13:10.";
     this.adminValidationErr(_text5, hoursElement);
-    el.preventDefault();
+    el.preventDefault ? el.preventDefault() : (el.returnValue = false);
   }
 }; // Pokud jsem v admin módu, vykoná se toto
 

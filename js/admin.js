@@ -33,7 +33,7 @@ swpCal.adminGetCalendar = function (ev) {
             const ulDays = document.querySelector("#swp-cal-mini-main ul.days");
             if(datepicker && ulDays && ulDays.contains(innerEv.target) && innerEv.target.nodeName === "SPAN" && innerEv.target.innerText !== ""){
                 const day = innerEv.target.innerText;
-                const date = new Date(`${this.firstDayOfMonth.getFullYear()}-${this.firstDayOfMonth.getMonth() + 1}-${day}`);
+                const date = new Date(this.firstDayOfMonth.getFullYear(), this.firstDayOfMonth.getMonth(), day);
                 const dateString = this.getDateString(date);
                 datepicker.previousElementSibling.value = dateString;
                 
@@ -145,7 +145,7 @@ swpCal.adminValidationErr = function(text, origin, renderFrame = true) {
     const placeholder = document.querySelector(".wp-header-end");
     const messageDiv = document.createElement("div");
           messageDiv.id = "message";
-          messageDiv.classList += "notice notice-error is-dismissible validation-error";
+          messageDiv.classList.add("notice", "notice-error", "is-dismissible", "validation-error");
     
     const errorMsgUl = document.createElement("ul");
     const errorMsg = document.createElement("li");
@@ -180,7 +180,7 @@ swpCal.adminValidate = function(el) {
     if(titleElement.value.trim() === "") {
         const text = "Vyplňte název události.";
         this.adminValidationErr(text, titleElement);
-        el.preventDefault();
+        el.preventDefault ? el.preventDefault() : (el.returnValue = false);
     }
 
     if(!eventStartElement.value.match(regexYear)){
