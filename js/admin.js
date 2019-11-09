@@ -1,5 +1,3 @@
-// import { swpCal } from "./script.js";
-
 swpCal.adminGetCalendar = function (ev) {
     const existingDatepicker = document.querySelector(".tooltip .datepicker");
     if(!existingDatepicker /**|| !existingDatepicker.contains(ev.target)  element na kterej kliknu není jeho parentem */){
@@ -180,19 +178,19 @@ swpCal.adminValidate = function(el) {
     if(titleElement.value.trim() === "") {
         const text = "Vyplňte název události.";
         this.adminValidationErr(text, titleElement);
-        el.preventDefault ? el.preventDefault() : (el.returnValue = false);
+        el.preventDefault ? el.preventDefault() : el.returnValue = false;
     }
 
     if(!eventStartElement.value.match(regexYear)){
         const text = "Datum události je ve špatném formátu. Napište datum ve formátu 2019-11-04 nebo jej vyberte z kalendáře.";
         this.adminValidationErr(text, eventStartElement);
-        el.preventDefault();
+        el.preventDefault ? el.preventDefault() : el.returnValue = false;
     } 
 
     if(!eventEndElement.disabled && !eventEndElement.value.match(regexYear)){
         const text = "Datum konce události je ve špatném formátu. Napište datum ve formátu 2019-11-04 nebo jej vyberte z kalendáře.";
         this.adminValidationErr(text, eventEndElement);
-        el.preventDefault();
+        el.preventDefault ? el.preventDefault() : el.returnValue = false;
     } 
 
     if(numOfDaysElm.innerText === "NaN" || parseInt(numOfDaysElm.innerText) < 1) {
@@ -204,13 +202,13 @@ swpCal.adminValidate = function(el) {
             this.adminValidationErr(text, numOfDaysElm, false);
         }
 
-        el.preventDefault();
+        el.preventDefault ? el.preventDefault() : el.returnValue = false;
     }
 
     if(!hoursElement.value === "" || !hoursElement.value.match(regexHour)){
         const text = "Čas události je ve špatném formátu. Zadejte čas ve formátu 8:45, 18:00 nebo rozmezí 12:30-13:10.";
         this.adminValidationErr(text, hoursElement);
-        el.preventDefault();
+        el.preventDefault ? el.preventDefault() : el.returnValue = false;
     } 
 }
 
