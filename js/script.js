@@ -16,7 +16,8 @@ const swpCal = {
     daysArr: [],
     displayedMonth: "",
     listRendered: false,
-    listNumEvents: 5,
+    // listNumEvents: 5,
+    listNumEvents: 12,
 
     /**
      * Helper funkce. Nastavuje základní proměnné pro jednotlivé funkce podle relativního měsíce.
@@ -461,17 +462,18 @@ const swpCal = {
             let daysLen = parseInt(events[i].eventDays);
             const eventStartDate = new Date(events[i].eventDate);
             let eventEndDate = "";
+            let eventRepetitionEnd = "";
             
             if(events[i].eventEnd && events[i].eventEnd !== "0"){
                 eventEndDate = new Date(events[i].eventEnd);
             } else {
                 eventEndDate = new Date(events[i].eventDate);
-                // eventEndDate.setHours(eventEndDate.getHours() + daysLen * 24);
                 eventEndDate.setDate(eventEndDate.getDate() + (daysLen - 1));
             }
 
-
-
+            if(events[i].eventRepetitionEnd && events[i].eventRepetitionEnd !== "0"){
+                eventRepetitionEnd = new Date(events[i].eventRepetitionEnd);
+            }
 
             // 1. obyč nadcházející jednorázové akce
             if(eventStartDate >= this.today && repeatMode === 0 && daysLen === 1){
@@ -480,7 +482,7 @@ const swpCal = {
 
             // 2. vícedenní akce @todo vícedenní opakované akce!
             // dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
-            else if(daysLen > 1 && (eventStartDate >= this.today || eventEndDate >= this.today)){
+            else if(daysLen > 1 && (eventStartDate >= this.today || eventEndDate >= this.today) && repeatMode === 0){
                 // případ kdy akce končí po dnešku, ale začíná někdy dříve - i ty potřebuju použít
                 if(eventStartDate < this.today && eventEndDate >= this.today){
 
@@ -501,14 +503,16 @@ const swpCal = {
                     case 1: // týdně
                         /**
                          * budu checkovat v jakej den se koná a přidám 'size' jejich instancí po datu today
-                         * @todo this.relmonth bude dělat chyby v tomhle případě!
+                         * @todo this.relmonth bude dělat chyby v tomhle případě! - mělo by být pokaždý nula, ne?
                          */
-                        let dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                        let dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
                             
                             for(let n=0;n<size;n++){ 
+                                if(eventRepetitionEnd !== "" && dayOfWeeklyEvent > eventRepetitionEnd) break;
                                 if(dayOfWeeklyEvent >= this.today){
                                     upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
                                 } else {
+                                    // Pokud opakovaná událost začíná v minulosti
                                     // tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce 
                                     let diff = this.today - dayOfWeeklyEvent;
                                     let yearMs = 24*60*60*1000;
@@ -524,9 +528,10 @@ const swpCal = {
                         break;
                         
                     case 2: // měsíční akce
-                            let dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                            let dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
                             
                             for(let n=0;n<size;n++){ 
+                                if(eventRepetitionEnd !== "" && dayOfEvent > eventRepetitionEnd) break;
                                 if(dayOfEvent >= this.today){
                                     upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
                                 } else {
@@ -539,9 +544,10 @@ const swpCal = {
                         break;
 
                     case 3: // roční akce
-                        let dayOfYearlyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                        let dayOfYearlyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
                             
                         for(let n=0;n<size;n++){ 
+                            if(eventRepetitionEnd !== "" && dayOfYearlyEvent > eventRepetitionEnd) break;
                             if(dayOfYearlyEvent >= this.today){
                                 upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
                             } else {
@@ -764,7 +770,7 @@ const ajax = () => {
                  * 4. (vícedenní opakující se akce?)
                  */
     
-                if(parseInt(event.eventDays) > 1){
+                if(parseInt(event.eventDays) > 1 && !parseInt(event.eventRepeat) > 0){
                     // console.log("multiple");
                     // console.log(event);
                     swpCal.addEventMultipleDays(event);

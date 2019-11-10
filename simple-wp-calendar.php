@@ -461,6 +461,9 @@ function swp_cal_callback() {
 		$event_end = get_post_custom_values('event-end');
 		$object .= '"eventEnd": "'.$event_end[0].'",';
 
+		$event_rep_end = get_post_custom_values('event-repetition-end');
+		$object .= '"eventRepetitionEnd": "'.$event_rep_end[0].'",';
+
 		if($event_repeat > 0) {
 					$object .= '"eventRepeatSchedule": "'.$event_repeat[0].'",';
 		} else {
