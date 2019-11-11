@@ -8,6 +8,7 @@ const swpCal = {
     mainElm: document.createElement("div"),
     daysElm: document.createElement("ul"),
     today: new Date(),
+    todayNorm: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
 
     relMonth: 0,
     firstDayOfMonth: "",
@@ -555,6 +556,10 @@ const swpCal = {
                             }
                         break;
                         
+                    /**
+                     * @todo přepsat stejně logiku pro měsíce po vzoru logiky pro roky!
+                     */
+
                     case 2: // měsíční akce
                             let dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
                             
@@ -571,30 +576,30 @@ const swpCal = {
                             }
                         break;
 
-                        /**
-                         * @todo Fix: tady je bug, kterej špatně vykreslí event!
-                         * Problém mají ty, které jsou konečné, protože se vykreslí (chybně) i jejich historické výskyty
-                         * Problém: nedostatečné ověření eventu.
-                         * Problém je v tom else. Problém bude i v tom for asi...
-                         * @todo Fix: dayOfYearlyEvent === eventStartDate
-                         * @todo Fix: i v měsíci a zřejmě i v týdnu opravit!
-                         */
+                    /**
+                     * @done Fix: tady je bug, kterej špatně vykreslí event!
+                     * Problém mají ty, které jsou konečné, protože se vykreslí (chybně) i jejich historické výskyty
+                     * Problém: nedostatečné ověření eventu.
+                     * Problém je v tom else. Problém bude i v tom for asi...
+                     * @done Fix: dayOfYearlyEvent === eventStartDate
+                     * @todo Fix: i v měsíci a zřejmě i v týdnu opravit!
+                     */
                     case 3: // roční akce
-                        let dayOfYearlyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
-                        console.log(this.relMonth);
-                        console.log(dayOfYearlyEvent);
-                        console.log(eventStartDate);
+                        let dayOfYearlyEvent = eventStartDate;
                             
                         for(let n=0;n<size;n++){ 
                             if(eventRepetitionEnd !== "" && dayOfYearlyEvent > eventRepetitionEnd) break;
-                            if(dayOfYearlyEvent >= this.today){
-                                upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
-                            } else {
-                                dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
-                                // upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
-                                continue;
+
+                            if(dayOfYearlyEvent < this.todayNorm){
+                                dayOfYearlyEvent = new Date(this.today.getFullYear(), dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
+
+                                // pokud je stále ještě menší, pak jde o událost, která už letos proběhla a je třeba ji přeskočit
+                                if(dayOfYearlyEvent < this.todayNorm){
+                                    dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
+                                }
                             }
 
+                            upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
                             dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
                         }
 
@@ -655,6 +660,7 @@ const swpCal = {
      */
 
     createListItem (event, iter) {
+        // console.log(event);
         const date = event.eventDate.split("-");
         const year = date[0];
         const yearFits = this.today.getFullYear() === parseInt(year) ? true : false;
