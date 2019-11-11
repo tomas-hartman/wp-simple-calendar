@@ -336,6 +336,14 @@ const swpCal = {
     addEventRepeated (event) {
         const thisMonth = this.firstDayOfMonth.getMonth() + 1;
         const date = event.eventDate.split("-");
+        const firstDate = new Date(event.eventDate);
+              firstDate.setHours(0);
+        let lastDate = "";
+
+        if(event.eventRepetitionEnd !== ""){
+            lastDate = new Date(event.eventRepetitionEnd);
+        } else lastDate = null;
+
         /**
          * Check periodicity of repetition: 0 = none; 1 = weekly; 2 = monthly; 3 = yearly
          * 
@@ -359,8 +367,16 @@ const swpCal = {
                 break;
         }
 
+        /**
+         * Jako jediná se může zobrazovat i před prvním datem akce (svátky, výročí, navíc je to tak daleko že je to jedno) pokud je forever
+         */
         function addRepeatedYearly() {
             if (parseInt(date[1]) === thisMonth) {
+                const currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), date[2]);
+
+                if(lastDate && currentEventDate > lastDate) return; // nezobrazujeme po datu konce
+                if(lastDate && firstDate > currentEventDate) return; // nezobrazujeme před datem začátku - pokud má zároveň i konec
+
                 let elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${date[2]}`);
 
                 swpCal.createEventElm(event, elm);
@@ -368,14 +384,16 @@ const swpCal = {
         }
         
         function addRepeatedMonthly(){
+            const currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), date[2]);
+
+            if(lastDate && currentEventDate > lastDate) return; // nezobrazujeme po datu konce
+            if(firstDate > currentEventDate) return; // nezobrazujeme před datem začátku
+
             let elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${date[2]}`);
 
             swpCal.createEventElm(event, elm);
         }
 
-        /**
-         * @todo Upravit, aby se nezobrazovalo před prvním datem opakování
-         */
         function addRepeatedWeekly(){
             /**
              * 2019-10-14 => pondělí, akce se bude opakovat každé pondělí. Pondělí je tedy 2019-10-14 + 7*n (1)
@@ -385,31 +403,41 @@ const swpCal = {
              *    1. pondělí v měcíci
              *      úterý(2) - pondělí(den 1 + 7 dní (další týden - protože je větší)) = 6 (korekce je tedy 6)
              */
-
-            const firstDate = new Date(event.eventDate);
             const eventDay = firstDate.getDay(); // den v měsíci, kdy se akce koná
             const monthDayOfWeek = swpCal.firstDayOfMonth.getDay(); // první den daného měsíce
             let diff;
-
+            
             if(eventDay < monthDayOfWeek){
                 diff = (eventDay + 7) - monthDayOfWeek;
-            } else {
-                diff = eventDay - monthDayOfWeek;
-            }
+            } else diff = eventDay - monthDayOfWeek;
 
-            let eventStartDate = diff + 1; // tento den se akce koná v tomto měsíci poprvé; všechny další event days jsou toto + 7
+            let currentEventDayOfMonth = diff + 1; // tento den se akce koná v tomto měsíci poprvé; všechny další event days jsou toto + 7
+            let currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), currentEventDayOfMonth);
 
-            while(eventStartDate <= swpCal.lastDayOfMonth.getDate()){
-                    let str = eventStartDate.toString();
-                    if(str.length < 2){
-                        str = `0${str}`;
-                    }
+            /**
+             * 1. konkrétní instance události se generuje pouze do konce daného měsíce &&
+             * 2. pokud končí už před koncem měsíce, dále už se neopakuje
+             * 3. pokud začíná až v průběhu měsíce, taky se negeneruje
+             */
+            while(currentEventDayOfMonth <= swpCal.lastDayOfMonth.getDate()){
+                if(lastDate && currentEventDate > lastDate) break; // událost má eventRepetitionEnd
+                if(currentEventDate < firstDate){ // událost se nemá opakovat předtím, než byla vytvořena
+                    currentEventDayOfMonth = currentEventDayOfMonth + 7;
+                    currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), currentEventDayOfMonth);
+                    continue;
+                }
 
-                    let elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${str}`);
-                    
-                    swpCal.createEventElm(event, elm);
+                let str = currentEventDayOfMonth.toString();
+                if(str.length < 2){
+                    str = `0${str}`;
+                }
                 
-                eventStartDate = eventStartDate + 7;
+                let elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${str}`);
+                
+                swpCal.createEventElm(event, elm);
+                
+                currentEventDayOfMonth = currentEventDayOfMonth + 7;
+                currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), currentEventDayOfMonth);
             }
         }
     },
@@ -543,8 +571,19 @@ const swpCal = {
                             }
                         break;
 
+                        /**
+                         * @todo Fix: tady je bug, kterej špatně vykreslí event!
+                         * Problém mají ty, které jsou konečné, protože se vykreslí (chybně) i jejich historické výskyty
+                         * Problém: nedostatečné ověření eventu.
+                         * Problém je v tom else. Problém bude i v tom for asi...
+                         * @todo Fix: dayOfYearlyEvent === eventStartDate
+                         * @todo Fix: i v měsíci a zřejmě i v týdnu opravit!
+                         */
                     case 3: // roční akce
                         let dayOfYearlyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
+                        console.log(this.relMonth);
+                        console.log(dayOfYearlyEvent);
+                        console.log(eventStartDate);
                             
                         for(let n=0;n<size;n++){ 
                             if(eventRepetitionEnd !== "" && dayOfYearlyEvent > eventRepetitionEnd) break;
@@ -552,7 +591,8 @@ const swpCal = {
                                 upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
                             } else {
                                 dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
-                                upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
+                                // upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
+                                continue;
                             }
 
                             dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
@@ -571,8 +611,8 @@ const swpCal = {
             return new Date(b.eventDate) - new Date(a.eventDate);
         });
         
-        // console.log("allover:");
-        // console.log(upcomingEvents);
+        console.log("allover:");
+        console.log(upcomingEvents);
         
         /**
          * Renderování polí
@@ -615,14 +655,12 @@ const swpCal = {
      */
 
     createListItem (event, iter) {
-        console.log(event);
         const date = event.eventDate.split("-");
         const year = date[0];
         const yearFits = this.today.getFullYear() === parseInt(year) ? true : false;
         const eventTime = event.eventTime || null;
         let dayMonth = "";
         let eventTimeToDisplay = "";
-        console.log(eventTime);
 
         if(eventTime){
             eventTimeToDisplay = eventTime.split("-")[0];
@@ -755,8 +793,6 @@ const ajax = () => {
      */
     const resultCallback = (result) => {
         const events = JSON.parse(result);
-        
-        console.log(events);
 
         // Renderování malého kalendáře
         if(swpCal.anchorMiniCal){
