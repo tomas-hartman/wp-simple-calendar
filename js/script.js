@@ -560,18 +560,34 @@ const swpCal = {
                      * @todo přepsat stejně logiku pro měsíce po vzoru logiky pro roky!
                      */
 
+                     /**
+                      * @tba!
+                      */
                     case 2: // měsíční akce
-                            let dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
+                            // let dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
+                            let dayOfEvent = eventStartDate;
                             
                             for(let n=0;n<size;n++){ 
                                 if(eventRepetitionEnd !== "" && dayOfEvent > eventRepetitionEnd) break;
-                                if(dayOfEvent >= this.today){
-                                    upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
-                                } else {
-                                    dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
-                                    upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
+
+                                
+                                // if(dayOfEvent >= this.today){
+                                //     upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
+                                // } else {
+                                //     dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
+                                //     upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
+                                // }
+
+                                if(dayOfEvent < this.todayNorm){
+                                    dayOfEvent = new Date(dayOfEvent.getFullYear(), this.today.getMonth(), dayOfEvent.getDate());
+    
+                                    // pokud je stále ještě menší, pak jde o událost, která už letos proběhla a je třeba ji přeskočit
+                                    if(dayOfEvent < this.todayNorm){
+                                        dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
+                                    }
                                 }
 
+                                upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
                                 dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
                             }
                         break;
