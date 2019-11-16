@@ -103,11 +103,9 @@ const swpCal = {
         if (typeof date !== "undefined" && date < 10) {
 
             date = `0${originDate}`;
-            // console.log(date);
         }
 
-        if (this.firstDayOfMonth.getMonth() === this.today.getMonth() && originDate === this.today.getDate()) {
-            // const todayElm = document.createElement("span");
+        if (this.firstDayOfMonth.getFullYear() === this.today.getFullYear() && this.firstDayOfMonth.getMonth() === this.today.getMonth() && originDate === this.today.getDate()) {
             span.setAttribute("class", "active");
             span.setAttribute("id", `day-${date}`);
             span.innerText = originDate;
@@ -535,14 +533,18 @@ const swpCal = {
                          * @todo this.relmonth bude dělat chyby v tomhle případě! - mělo by být pokaždý nula, ne?
                          */
                         let dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
-                            
                             for(let n=0;n<size;n++){ 
                                 if(eventRepetitionEnd !== "" && dayOfWeeklyEvent > eventRepetitionEnd) break;
+                                // console.log(dayOfWeeklyEvent);
+                                // console.log(this.todayNorm);
                                 if(dayOfWeeklyEvent >= this.today){
                                     upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
                                 } else {
                                     // Pokud opakovaná událost začíná v minulosti
-                                    // tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce 
+                                    /**
+                                     * tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce
+                                     * tady je potřeba 
+                                     */ 
                                     let diff = this.today - dayOfWeeklyEvent;
                                     let yearMs = 24*60*60*1000;
                                     let daysOffset = Math.floor(diff/yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
@@ -556,32 +558,15 @@ const swpCal = {
                             }
                         break;
                         
-                    /**
-                     * @todo přepsat stejně logiku pro měsíce po vzoru logiky pro roky!
-                     */
-
-                     /**
-                      * @tba!
-                      */
                     case 2: // měsíční akce
-                            // let dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
                             let dayOfEvent = eventStartDate;
                             
                             for(let n=0;n<size;n++){ 
                                 if(eventRepetitionEnd !== "" && dayOfEvent > eventRepetitionEnd) break;
 
-                                
-                                // if(dayOfEvent >= this.today){
-                                //     upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
-                                // } else {
-                                //     dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
-                                //     upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
-                                // }
-
                                 if(dayOfEvent < this.todayNorm){
-                                    dayOfEvent = new Date(dayOfEvent.getFullYear(), this.today.getMonth(), dayOfEvent.getDate());
+                                    dayOfEvent = new Date(this.today.getFullYear(), this.today.getMonth(), dayOfEvent.getDate());
     
-                                    // pokud je stále ještě menší, pak jde o událost, která už letos proběhla a je třeba ji přeskočit
                                     if(dayOfEvent < this.todayNorm){
                                         dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
                                     }
@@ -632,8 +617,8 @@ const swpCal = {
             return new Date(b.eventDate) - new Date(a.eventDate);
         });
         
-        console.log("allover:");
-        console.log(upcomingEvents);
+        // console.log("allover:");
+        // console.log(upcomingEvents);
         
         /**
          * Renderování polí
