@@ -17,8 +17,8 @@ const swpCal = {
     daysArr: [],
     displayedMonth: "",
     listRendered: false,
-    // listNumEvents: 5,
-    listNumEvents: 12,
+    listNumEvents: 5,
+    // listNumEvents: 12,
 
     /**
      * Helper funkce. Nastavuje základní proměnné pro jednotlivé funkce podle relativního měsíce.
