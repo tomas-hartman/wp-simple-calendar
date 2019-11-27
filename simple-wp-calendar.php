@@ -36,6 +36,35 @@ function swp_cal_post_type() {
 }
 add_action( 'init', 'swp_cal_post_type' );
 
+
+/**
+ * Activation
+ */
+// register_activation_hook( string $file, callable $function )
+function swp_cal_initial_import () {
+
+	$args = array(
+		// 'post_type'			=> 'swp-cal-event', // Takhle se to jmenuje správně
+		'post_type'			=> 'event-list-cal',
+		'posts_per_page'	=> -1,
+	);
+	$loop = new WP_Query( $args );
+
+	global $wpdb;
+
+	while($loop->have_posts()) : $loop->the_post();
+		$permalink = get_permalink($loop->ID);
+		$value = get_post_custom_values('post_type');
+	endwhile;
+
+	// https://wordpress.stackexchange.com/questions/97026/how-do-i-safely-change-the-name-of-a-custom-post-type
+
+	swp_cal_post_type();
+	flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, "swp_cal_initial_import" );
+
+
 /**
  * Přehled událostí - sloupce a jejich nastavení
  */
@@ -415,8 +444,8 @@ function swp_cal_callback() {
 	$i = 0;
 	$output = "";
 	$args = array(
-				// 'post_type'			=> 'swp-cal-event', // Takhle se to jmenuje správně
-				'post_type'			=> array('swp-cal-event', 'event-list-cal'),
+				'post_type'			=> 'swp-cal-event', // Takhle se to jmenuje správně
+				// 'post_type'			=> array('swp-cal-event', 'event-list-cal'),
 				'posts_per_page'	=> -1,
 			);
 	$loop = new WP_Query( $args );
@@ -489,51 +518,39 @@ add_action( 'wp_ajax_swp-cal-event', 'swp_cal_callback' );
 add_action( 'wp_ajax_nopriv_swp-cal-event', 'swp_cal_callback' );
 
 
-class SWPCalEvent {
+/* class SWPCalEvent {
 	private $options;
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_plugin_pages_swp' ) );
-		add_action( 'admin_init', array( $this, 'page_init' ) );
+		add_action( 'admin_init', array( $this, 'page_init_swp' ) );
 	}
 
 	public function add_plugin_pages_swp() {
 
 		add_submenu_page(
 			'edit.php?post_type=swp-cal-event',
-			'Nastavení',
+			'Nastavení bgbg',
 			'O plugssssinu',
-			'manage_options',
+			'swp_manage_options',
 			'about',
-			array( $this, 'create_about_page' )
+			array( $this, 'swp_create_about_page' )
 		);
 		add_submenu_page(
 			'edit.php?post_type=swp-cal-event',
-			'Nastavení',
-			'Nastavení',
-			'manage_options',
+			'Nastavení bgbg',
+			'Nastavení bgbg',
+			'swp_manage_options',
 			'settings',
-			array( $this, 'create_settings_page' )
-		);
-		add_submenu_page(
-			'edit.php?post_type=swp-cal-event',
-			'Nastavení',
-			'Test',
-			'manage_options',
-			'test',
-			array( $this, 'create_test_page' )
+			array( $this, 'swp_create_settings_page' )
 		);
 	}
 
-	public function create_test_page() {
-		echo "Di do piče";
-	}
-
-	public function page_init() {
+	public function page_init_swp() {
 
 		register_setting(
-			'event_list_cal_settings', // Option group
-			'event_list_cal_settings', // Option name
+			'swp-cal-settings', // Option group
+			'swp-cal-settings', // Option name
 			array( $this, 'sanitize' ) // Sanitize
 		);
 
@@ -541,45 +558,46 @@ class SWPCalEvent {
 			'event_list_cal_date_format_section', // ID
 			'Nastavení formátu data', // Title
 			array( $this, 'print_date_info' ), // Callback
-			'event-list-cal-settings' // Page
+			'swp-cal-settings' // Page
 		);
 
 		add_settings_field(
 			'event_list_cal_upcoming_date_format', // ID
 			'Datum nadcházejících událostí', // Title 
 			array( $this, 'event_list_cal_upcoming_date_format_callback' ), // Callback
-			'event-list-cal-settings', // Page
-			'event_list_cal_date_format_section' // Section		   
+			'swp-cal-settings', // Page
+			'swp_event_list_cal_date_format_section' // Section		   
 		);
 
 		add_settings_field(
 			'event_list_cal_single_date_format', 
 			'Formát stránky s jednotlivými akcemi', 
 			array( $this, 'event_list_cal_single_date_format_callback' ), 
-			'event-list-cal-settings', 
-			'event_list_cal_date_format_section'
+			'swp-cal-settings', 
+			'swp_event_list_cal_date_format_section'
 		);
 
 		add_settings_section(
-			'event_list_cal_theme_section', // ID
+			'swp_event_list_cal_theme_section', // ID
 			'Vzhled kalendáře', // Title
 			array( $this, 'print_theme_info' ), // Callback
-			'event-list-cal-settings' // Page
+			'swp-cal-settings' // Page
 		);
 
 		add_settings_field(
-			'event_list_cal_theme', // ID
+			'swp_event_list_cal_theme', // ID
 			'Zvolte téma', // Title 
 			array( $this, 'event_list_cal_theme_callback' ), // Callback
-			'event-list-cal-settings', // Page
-			'event_list_cal_theme_section' // Section		   
+			'swp-cal-settings', // Page
+			'swp_event_list_cal_theme_section' // Section		   
 		);
 
 	}
 }
 
-if( is_admin() )
-	$my_settings = new EventListCal();
+if( is_admin() ) {
+	$my_settings = new SWPCalEvent();
+} */
 
 
 /**
