@@ -17,8 +17,8 @@ const swpCal = {
     daysArr: [],
     displayedMonth: "",
     listRendered: false,
-    // listNumEvents: 5,
-    listNumEvents: 12,
+    listNumEvents: 5,
+    // listNumEvents: 12,
 
     /**
      * Helper funkce. Nastavuje základní proměnné pro jednotlivé funkce podle relativního měsíce.
@@ -362,7 +362,7 @@ const swpCal = {
                 break;
 
             default:
-                console.log("Error. Something went wrong.");
+                console.error(`Error. Something went wrong with event "${event.title}". Check the event from your wordpress admin interface.`);
                 break;
         }
 

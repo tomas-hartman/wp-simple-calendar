@@ -2,9 +2,9 @@
 /*
 Plugin Name: Simple WordPress calendar
 Plugin URI: https://github.com/tomas-hartman/wp-simple-calendar
-Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Invokes by shortcode: swp_cal_mini and swp_cal_list. Nothing more yet. 
+Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Invokes by shortcode: swp_cal_mini and swp_cal_list. Nothing more yet. Installation: If you ever used Event list calendar in the past, this plug-in automatically imports its data to be used with SWP Calendar. After activation of SWP Calendar, please, deactivate Event list calendar as there are known incompatibility issues.   
 Author: Tomas Hartman
-Version: 0.8.5
+Version: 0.9
 Author URI: https://github.com/tomas-hartman/wp-simple-calendar
 Text Domain: simple-wp-calendar
 */
@@ -36,6 +36,39 @@ function swp_cal_post_type() {
 }
 add_action( 'init', 'swp_cal_post_type' );
 
+
+/**
+ * Activation and migration from event-list-cal
+ * https://wordpress.stackexchange.com/questions/97026/how-do-i-safely-change-the-name-of-a-custom-post-type
+ */
+function swp_cal_initial_import () {
+
+	$args = array(
+		'post_type'			=> 'event-list-cal',
+		'posts_per_page'	=> -1,
+	);
+
+	$loop = new WP_Query( $args );
+
+	if($loop->post_count < 1) return;
+
+	global $wpdb;
+	$old_post_types = array('event-list-cal' => 'swp-cal-event');
+
+	foreach ($old_post_types as $old_type=>$type) {
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET post_type = REPLACE(post_type, %s, %s) 
+							 WHERE post_type LIKE %s", $old_type, $type, $old_type ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET guid = REPLACE(guid, %s, %s) 
+							 WHERE guid LIKE %s", "post_type={$old_type}", "post_type={$type}", "%post_type={$type}%" ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET guid = REPLACE(guid, %s, %s) 
+							 WHERE guid LIKE %s", "/{$old_type}/", "/{$type}/", "%/{$old_type}/%" ) );
+	}
+	
+	swp_cal_post_type();
+	flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, "swp_cal_initial_import" );
+
 /**
  * Přehled událostí - sloupce a jejich nastavení
  */
@@ -55,10 +88,15 @@ function swp_cal_columns( $cols ) {
 add_filter( 'manage_swp-cal-event_posts_columns', 'swp_cal_columns' ); // wp si z manage_swp-cal-event_posts_columns parsuje typ lol
 
 function swp_cal_columns_data( $column, $post_id ) {
+
+	if(get_post_type($post_id) != "swp-cal-event"){
+		return;
+	}
+
     switch ( $column ) {
-      case "event-date":
-        $event_date = get_post_meta( $post_id, 'event-date', true);
-        echo $event_date;
+	  case "event-date":
+		$event_date = get_post_meta( $post_id, 'event-date', true);
+		echo $event_date; 
         break;
       case "event-repeat":
           $event_repeat = get_post_meta( $post_id, 'event-repeat', true);
@@ -108,8 +146,6 @@ function swp_cal_sortable_columns( $cols ) {
 	return $cols;
 }
 add_filter( 'manage_edit-swp-cal-event_sortable_columns', 'swp_cal_sortable_columns' );
-
-
 
 /**
  * Admin & actions
@@ -280,7 +316,7 @@ function swp_cal_add_metabox_longer( $post ) {
 	<div id="swp-cal-repeat-div" style="padding-top: 1em;">
 		<label for="swp-cal-event-repeat" style="width: 100px; display: inline-block;"><?php _e( 'Opakovat událost?', 'simple-wp-calendar' ); ?></label>
 		<input id="swp-cal-event-repeat-chck" type="checkbox" name="swp-cal-event-repeat" value="1"<?php echo $checked; ?>>
-		<div id="repeat-schedule" style="display: inline-block;">
+		<div id="swp-cal-repeat-schedule" style="display: inline-block;">
 			<label for="swp-cal-event-repeat-schedule" style="width: 100px; display: none;"><?php _e( 'Jak často', 'simple-wp-calendar' ); ?></label>
 			<select id="swp-cal-event-repeat-schedule" name="swp-cal-event-repeat-schedule" <?php echo $is_disabled; ?>>
 				<option value="1"<?php echo $weekly; ?>><?php _e( 'Týdně', 'simple-wp-calendar' ); ?></option>
@@ -295,7 +331,7 @@ function swp_cal_add_metabox_longer( $post ) {
 
 function swp_cal_meta( $post_id ) {
 
-	if ( 'swp-cal-event' != $_POST['post_type'] ) {
+	if ( 'swp-cal-event' != $_POST['post_type'] ) { // event-list-cal: toto bude potřeba upravit
 		return;
 	}
 
@@ -354,12 +390,6 @@ function swp_cal_meta( $post_id ) {
 add_action( 'save_post', 'swp_cal_meta' );
 
 
-
-/**
- * @todo Udělám si vlastní datepicker na základě mého kalendáře, v plain JS.
- * Skript s ním přidám sem.
- * Vyřeší issue #2
- */
 function swp_cal_admin_script_style( $hook ) {
 	$path = "js/";
 
@@ -368,8 +398,8 @@ function swp_cal_admin_script_style( $hook ) {
 	}
 
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
-		wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'admin-script', plugin_dir_url(__FILE__).$path.'admin.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'simpleWPCalScriptAdmin', plugin_dir_url(__FILE__).$path.'admin.js', array(), '1.0.0', true );
 		wp_enqueue_style( 'style', plugin_dir_url(__FILE__).'css/style.css');
 		// wp_enqueue_style( 'jquery-ui-calendar', plugin_dir_url(__FILE__) . 'assets/css/jquery-ui.css', false, '1.11.1', 'all' );
 	}
@@ -388,8 +418,8 @@ function swp_cal_scripts() {
 		$path = "js-babel/";
 	}
 
-	wp_enqueue_script( 'script-name', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
-	wp_localize_script( 'script-name', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
+	wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
+	wp_localize_script( 'simpleWPCalScript', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
 }
 add_action( 'wp_enqueue_scripts', 'swp_cal_scripts' );
 
@@ -441,6 +471,7 @@ function swp_cal_callback() {
 	 */
 
 		$title = get_the_title();
+		$title = html_entity_decode($title);
 		$object .= '"title": "'.$title.'",';
 
 		$permalink = get_permalink($loop->ID);
@@ -489,6 +520,86 @@ add_action( 'wp_ajax_swp-cal-event', 'swp_cal_callback' );
 add_action( 'wp_ajax_nopriv_swp-cal-event', 'swp_cal_callback' );
 
 
+/* class SWPCalEvent {
+	private $options;
+
+	public function __construct() {
+		add_action( 'admin_menu', array( $this, 'add_plugin_pages_swp' ) );
+		add_action( 'admin_init', array( $this, 'page_init_swp' ) );
+	}
+
+	public function add_plugin_pages_swp() {
+
+		add_submenu_page(
+			'edit.php?post_type=swp-cal-event',
+			'Nastavení bgbg',
+			'O plugssssinu',
+			'swp_manage_options',
+			'about',
+			array( $this, 'swp_create_about_page' )
+		);
+		add_submenu_page(
+			'edit.php?post_type=swp-cal-event',
+			'Nastavení bgbg',
+			'Nastavení bgbg',
+			'swp_manage_options',
+			'settings',
+			array( $this, 'swp_create_settings_page' )
+		);
+	}
+
+	public function page_init_swp() {
+
+		register_setting(
+			'swp-cal-settings', // Option group
+			'swp-cal-settings', // Option name
+			array( $this, 'sanitize' ) // Sanitize
+		);
+
+		add_settings_section(
+			'event_list_cal_date_format_section', // ID
+			'Nastavení formátu data', // Title
+			array( $this, 'print_date_info' ), // Callback
+			'swp-cal-settings' // Page
+		);
+
+		add_settings_field(
+			'event_list_cal_upcoming_date_format', // ID
+			'Datum nadcházejících událostí', // Title 
+			array( $this, 'event_list_cal_upcoming_date_format_callback' ), // Callback
+			'swp-cal-settings', // Page
+			'swp_event_list_cal_date_format_section' // Section		   
+		);
+
+		add_settings_field(
+			'event_list_cal_single_date_format', 
+			'Formát stránky s jednotlivými akcemi', 
+			array( $this, 'event_list_cal_single_date_format_callback' ), 
+			'swp-cal-settings', 
+			'swp_event_list_cal_date_format_section'
+		);
+
+		add_settings_section(
+			'swp_event_list_cal_theme_section', // ID
+			'Vzhled kalendáře', // Title
+			array( $this, 'print_theme_info' ), // Callback
+			'swp-cal-settings' // Page
+		);
+
+		add_settings_field(
+			'swp_event_list_cal_theme', // ID
+			'Zvolte téma', // Title 
+			array( $this, 'event_list_cal_theme_callback' ), // Callback
+			'swp-cal-settings', // Page
+			'swp_event_list_cal_theme_section' // Section		   
+		);
+
+	}
+}
+
+if( is_admin() ) {
+	$my_settings = new SWPCalEvent();
+} */
 
 
 /**
@@ -498,14 +609,14 @@ function swp_cal_mini() {
     $output = '<div id="swp-cal-mini-main"></div>';
     return $output;
 }
-add_shortcode('mini-calendar', 'swp_cal_mini');
+add_shortcode('swp-mini-calendar', 'swp_cal_mini');
 
 function swp_cal_list() {    
     $output = '<div id="swp-cal-list-main"></div>';
 
     return $output;
 }
-add_shortcode('calendar-list', 'swp_cal_list');
+add_shortcode('swp-calendar-list', 'swp_cal_list');
 
 /**
  * Invoke styles and scripts
@@ -519,6 +630,8 @@ add_action( 'wp_head', 'swp_cal_css' );
 	// echo '<script type="text/javascript" src="'.plugin_dir_url(__FILE__).'js/script.js"></script>';
 }
 add_action( 'wp_footer', 'swp_cal_javascript' ); */
+
+
 
 function is_legacy_browser(){
 	$browser = get_browser();
