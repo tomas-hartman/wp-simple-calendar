@@ -859,4 +859,4 @@ if(swpCal.anchorList || swpCal.anchorMiniCal){
 
 swpCal.run(); 
 
-// export { swpCal };
+module.exports = swpCal ;
