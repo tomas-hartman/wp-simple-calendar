@@ -2,9 +2,9 @@
 /*
 Plugin Name: Simple WordPress calendar
 Plugin URI: https://github.com/tomas-hartman/wp-simple-calendar
-Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Invokes by shortcode: swp_cal_mini and swp_cal_list. Nothing more yet. 
+Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Invokes by shortcode: swp_cal_mini and swp_cal_list. Nothing more yet. Installation: If you ever used Event list calendar in the past, this plug-in automatically imports its data to be used with SWP Calendar. After activation of SWP Calendar, please, deactivate Event list calendar as there are known incompatibility issues.   
 Author: Tomas Hartman
-Version: 0.8.5
+Version: 0.9
 Author URI: https://github.com/tomas-hartman/wp-simple-calendar
 Text Domain: simple-wp-calendar
 */
@@ -38,32 +38,36 @@ add_action( 'init', 'swp_cal_post_type' );
 
 
 /**
- * Activation
+ * Activation and migration from event-list-cal
+ * https://wordpress.stackexchange.com/questions/97026/how-do-i-safely-change-the-name-of-a-custom-post-type
  */
-// register_activation_hook( string $file, callable $function )
 function swp_cal_initial_import () {
 
 	$args = array(
-		// 'post_type'			=> 'swp-cal-event', // Takhle se to jmenuje správně
 		'post_type'			=> 'event-list-cal',
 		'posts_per_page'	=> -1,
 	);
+
 	$loop = new WP_Query( $args );
 
+	if($loop->post_count < 1) return;
+
 	global $wpdb;
+	$old_post_types = array('event-list-cal' => 'swp-cal-event');
 
-	while($loop->have_posts()) : $loop->the_post();
-		$permalink = get_permalink($loop->ID);
-		$value = get_post_custom_values('post_type');
-	endwhile;
-
-	// https://wordpress.stackexchange.com/questions/97026/how-do-i-safely-change-the-name-of-a-custom-post-type
-
+	foreach ($old_post_types as $old_type=>$type) {
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET post_type = REPLACE(post_type, %s, %s) 
+							 WHERE post_type LIKE %s", $old_type, $type, $old_type ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET guid = REPLACE(guid, %s, %s) 
+							 WHERE guid LIKE %s", "post_type={$old_type}", "post_type={$type}", "%post_type={$type}%" ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET guid = REPLACE(guid, %s, %s) 
+							 WHERE guid LIKE %s", "/{$old_type}/", "/{$type}/", "%/{$old_type}/%" ) );
+	}
+	
 	swp_cal_post_type();
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, "swp_cal_initial_import" );
-
 
 /**
  * Přehled událostí - sloupce a jejich nastavení
@@ -142,8 +146,6 @@ function swp_cal_sortable_columns( $cols ) {
 	return $cols;
 }
 add_filter( 'manage_edit-swp-cal-event_sortable_columns', 'swp_cal_sortable_columns' );
-
-
 
 /**
  * Admin & actions
