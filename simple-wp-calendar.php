@@ -447,7 +447,6 @@ function swp_cal_callback() {
 	$output = "";
 	$args = array(
 				'post_type'			=> 'swp-cal-event', // Takhle se to jmenuje správně
-				// 'post_type'			=> array('swp-cal-event', 'event-list-cal'),
 				'posts_per_page'	=> -1,
 			);
 	$loop = new WP_Query( $args );
@@ -472,6 +471,7 @@ function swp_cal_callback() {
 	 */
 
 		$title = get_the_title();
+		$title = html_entity_decode($title);
 		$object .= '"title": "'.$title.'",';
 
 		$permalink = get_permalink($loop->ID);

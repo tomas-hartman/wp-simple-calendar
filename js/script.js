@@ -362,7 +362,7 @@ const swpCal = {
                 break;
 
             default:
-                console.log("Error. Something went wrong.");
+                console.error(`Error. Something went wrong with event "${event.title}". Check the event from your wordpress admin interface.`);
                 break;
         }
 
