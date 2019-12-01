@@ -1,7 +1,4 @@
-/**
- * Není potřeba, nahrazeno funkcí ajax() v script.js
- */
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
     
     /**
      * @todo Upravit hardcode, potenciální přepis a optimalizace
@@ -22,35 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
     xhr.onload = function () {
         if (xhr.status >= 200 && xhr.status < 400) {
             var result = xhr.responseText;
-            resultCallback(result);
-            console.log(result);
+            console.log("ajax - ajax.js");   
+            // resultCallback(result);
+            // console.log(result);
         }
     };
     
-    xhr.send(data);     
-
-    /**
-     * MOCKUP Funkce
-     * @param {object} result 
-     */
-    const resultCallback = (result) => {
-        const events = JSON.parse(result);
-        const thisMonth = "10";
-        console.log(JSON.parse(result));
-
-        events.forEach(event => {
-            const date = event.eventDate.split("-");
-            if(date[1] === thisMonth){
-                console.log(date[2]);
-
-                let elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${date[2]}`);
-                console.log(elm);
-                // elm.setAttribute("class", "event");
-                elm.classList += " event";
-            }
-            console.log(date);
-        });
-    }
-
-    // return false;
-});
+    xhr.send(data);
+      
+})();

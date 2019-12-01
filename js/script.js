@@ -20,6 +20,12 @@ const swpCal = {
     listNumEvents: 5,
     // listNumEvents: 12,
 
+    events: null,
+
+    getEvents () {
+        if(typeof simpleWPCalEvents !== 'undefined') this.events = JSON.parse(simpleWPCalEvents.events);
+    },
+
     /**
      * Helper funkce. Nastavuje základní proměnné pro jednotlivé funkce podle relativního měsíce.
      * @access init, refreshData()
@@ -90,7 +96,7 @@ const swpCal = {
     /**
      * Pomocná funkce pro getWeeks() - nevolat samostatně!
      * Vytvoří mi elementy pro jednotlivé dny, včetně popisků a zvýraznění
-     * @param {number} date číslo dne z kalendáře
+     * @param {number} originDate číslo dne z kalendáře
      * @param {*} params Parametry k jednotlivým dnům, zejména popisky událostí
      * @todo
      */
@@ -164,15 +170,10 @@ const swpCal = {
             checkElm.appendChild(li);
         } else {
             const span = this.createTooltip(elm);
-
-            // const span = document.createElement("span");
             const ul = document.createElement("ul");
-            // span.classList.add("day-events");
+
             ul.appendChild(li);
             span.appendChild(ul);
-
-            // elm.classList.add("event");
-            // elm.classList.add("tooltip");
 
             elm.appendChild(span);
         }
@@ -271,11 +272,13 @@ const swpCal = {
     fcnNext () {
         this.relMonth += 1;
         this.refreshData(this.relMonth);
+        this.renderContentAll();
     },
 
     fcnPrev () {
         this.relMonth -= 1;
         this.refreshData(this.relMonth);
+        this.renderContentAll();
     },
 
     addEventOneDay (event) {
@@ -735,74 +738,11 @@ const swpCal = {
         return;
     },
 
-    run () {
-        this.getMonths(this.relMonth);
-
-        if(this.anchorList){
-            // console.log("zaciname");
-            this.getListPlaceholder(this.listNumEvents);
-        }
-
-        if(this.anchorMiniCal) {
-            this.getCalendar();       
-            this.anchorMiniCal.appendChild(this.mainElm);     
-        }
-    },
-
-    /**
-     * Funkce, která handluje všechny eventy, zavěšený na tomto objektu (kouzlo!)
-     */
-    handleEvent: (ev) => {
-        let target = ev.target.className;
-        
-        switch (target) {
-            case "next":
-                swpCal.fcnNext();
-                break;
-            case "prev":
-                swpCal.fcnPrev();
-                break;
-        }
-    }
-}
-
-const ajax = () => {
-    /**
-     * @todo Upravit hardcode, potenciální přepis a optimalizace
-     */
-    const dataSet = {
-        action: 'swp-cal-event',
-        year: 2019, //inactive
-        month: 10, //inactive
-        security: simpleWPCal.security
-    };
-    // toto by šlo přepsat lépe, ale podle toho můžu backendově filtrovat pouze "tento" měsíc, opakující se a vícedenní a tím si posílat míň dat
-    const data = `action=${dataSet.action}&year=${dataSet.year}&month=${dataSet.month}&security=${dataSet.security}`;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", simpleWPCal.ajaxurl, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-
-    xhr.onload = function () {
-        if (xhr.status >= 200 && xhr.status < 400) {
-            var result = xhr.responseText;
-            resultCallback(result);
-            // console.log(result);
-        }
-    };
-
-    xhr.send(data);
-
-    /**
-     * Renderování přijatých dat
-     * @param {object} result 
-     * @todo Prakticky celý předělat
-     */
-    const resultCallback = (result) => {
-        const events = JSON.parse(result);
+    renderContentAll () {
+        let events = this.events;
 
         // Renderování malého kalendáře
-        if(swpCal.anchorMiniCal){
+        if(this.anchorMiniCal){
             for(let i = 0; i < events.length;i++){
                 let event = events[i];
     
@@ -836,27 +776,50 @@ const ajax = () => {
          * if - planer placement je na místě
          * @todo: checknout, jestli to náhodou už není vyrenderované
          */
-        if(swpCal.anchorList){
+        if(this.anchorList){
             // render result to placeholders
-            if(!swpCal.listRendered) swpCal.renderList(events, swpCal.listNumEvents);
+            if(!this.listRendered) this.renderList(events, this.listNumEvents);
+        }
+    },
+
+    run () {
+        this.getEvents();
+        this.getMonths(this.relMonth);
+
+        if(this.anchorList){
+            // console.log("zaciname");
+            this.getListPlaceholder(this.listNumEvents);
         }
 
-    }
-}
+        if(this.anchorMiniCal) {
+            this.getCalendar();       
+            this.anchorMiniCal.appendChild(this.mainElm);     
+        }
 
-const setEventListeners = () => {
-    if(swpCal.anchorMiniCal){
-        document.querySelector("#calendar li.next").addEventListener("click", ajax);
-        document.querySelector("#calendar li.prev").addEventListener("click", ajax);
-    }
-}
+        this.renderContentAll();
+    },
 
-// Pokud jsem v admin módu, toto se nevykoná
-if(swpCal.anchorList || swpCal.anchorMiniCal){
-    document.addEventListener("DOMContentLoaded", setEventListeners);
-    document.addEventListener("DOMContentLoaded", ajax);
+    /**
+     * Funkce, která handluje všechny eventy, zavěšený na tomto objektu (kouzlo!)
+     */
+    handleEvent: (ev) => {
+        let target = ev.target.className;
+        
+        switch (target) {
+            case "next":
+                swpCal.fcnNext();
+                break;
+            case "prev":
+                swpCal.fcnPrev();
+                break;
+        }
+    }
 }
 
 swpCal.run(); 
 
-module.exports = swpCal ;
+try{
+    module.exports = swpCal ;
+} catch (error) {
+    console.log("");
+}

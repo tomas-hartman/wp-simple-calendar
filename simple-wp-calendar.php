@@ -413,6 +413,7 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
 
 function swp_cal_scripts() {
 	$path = "js/";
+	$events = swp_cal_json();
 
 	if(is_legacy_browser()){
 		$path = "js-babel/";
@@ -420,9 +421,98 @@ function swp_cal_scripts() {
 
 	wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
 	wp_localize_script( 'simpleWPCalScript', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
+	wp_localize_script( 'simpleWPCalScript', 'simpleWPCalEvents', array( 'events' => $events ));
 }
 add_action( 'wp_enqueue_scripts', 'swp_cal_scripts' );
 
+
+// function swp_cal_get_events() {
+// 	$path = "js/";
+// 	$events = swp_cal_json();
+
+// 	if(is_legacy_browser()){
+// 		$path = "js-babel/";
+// 	}
+
+// 	wp_enqueue_script( 'simpleWPCalEvents', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
+// 	// wp_enqueue_script( 'simpleWPCalEvents' );
+// 	wp_localize_script( 'simpleWPCalScript', 'simpleWPCalEvents', array( 'events' => $events ));
+// }
+// add_action( 'wp_enqueue_scripts', 'swp_cal_get_events' );
+
+
+function swp_cal_json() {
+	// check_ajax_referer( 'simple-wp-calendar', 'security' );
+
+	$i = 0;
+	$output = "";
+	$args = array(
+				'post_type'			=> 'swp-cal-event', // Takhle se to jmenuje správně
+				'posts_per_page'	=> -1,
+			);
+	$loop = new WP_Query( $args );
+
+	$output .= "[";	
+	while ( $loop->have_posts() ) : $loop->the_post();
+		if($i >= 1){
+			$object = ",{";
+		} else {
+			$object = "{";
+		}
+		
+	/**
+	 * 1. title
+	 * 2. permalink
+	 * 3. event date
+	 * 4. event time
+	 * 5. event days 
+	 * 6. $event_end
+	 * 7. $event_repeat_schedule
+	 * 8. the excerpt
+	 */
+
+		$title = get_the_title();
+		$title = html_entity_decode($title);
+		$object .= '"title": "'.$title.'",';
+
+		$permalink = get_permalink($loop->ID);
+		$object .= '"permalink": "'.$permalink.'",';
+
+		$event_date = get_post_custom_values('event-date');
+		$object .= '"eventDate": "'.$event_date[0].'",';
+
+		$event_time = get_post_custom_values('event-time');
+		$object .= '"eventTime": "'.$event_time[0].'",';
+
+		$event_days = get_post_custom_values('event-days');
+		$object .= '"eventDays": "'.$event_days[0].'",';
+
+		$event_repeat = get_post_custom_values('event-repeat');
+		$object .= '"eventRepeat": "'.$event_repeat[0].'",';
+
+		$event_end = get_post_custom_values('event-end');
+		$object .= '"eventEnd": "'.$event_end[0].'",';
+
+		$event_rep_end = get_post_custom_values('event-repetition-end');
+		$object .= '"eventRepetitionEnd": "'.$event_rep_end[0].'",';
+
+		if($event_repeat > 0) {
+					$object .= '"eventRepeatSchedule": "'.$event_repeat[0].'",';
+		} else {
+					$object .= '"eventRepeatSchedule": 0,';
+		}
+
+		$excerpt = get_the_excerpt();
+		$object .= '"excerpt": "'.$excerpt.'"';
+		
+		$object .= "}";
+		$output .= $object;
+		$i++;
+	endwhile;
+	$output .= "]";
+
+	return $output;
+}
 
 function swp_cal_callback() {
 	check_ajax_referer( 'simple-wp-calendar', 'security' );
