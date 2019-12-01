@@ -638,10 +638,6 @@ const swpCal = {
                 document.querySelector(`ul.swp-list .swp-upcoming-event-${y}`).remove();
             }
             container.appendChild(eventElm);
-                        
-            
-            // container.innerHTML += upcomingEvents[y].title;
-            // container.innerHTML += "<br>";
         }
         this.anchorList.appendChild(container);
     },
@@ -664,7 +660,6 @@ const swpCal = {
      */
 
     createListItem (event, iter) {
-        // console.log(event);
         const date = event.eventDate.split("-");
         const year = date[0];
         const yearFits = this.today.getFullYear() === parseInt(year) ? true : false;
@@ -709,8 +704,7 @@ const swpCal = {
             spanYear.innerText = year;
             div.appendChild(spanYear);
         } 
-            
-        // div.appendChild(spanYear);
+
         divEvent.appendChild(aElm);
 
         li.appendChild(div);
@@ -789,12 +783,12 @@ const swpCal = {
         if(this.anchorList){
             // console.log("zaciname");
             this.getListPlaceholder(this.listNumEvents);
-        }
+        } else (console.log("chybí Anchor List"));
 
         if(this.anchorMiniCal) {
             this.getCalendar();       
             this.anchorMiniCal.appendChild(this.mainElm);     
-        }
+        } else (console.log("chybí Anchor mini cal"));
 
         this.renderContentAll();
     },
@@ -816,7 +810,7 @@ const swpCal = {
     }
 }
 
-swpCal.run(); 
+// swpCal.run(); 
 
 try{
     module.exports = swpCal ;
