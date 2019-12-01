@@ -61,7 +61,7 @@
 /* Days (1-31) */
 .days {
   padding: 0;
-  background: #bdc3c7;
+  /* background: #bdc3c7; */
   margin: 0;
   cursor: default;
 }
@@ -111,10 +111,18 @@
   box-shadow: 0 4px #9b59b6 inset;
 }
 
+.days > li {
+  background-color: #bdc3c7;
+}
+
 .days > li > span {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.days > li.weekend {
+  background-color: rgba(127, 140, 141, 0.5);
 }
 
 .datepicker .days li > span:hover {
