@@ -39,3 +39,14 @@ There is a good deal of features those would need more work and some other issue
 If you spot any bugs or have a feature proposition, please make an new issue at https://github.com/tomas-hartman/wp-simple-calendar/issues/.
 
 This plugin currently do not offer any other languages than Czech and customary *continental* layout of weekdays (weeks starting on Monday). In addition, there is currently only one graphic theme of the calendar. These are some of the most desired features for possible future releases. 
+
+## Compatibility
+
+- Should work the best with modern desktop browsers.
+- Should work pretty well with mobile devices but some changes will be going on, especially on UX side [#29](https://github.com/tomas-hartman/wp-simple-calendar/issues/29).
+
+### Legacy browser support:
+- IE11
+- Firefox > 60
+- Chrome > 69
+- Safari > 11.1
