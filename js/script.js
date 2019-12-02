@@ -445,34 +445,6 @@ const swpCal = {
     },
 
     /**
-     * Renders placeholder for events list
-     * @param {number} size 
-     */
-    getListPlaceholder (size){
-        const ulElm = document.createElement("ul");
-        ulElm.classList.add("swp-list");
-
-        for(let i=0;i<size;i++){
-            const liElm = document.createElement("li");
-            const divDate = document.createElement("div");
-            const divTitle = document.createElement("div");
-
-
-            liElm.classList.add(`swp-upcoming-event-${i}`);
-
-            divDate.classList.add("swp-list-date-placeholder");
-            divTitle.classList.add("swp-list-title-placeholder");
-
-            liElm.appendChild(divDate);
-            liElm.appendChild(divTitle);
-
-            ulElm.appendChild(liElm);
-        }
-
-        this.anchorList.appendChild(ulElm);
-    },
-
-    /**
      * 
      * @param {array} events výsledek XHR requestu
      * @param {number} size počet dní, pro které chci akci vykreslit -> tolikrát se maximálně může za sebou událost zobrazit
@@ -620,9 +592,6 @@ const swpCal = {
             return new Date(b.eventDate) - new Date(a.eventDate);
         });
         
-        // console.log("allover:");
-        // console.log(upcomingEvents);
-        
         /**
          * Renderování polí
          */
@@ -631,6 +600,11 @@ const swpCal = {
         if(isContainer) container = document.querySelector("ul.swp-list");
         
         if(upcomingEvents.length < size) size = upcomingEvents.length;
+        
+        if(upcomingEvents.length === 0){
+            this.anchorList.innerText = "Nejsou žádné nadcházející události.";
+            return;
+        } 
 
         for(let y=0; y<size; y++){
             
@@ -782,15 +756,17 @@ const swpCal = {
         this.getEvents();
         this.getMonths(this.relMonth);
 
-        if(this.anchorList){
-            // console.log("zaciname");
-            this.getListPlaceholder(this.listNumEvents);
-        } else (console.log("chybí Anchor List"));
+        /**
+         * @todo @nemazat Možnost přidat sem placeholder "události se načítají".
+         */
+        // if(this.anchorList){
+        //     // console.log("zaciname");
+        // } else {console.warn("chybí Anchor List")};
 
         if(this.anchorMiniCal) {
             this.getCalendar();       
             this.anchorMiniCal.appendChild(this.mainElm);     
-        } else (console.log("chybí Anchor mini cal"));
+        } else {console.warn("chybí Anchor mini cal")};
 
         this.renderContentAll();
     },
