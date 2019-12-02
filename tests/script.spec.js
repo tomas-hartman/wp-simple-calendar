@@ -1,5 +1,6 @@
 import swpCal from '../js/script';
-// console.log(swpCal);
+
+swpCal.run();
 
 
 test('createMonthTitle', () => {
@@ -79,4 +80,6 @@ test("createElm: today, HTMLElement", () => {
     expect(output.firstChild.classList.contains("active")).toBeTruthy();
 });
 
-// todo: createTooltip, createEventElm --> přepsat! + důležitý!, getWeeks, createListItem 
+/**
+ * @todo createTooltip, createEventElm --> přepsat! + důležitý!, getWeeks, createListItem 
+ */
