@@ -669,6 +669,8 @@ const swpCal = {
         
         divEvent.classList.add("swp-list-title");
         aElm.setAttribute("href", event.permalink);
+        aElm.setAttribute("title", event.title);
+        aElm.classList.add("truncate-overflow");
         aElm.innerText = event.title;
 
         div.appendChild(spanDate);

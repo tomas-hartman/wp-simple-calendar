@@ -223,6 +223,7 @@ LIST
   font-weight: 400;
   font-size: 15px;
   margin-top: 5px;
+  line-height: 1.4rem;
 }
 
 #swp-cal-list-main ul{
@@ -261,10 +262,20 @@ span.swp-till {
   background-color: #bdc3c7;
   box-shadow: 4px 0px #808080, 2px 2px 0px 2px #7F8C8D;
   width: 100%;
-  padding: 9px 5px 1px 10px;
+  padding: 6px 5px 1px 10px;
   margin-left: 3px;
   transition: 0.05s;
 }
+
+.truncate-overflow {
+  /* Zdrcnutí řádku. Legacy bude bez teček. */
+
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 
 #swp-cal-list-main li .swp-list-title a:hover {
   box-shadow: none;
