@@ -38,6 +38,7 @@
   cursor: pointer;
   display: block;
   width: 35px;
+  user-select: none;
 }
 
 /* Next button */
@@ -46,6 +47,7 @@
   cursor: pointer;
   display: block;
   width: 35px;
+  user-select: none;
 }
 
 .month .next:hover, .month .prev:hover {
@@ -123,6 +125,10 @@
 
 .days > li.weekend {
   background-color: rgba(127, 140, 141, 0.5);
+}
+
+.datepicker .days {
+  background: #bdc3c7;
 }
 
 .datepicker .days li > span:hover {
