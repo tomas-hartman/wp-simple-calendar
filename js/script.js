@@ -630,6 +630,8 @@ const swpCal = {
         const isContainer = document.querySelector("ul.swp-list") ? true : false
         if(isContainer) container = document.querySelector("ul.swp-list");
         
+        if(upcomingEvents.length < size) size = upcomingEvents.length;
+
         for(let y=0; y<size; y++){
             
             let eventElm = this.createListItem(upcomingEvents[y], y);
