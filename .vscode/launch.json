@@ -4,6 +4,14 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        {
+            "type": "chrome",
+            "request": "attach",
+            "name": "hradecns.cz_git",
+            "port": 9222,
+            "url": "http://localhost/hradecns.cz_git/",
+            "webRoot": "${workspaceFolder}/js/"
+        },
         
         {
             "type": "chrome",
@@ -12,12 +20,13 @@
             "url": "http://localhost/hradecns.cz_git/",
             "webRoot": "${workspaceFolder}/js/"
         },
+        
         {
             "type": "chrome",
             "request": "attach",
-            "name": "Attach to Chrome",
+            "name": "wordpress-calendar",
             "port": 9222,
-            "url": "http://localhost/hradecns.cz_git/",
+            "url": "http://localhost/wordpress-calendar/",
             "webRoot": "${workspaceFolder}/js/"
         },
         {

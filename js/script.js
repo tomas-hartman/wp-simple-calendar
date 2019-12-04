@@ -508,48 +508,52 @@ const swpCal = {
                          * @todo this.relmonth bude dělat chyby v tomhle případě! - mělo by být pokaždý nula, ne?
                          */
                         let dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
-                            for(let n=0;n<size;n++){ 
-                                if(eventRepetitionEnd !== "" && dayOfWeeklyEvent > eventRepetitionEnd) break;
-                                // console.log(dayOfWeeklyEvent);
-                                // console.log(this.todayNorm);
-                                if(dayOfWeeklyEvent >= this.today){
-                                    upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
-                                } else {
-                                    // Pokud opakovaná událost začíná v minulosti
-                                    /**
-                                     * tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce
-                                     * tady je potřeba 
-                                     */ 
-                                    let diff = this.today - dayOfWeeklyEvent;
-                                    let yearMs = 24*60*60*1000;
-                                    let daysOffset = Math.floor(diff/yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
-                                    let weeksOffset = Math.ceil(daysOffset/7); // rozdíl v týdnech - ten potřebuju, abych zachoval týdenní rozestupy
+                        
+                        for(let n=0;n<size;n++){ 
+                            if(eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
+                            if(eventRepetitionEnd !== "" && dayOfWeeklyEvent > eventRepetitionEnd) break; // safe break for events ending in the future
+                            // console.log(dayOfWeeklyEvent);
+                            // console.log(this.todayNorm);
+                            if(dayOfWeeklyEvent >= this.today){
+                                upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
+                            } else {
+                                // Pokud opakovaná událost začíná v minulosti
+                                /**
+                                 * tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce
+                                 * tady je potřeba 
+                                 */ 
+                                let diff = this.today - dayOfWeeklyEvent;
+                                let yearMs = 24*60*60*1000;
+                                let daysOffset = Math.floor(diff/yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
+                                let weeksOffset = Math.ceil(daysOffset/7); // rozdíl v týdnech - ten potřebuju, abych zachoval týdenní rozestupy
 
-                                    dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7*weeksOffset);
-                                    upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
-                                }
-
-                                dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7);
+                                dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7*weeksOffset);
+                                upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
                             }
+
+                            dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7);
+                        }
                         break;
                         
                     case 2: // měsíční akce
-                            let dayOfEvent = eventStartDate;
+                        let eventRepetitionStart = eventStartDate;
+                        
+                        for(let n=0;n<size;n++){ 
+                            if(eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
                             
-                            for(let n=0;n<size;n++){ 
-                                if(eventRepetitionEnd !== "" && dayOfEvent > eventRepetitionEnd) break;
+                            if(eventRepetitionEnd !== "" && eventRepetitionStart > eventRepetitionEnd) break; // safe break for events ending in the future
 
-                                if(dayOfEvent < this.todayNorm){
-                                    dayOfEvent = new Date(this.today.getFullYear(), this.today.getMonth(), dayOfEvent.getDate());
-    
-                                    if(dayOfEvent < this.todayNorm){
-                                        dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
-                                    }
+                            if(eventRepetitionStart < this.todayNorm){
+                                eventRepetitionStart = new Date(this.today.getFullYear(), this.today.getMonth(), eventRepetitionStart.getDate());
+
+                                if(eventRepetitionStart < this.todayNorm){
+                                    eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
                                 }
-
-                                upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
-                                dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
                             }
+
+                            upcomingEvents.push(this.createEventForList(events[i], eventRepetitionStart));
+                            eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
+                        }
                         break;
 
                     /**
@@ -564,6 +568,8 @@ const swpCal = {
                         let dayOfYearlyEvent = eventStartDate;
                             
                         for(let n=0;n<size;n++){ 
+                            if(eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break;
+
                             if(eventRepetitionEnd !== "" && dayOfYearlyEvent > eventRepetitionEnd) break;
 
                             if(dayOfYearlyEvent < this.todayNorm){
