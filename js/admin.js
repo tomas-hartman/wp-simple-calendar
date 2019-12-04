@@ -70,6 +70,31 @@ swpCal.adminGetNumDays = function () {
 }
 
 /**
+ * @todo Rozpracovat víc, co chci, platné by mělo být:
+ * - 10.1.2019  !! 1. října
+ * - 1.6.2019   !! 6. ledna
+ * - 2019-6-1      1. června
+ * - 2019-12-24    24. prosince
+ * - 24.12.2019 !! Invalid date
+ * - 2019-02-31 !! 3. března
+ * - a ostatní, stringy spod.
+ * 
+ * 10.1.2019#1.6.2019#2019-6-1#2019-12-24#2019-02-31#24.12.2019
+ * 
+ * Pomocí regexu!
+ * 
+ * Zatím testuje pouze, jestli tam nebylo vyloženě neplatné datum, string apod.
+ */
+swpCal.handleInputDate = function (value){
+    let output = new Date(value);
+
+    if(output instanceof Date && !isNaN(output.valueOf())) return value;
+
+    
+    return this.getDateString(this.todayNorm); // když nic neklapne, je špatný datum a patří tam dnešní datum
+}
+
+/**
  * @todo refaktor!
  * @param {MouseEvent} ev 
  */
@@ -78,7 +103,8 @@ swpCal.handleAdminEvents = function (ev) {
         case "swp-cal-event-date":
             this.adminGetCalendar(ev);
 
-            ev.target.addEventListener("focusout", () => {
+            ev.target.addEventListener("focusout", (ev) => {
+                ev.target.value = this.handleInputDate(ev.target.value);
                 this.adminGetNumDays();
             }, {once: true});
 
@@ -88,7 +114,8 @@ swpCal.handleAdminEvents = function (ev) {
             if(document.querySelector("#swp-cal-event-date-end").disabled) break;
             this.adminGetCalendar(ev);
 
-            ev.target.addEventListener("focusout", () => {
+            ev.target.addEventListener("focusout", (ev) => {
+                ev.target.value = this.handleInputDate(ev.target.value);
                 this.adminGetNumDays();
             }, {once: true});
 
