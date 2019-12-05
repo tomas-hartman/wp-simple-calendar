@@ -2,10 +2,16 @@
     "scripts": {
         "test": "jest"
     },
+    "jest": {
+        "transform": {
+            "^.+\\.jsx?$": "babel-jest"
+        }
+    },
     "devDependencies": {
         "@babel/cli": "^7.7.4",
         "@babel/core": "^7.7.4",
         "@babel/preset-env": "^7.7.4",
+        "babel-jest": "^24.9.0",
         "jest": "^24.9.0"
     },
     "dependencies": {

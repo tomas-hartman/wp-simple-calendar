@@ -20,6 +20,7 @@ const swpCal = {
     listNumEvents: 5,
     // listNumEvents: 12,
 
+    calFormat: "cs",
     events: null,
 
     getEvents () {
