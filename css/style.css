@@ -39,6 +39,8 @@
   display: block;
   width: 35px;
   user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 /* Next button */
@@ -48,6 +50,8 @@
   display: block;
   width: 35px;
   user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .month .next:hover, .month .prev:hover {

@@ -99,11 +99,11 @@ swpCal.handleInputDate = function (value){
         // pracuj s 2019-12-15
         value = value.split("-");
         const lastDayOfMonth = new Date(parseInt(value[0]),parseInt(value[1]),0);
-        const dayFromValue = new Date(parseInt(value[0]),parseInt(value[1]),parseInt(value[2]));
+        const dayFromValue = new Date(parseInt(value[0]),parseInt(value[1])-1,parseInt(value[2]));
         if( dayFromValue > lastDayOfMonth ){
             return this.getDateString(lastDayOfMonth);
         }
-        return this.getDateString(value);
+        return this.getDateString(value.toString());
 
     } else if(value.match(regex2)){
         // pracuj s 6.12.2019 a zjisti, jestli je to 6. prosince (cs) nebo 12. června (us)
@@ -114,12 +114,12 @@ swpCal.handleInputDate = function (value){
 
         if(format === "cs"){
             lastDayOfMonth = new Date(parseInt(value[2]),parseInt(value[1]),0);
-            dayFromValue = new Date(parseInt(value[2]),parseInt(value[1]),parseInt(value[0]));
+            dayFromValue = new Date(parseInt(value[2]),parseInt(value[1])-1,parseInt(value[0]));
         } else {
             console.warn("handleInputDate: format !== CS, date output handled as US");
 
             lastDayOfMonth = new Date(parseInt(value[2]),parseInt(value[0]),0);
-            dayFromValue = new Date(parseInt(value[2]),parseInt(value[0]),parseInt(value[1]));
+            dayFromValue = new Date(parseInt(value[2]),parseInt(value[0])-1,parseInt(value[1]));
         }
 
         if( dayFromValue > lastDayOfMonth ){
@@ -247,13 +247,13 @@ swpCal.adminValidate = function(el) {
     }
 
     if(!eventStartElement.value.match(regexYear)){
-        const text = "Datum události je ve špatném formátu. Napište datum ve formátu 2019-11-04 nebo jej vyberte z kalendáře.";
+        const text = "Datum události je ve špatném formátu. Vyberte datum z kalendáře nebo jej napište ve formátu 2019-11-04.";
         this.adminValidationErr(text, eventStartElement);
         el.preventDefault ? el.preventDefault() : el.returnValue = false;
     } 
 
     if(!eventEndElement.disabled && !eventEndElement.value.match(regexYear)){
-        const text = "Datum konce události je ve špatném formátu. Napište datum ve formátu 2019-11-04 nebo jej vyberte z kalendáře.";
+        const text = "Datum konce události je ve špatném formátu. Vyberte datum z kalendáře nebo jej napište ve formátu 2019-11-04.";
         this.adminValidationErr(text, eventEndElement);
         el.preventDefault ? el.preventDefault() : el.returnValue = false;
     } 

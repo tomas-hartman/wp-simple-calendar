@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: Simple WordPress calendar
+Plugin Name: WordPress calendar by Tomas Hartman
 Plugin URI: https://github.com/tomas-hartman/wp-simple-calendar
 Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Invokes by shortcode: swp_cal_mini and swp_cal_list. Nothing more yet. Installation: If you ever used Event list calendar in the past, this plug-in automatically imports its data to be used with SWP Calendar. After activation of SWP Calendar, please, deactivate Event list calendar as there are known incompatibility issues.   
 Author: Tomas Hartman
-Version: 0.9
-Author URI: https://github.com/tomas-hartman/wp-simple-calendar
+Version: 1.0-beta
+Author URI: https://github.com/tomas-hartman/
 Text Domain: simple-wp-calendar
 */
 
@@ -394,7 +394,7 @@ function swp_cal_admin_script_style( $hook ) {
 	$path = "js/";
 
 	if(is_legacy_browser()){
-		$path = "js-babel/";
+		$path = "js-legacy/";
 	}
 
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
@@ -415,7 +415,7 @@ function swp_cal_scripts() {
 	$events = swp_cal_json();
 
 	if(is_legacy_browser()){
-		$path = "js-babel/";
+		$path = "js-legacy/";
 	}
 
 	wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', false ); // loads in header
