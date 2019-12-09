@@ -1,5 +1,26 @@
 "use strict";
 
+// polyfill
+// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
+(function (arr) {
+  arr.forEach(function (item) {
+    if (item.hasOwnProperty('remove')) {
+      return;
+    }
+    Object.defineProperty(item, 'remove', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function remove() {
+        if (this.parentNode === null) {
+          return;
+        }
+        this.parentNode.removeChild(this);
+      }
+    });
+  });
+})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
+
 var swpCal = {
   weekdayNames: ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"],
   monthNames: ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"],
@@ -9,6 +30,7 @@ var swpCal = {
   mainElm: document.createElement("div"),
   daysElm: document.createElement("ul"),
   today: new Date(),
+  todayNorm: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
   relMonth: 0,
   firstDayOfMonth: "",
   firstDayOfNextMonth: "",
@@ -17,6 +39,12 @@ var swpCal = {
   displayedMonth: "",
   listRendered: false,
   listNumEvents: 5,
+  // listNumEvents: 12,
+  calFormat: "cs",
+  events: null,
+  getEvents: function getEvents() {
+    if (typeof simpleWPCalEvents !== 'undefined') this.events = JSON.parse(simpleWPCalEvents.events);
+  },
 
   /**
    * Helper funkce. Nastavuje základní proměnné pro jednotlivé funkce podle relativního měsíce.
@@ -76,7 +104,7 @@ var swpCal = {
   /**
    * Pomocná funkce pro getWeeks() - nevolat samostatně!
    * Vytvoří mi elementy pro jednotlivé dny, včetně popisků a zvýraznění
-   * @param {number} date číslo dne z kalendáře
+   * @param {number} originDate číslo dne z kalendáře
    * @param {*} params Parametry k jednotlivým dnům, zejména popisky událostí
    * @todo
    */
@@ -86,11 +114,10 @@ var swpCal = {
     var date = originDate; // Chci, aby datum v classe bylo ve formátu 05, 06 apod.
 
     if (typeof date !== "undefined" && date < 10) {
-      date = "0".concat(originDate); // console.log(date);
+      date = "0".concat(originDate);
     }
 
-    if (this.firstDayOfMonth.getMonth() === this.today.getMonth() && originDate === this.today.getDate()) {
-      // const todayElm = document.createElement("span");
+    if (this.firstDayOfMonth.getFullYear() === this.today.getFullYear() && this.firstDayOfMonth.getMonth() === this.today.getMonth() && originDate === this.today.getDate()) {
       span.setAttribute("class", "active");
       span.setAttribute("id", "day-".concat(date));
       span.innerText = originDate;
@@ -145,14 +172,10 @@ var swpCal = {
     if (checkElm && !checkHref) {
       checkElm.appendChild(li);
     } else {
-      var span = this.createTooltip(elm); // const span = document.createElement("span");
-
-      var ul = document.createElement("ul"); // span.classList.add("day-events");
-
+      var span = this.createTooltip(elm);
+      var ul = document.createElement("ul");
       ul.appendChild(li);
-      span.appendChild(ul); // elm.classList.add("event");
-      // elm.classList.add("tooltip");
-
+      span.appendChild(ul);
       elm.appendChild(span);
     }
   },
@@ -247,17 +270,18 @@ var swpCal = {
     var monthHeader = document.querySelector("#calendar li.month-header");
     this.getMonths(relMonth);
     monthHeader.innerHTML = this.createMonthTitle(this.firstDayOfMonth);
-    var elm = this.mainElm.querySelector("ul.days");
-    elm.parentNode.removeChild(elm);
+    this.mainElm.querySelector("ul.days").remove();
     this.mainElm.appendChild(this.getWeeks());
   },
   fcnNext: function fcnNext() {
     this.relMonth += 1;
     this.refreshData(this.relMonth);
+    this.renderContentAll();
   },
   fcnPrev: function fcnPrev() {
     this.relMonth -= 1;
     this.refreshData(this.relMonth);
+    this.renderContentAll();
   },
   addEventOneDay: function addEventOneDay(event) {
     var date = event.eventDate.split("-");
@@ -320,11 +344,19 @@ var swpCal = {
   addEventRepeated: function addEventRepeated(event) {
     var thisMonth = this.firstDayOfMonth.getMonth() + 1;
     var date = event.eventDate.split("-");
+    var firstDate = new Date(event.eventDate);
+    firstDate.setHours(0);
+    var lastDate = "";
+
+    if (event.eventRepetitionEnd !== "") {
+      lastDate = new Date(event.eventRepetitionEnd);
+    } else lastDate = null;
     /**
      * Check periodicity of repetition: 0 = none; 1 = weekly; 2 = monthly; 3 = yearly
      * 
      * Check month -> show.
      */
+
 
     switch (parseInt(event.eventRepeat)) {
       case 1:
@@ -340,25 +372,35 @@ var swpCal = {
         break;
 
       default:
-        console.log("Error. Something went wrong.");
+        console.error("Error. Something went wrong with event \"".concat(event.title, "\". Check the event from your wordpress admin interface."));
         break;
     }
+    /**
+     * Jako jediná se může zobrazovat i před prvním datem akce (svátky, výročí, navíc je to tak daleko že je to jedno) pokud je forever
+     */
+
 
     function addRepeatedYearly() {
       if (parseInt(date[1]) === thisMonth) {
+        var currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), date[2]);
+        if (lastDate && currentEventDate > lastDate) return; // nezobrazujeme po datu konce
+
+        if (lastDate && firstDate > currentEventDate) return; // nezobrazujeme před datem začátku - pokud má zároveň i konec
+
         var elm = document.querySelector("#swp-cal-mini-main #calendar .days #day-".concat(date[2]));
         swpCal.createEventElm(event, elm);
       }
     }
 
     function addRepeatedMonthly() {
+      var currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), date[2]);
+      if (lastDate && currentEventDate > lastDate) return; // nezobrazujeme po datu konce
+
+      if (firstDate > currentEventDate) return; // nezobrazujeme před datem začátku
+
       var elm = document.querySelector("#swp-cal-mini-main #calendar .days #day-".concat(date[2]));
       swpCal.createEventElm(event, elm);
     }
-    /**
-     * @todo Upravit, aby se nezobrazovalo před prvním datem opakování
-     */
-
 
     function addRepeatedWeekly() {
       /**
@@ -369,7 +411,6 @@ var swpCal = {
        *    1. pondělí v měcíci
        *      úterý(2) - pondělí(den 1 + 7 dní (další týden - protože je větší)) = 6 (korekce je tedy 6)
        */
-      var firstDate = new Date(event.eventDate);
       var eventDay = firstDate.getDay(); // den v měsíci, kdy se akce koná
 
       var monthDayOfWeek = swpCal.firstDayOfMonth.getDay(); // první den daného měsíce
@@ -378,14 +419,28 @@ var swpCal = {
 
       if (eventDay < monthDayOfWeek) {
         diff = eventDay + 7 - monthDayOfWeek;
-      } else {
-        diff = eventDay - monthDayOfWeek;
-      }
+      } else diff = eventDay - monthDayOfWeek;
 
-      var eventStartDate = diff + 1; // tento den se akce koná v tomto měsíci poprvé; všechny další event days jsou toto + 7
+      var currentEventDayOfMonth = diff + 1; // tento den se akce koná v tomto měsíci poprvé; všechny další event days jsou toto + 7
 
-      while (eventStartDate <= swpCal.lastDayOfMonth.getDate()) {
-        var str = eventStartDate.toString();
+      var currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), currentEventDayOfMonth);
+      /**
+       * 1. konkrétní instance události se generuje pouze do konce daného měsíce &&
+       * 2. pokud končí už před koncem měsíce, dále už se neopakuje
+       * 3. pokud začíná až v průběhu měsíce, taky se negeneruje
+       */
+
+      while (currentEventDayOfMonth <= swpCal.lastDayOfMonth.getDate()) {
+        if (lastDate && currentEventDate > lastDate) break; // událost má eventRepetitionEnd
+
+        if (currentEventDate < firstDate) {
+          // událost se nemá opakovat předtím, než byla vytvořena
+          currentEventDayOfMonth = currentEventDayOfMonth + 7;
+          currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), currentEventDayOfMonth);
+          continue;
+        }
+
+        var str = currentEventDayOfMonth.toString();
 
         if (str.length < 2) {
           str = "0".concat(str);
@@ -393,41 +448,19 @@ var swpCal = {
 
         var elm = document.querySelector("#swp-cal-mini-main #calendar .days #day-".concat(str));
         swpCal.createEventElm(event, elm);
-        eventStartDate = eventStartDate + 7;
+        currentEventDayOfMonth = currentEventDayOfMonth + 7;
+        currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), currentEventDayOfMonth);
       }
     }
-  },
-
-  /**
-   * Renders placeholder for events list
-   * @param {number} size 
-   */
-  getListPlaceholder: function getListPlaceholder(size) {
-    var ulElm = document.createElement("ul");
-    ulElm.classList.add("swp-list");
-
-    for (var i = 0; i < size; i++) {
-      var liElm = document.createElement("li");
-      var divDate = document.createElement("div");
-      var divTitle = document.createElement("div");
-      liElm.classList.add("swp-upcoming-event-".concat(i));
-      divDate.classList.add("swp-list-date-placeholder");
-      divTitle.classList.add("swp-list-title-placeholder");
-      liElm.appendChild(divDate);
-      liElm.appendChild(divTitle);
-      ulElm.appendChild(liElm);
-    }
-
-    this.anchorList.appendChild(ulElm);
   },
 
   /**
    * 
    * @param {array} events výsledek XHR requestu
    * @param {number} size počet dní, pro které chci akci vykreslit -> tolikrát se maximálně může za sebou událost zobrazit
+   * @todo __Přepsat celou metodu a rozdělit ji na jednotlivé funkce__
    */
   renderList: function renderList(events, size) {
-    // @todo pokud mám nastávajících událostí míň, než je size, pak vykreslit správně! 
     var container = document.createElement("ul");
     container.classList.add("swp-list");
     var upcomingEvents = [];
@@ -441,21 +474,32 @@ var swpCal = {
       var daysLen = parseInt(events[i].eventDays);
       var eventStartDate = new Date(events[i].eventDate);
       var eventEndDate = "";
+      var eventRepetitionEnd = ""; // PHASE 1: GETTING DATA READY //
 
       if (events[i].eventEnd && events[i].eventEnd !== "0") {
         eventEndDate = new Date(events[i].eventEnd);
       } else {
-        eventEndDate = new Date(events[i].eventDate); // eventEndDate.setHours(eventEndDate.getHours() + daysLen * 24);
-
+        eventEndDate = new Date(events[i].eventDate);
         eventEndDate.setDate(eventEndDate.getDate() + (daysLen - 1));
-      } // 1. obyč nadcházející jednorázové akce
+      }
+
+      if (events[i].eventRepetitionEnd && events[i].eventRepetitionEnd !== "0") {
+        eventRepetitionEnd = new Date(events[i].eventRepetitionEnd);
+      } // PHASE 2: PREPARING upcomingEvents // 
+
+      /**
+       * 1. obyč nadcházející jednorázové akce
+       */
 
 
       if (eventStartDate >= this.today && repeatMode === 0 && daysLen === 1) {
         upcomingEvents.push(events[i]);
-      } // 2. vícedenní akce @todo vícedenní opakované akce!
-      // dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
-      else if (daysLen > 1 && (eventStartDate >= this.today || eventEndDate >= this.today)) {
+      }
+      /**
+       * 2. vícedenní akce @todo vícedenní opakované akce!
+       * dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
+       */
+      else if (daysLen > 1 && (eventStartDate >= this.today || eventEndDate >= this.today) && repeatMode === 0) {
           // případ kdy akce končí po dnešku, ale začíná někdy dříve - i ty potřebuju použít
           if (eventStartDate < this.today && eventEndDate >= this.today) {
             upcomingEvents.push(this.createEventForList(events[i], eventStartDate, eventEndDate));
@@ -464,9 +508,10 @@ var swpCal = {
 
 
           upcomingEvents.push(this.createEventForList(events[i], eventStartDate, eventEndDate));
-        } // 3. opakující se akce
-
+        }
         /**
+         * 3. opakující se akce
+         * 
          * @todo case 2 a case 3 jsou úplně totožné, rozdíl je v tom, že u jednoho se přičítá jednička ke dni, u druhého k roku
          * @todo case 1 je kromě offsetu v případě prvního výskytu hodně blízký dalším casům
          */
@@ -477,15 +522,26 @@ var swpCal = {
 
                 /**
                  * budu checkovat v jakej den se koná a přidám 'size' jejich instancí po datu today
-                 * @todo this.relmonth bude dělat chyby v tomhle případě!
+                 * @todo this.relmonth bude dělat chyby v tomhle případě! - mělo by být pokaždý nula, ne?
                  */
-                var dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                var dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth()
+                /* + this.relMonth */
+                , eventStartDate.getDate());
 
                 for (var n = 0; n < size; n++) {
+                  if (eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
+
+                  if (eventRepetitionEnd !== "" && dayOfWeeklyEvent > eventRepetitionEnd) break; // safe break for events ending in the future
+
                   if (dayOfWeeklyEvent >= this.today) {
                     upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
                   } else {
-                    // tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce 
+                    // Pokud opakovaná událost začíná v minulosti
+
+                    /**
+                     * tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce
+                     * tady je potřeba 
+                     */
                     var diff = this.today - dayOfWeeklyEvent;
                     var yearMs = 24 * 60 * 60 * 1000;
                     var daysOffset = Math.floor(diff / yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
@@ -503,67 +559,84 @@ var swpCal = {
 
               case 2:
                 // měsíční akce
-                var dayOfEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                var eventRepetitionStart = eventStartDate;
 
                 for (var _n = 0; _n < size; _n++) {
-                  if (dayOfEvent >= this.today) {
-                    upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
-                  } else {
-                    dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
-                    upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
+                  if (eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
+
+                  if (eventRepetitionEnd !== "" && eventRepetitionStart > eventRepetitionEnd) break; // safe break for events ending in the future
+
+                  if (eventRepetitionStart < this.todayNorm) {
+                    eventRepetitionStart = new Date(this.today.getFullYear(), this.today.getMonth(), eventRepetitionStart.getDate());
+
+                    if (eventRepetitionStart < this.todayNorm) {
+                      eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
+                    }
                   }
 
-                  dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
+                  upcomingEvents.push(this.createEventForList(events[i], eventRepetitionStart));
+                  eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
                 }
 
                 break;
 
               case 3:
                 // roční akce
-                var dayOfYearlyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() + this.relMonth, eventStartDate.getDate());
+                var dayOfYearlyEvent = eventStartDate;
 
                 for (var _n2 = 0; _n2 < size; _n2++) {
-                  if (dayOfYearlyEvent >= this.today) {
-                    upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
-                  } else {
-                    dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
-                    upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
+                  if (eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break;
+                  if (eventRepetitionEnd !== "" && dayOfYearlyEvent > eventRepetitionEnd) break;
+
+                  if (dayOfYearlyEvent < this.todayNorm) {
+                    dayOfYearlyEvent = new Date(this.today.getFullYear(), dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate()); // pokud je stále ještě menší, pak jde o událost, která už letos proběhla a je třeba ji přeskočit
+
+                    if (dayOfYearlyEvent < this.todayNorm) {
+                      dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
+                    }
                   }
 
+                  upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
                   dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
                 }
 
                 break;
 
               default:
-                console.log("event repeatMode not standard: ".concat(repeatMode));
+                console.warn("Event repeatMode non-standard: ".concat(repeatMode));
                 break;
             }
+          } else {
+            // FALLBACK IF NOTHING WORKS OUT WELL
+            console.warn("Event non-standard or broken data:");
+            console.warn(events[i]);
           }
     }
 
     upcomingEvents.sort(function (b, a) {
       return new Date(b.eventDate) - new Date(a.eventDate);
-    }); // console.log("allover:");
-    // console.log(upcomingEvents);
-
+    });
     /**
      * Renderování polí
      */
 
     var isContainer = document.querySelector("ul.swp-list") ? true : false;
     if (isContainer) container = document.querySelector("ul.swp-list");
+    if (upcomingEvents.length < size) size = upcomingEvents.length;
+
+    if (upcomingEvents.length === 0) {
+      this.anchorList.innerText = "Nejsou žádné nadcházející události.";
+      return;
+    }
 
     for (var y = 0; y < size; y++) {
       var eventElm = this.createListItem(upcomingEvents[y], y);
 
       if (isContainer) {
-        var cont = document.querySelector("ul.swp-list .swp-upcoming-event-".concat(y));
-        cont.parentNode.removeChild(cont);
+        document.querySelector("ul.swp-list .swp-upcoming-event-".concat(y)).remove();
       }
 
-      container.appendChild(eventElm); // container.innerHTML += upcomingEvents[y].title;
-      // container.innerHTML += "<br>";
+      container.appendChild(eventElm);
     }
 
     this.anchorList.appendChild(container);
@@ -586,14 +659,12 @@ var swpCal = {
    * </li>
    */
   createListItem: function createListItem(event, iter) {
-    console.log(event);
     var date = event.eventDate.split("-");
     var year = date[0];
     var yearFits = this.today.getFullYear() === parseInt(year) ? true : false;
     var eventTime = event.eventTime || null;
     var dayMonth = "";
     var eventTimeToDisplay = "";
-    console.log(eventTime);
 
     if (eventTime) {
       eventTimeToDisplay = eventTime.split("-")[0];
@@ -617,6 +688,8 @@ var swpCal = {
     spanYear.classList.add('swp-list-year');
     divEvent.classList.add("swp-list-title");
     aElm.setAttribute("href", event.permalink);
+    aElm.setAttribute("title", event.title);
+    aElm.classList.add("truncate-overflow");
     aElm.innerText = event.title;
     div.appendChild(spanDate);
 
@@ -627,8 +700,7 @@ var swpCal = {
     } else if (!yearFits) {
       spanYear.innerText = year;
       div.appendChild(spanYear);
-    } // div.appendChild(spanYear);
-
+    }
 
     divEvent.appendChild(aElm);
     li.appendChild(div);
@@ -651,18 +723,56 @@ var swpCal = {
     this.mainElm.querySelector("#calendar li.prev").addEventListener("click", this);
     return;
   },
-  run: function run() {
-    this.getMonths(this.relMonth);
+  renderContentAll: function renderContentAll() {
+    var events = this.events; // Renderování malého kalendáře
+
+    if (this.anchorMiniCal) {
+      for (var i = 0; i < events.length; i++) {
+        var event = events[i];
+        /**
+         * 1. jednodenní akce
+         * 2. vícedenní akce
+         * 3. opakující se akce
+         * 4. (vícedenní opakující se akce?)
+         */
+
+        if (parseInt(event.eventDays) > 1 && !parseInt(event.eventRepeat) > 0) {
+          swpCal.addEventMultipleDays(event);
+        } else if (event.eventRepeat !== "0") {
+          swpCal.addEventRepeated(event);
+        } else if (parseInt(event.eventDays) === 1) {
+          swpCal.addEventOneDay(event);
+        } else {
+          console.warn("Not sure what kind of event is it.");
+        }
+      }
+    } // Renderování planneru
+
 
     if (this.anchorList) {
-      // console.log("zaciname");
-      this.getListPlaceholder(this.listNumEvents);
+      // render result to placeholders
+      if (!this.listRendered) this.renderList(events, this.listNumEvents);
     }
+  },
+  run: function run() {
+    this.getEvents();
+    this.getMonths(this.relMonth);
+    /**
+     * @todo @nemazat Možnost přidat sem placeholder "události se načítají".
+     */
+    // if(this.anchorList){
+    //     // console.log("zaciname");
+    // } else {console.warn("chybí Anchor List")};
 
     if (this.anchorMiniCal) {
       this.getCalendar();
       this.anchorMiniCal.appendChild(this.mainElm);
+    } else {
+      console.warn("chybí Anchor mini cal");
     }
+
+    ;
+    this.renderContentAll();
   },
 
   /**
@@ -681,96 +791,10 @@ var swpCal = {
         break;
     }
   }
-};
+}; // swpCal.run(); 
 
-var ajax = function ajax() {
-  /**
-   * @todo Upravit hardcode, potenciální přepis a optimalizace
-   */
-  var dataSet = {
-    action: 'swp-cal-event',
-    year: 2019,
-    //inactive
-    month: 10,
-    //inactive
-    security: simpleWPCal.security
-  }; // toto by šlo přepsat lépe, ale podle toho můžu backendově filtrovat pouze "tento" měsíc, opakující se a vícedenní a tím si posílat míň dat
-
-  var data = "action=".concat(dataSet.action, "&year=").concat(dataSet.year, "&month=").concat(dataSet.month, "&security=").concat(dataSet.security);
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", simpleWPCal.ajaxurl, true);
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-
-  xhr.onload = function () {
-    if (xhr.status >= 200 && xhr.status < 400) {
-      var result = xhr.responseText;
-      resultCallback(result); // console.log(result);
-    }
-  };
-
-  xhr.send(data);
-  /**
-   * Renderování přijatých dat
-   * @param {object} result 
-   * @todo Prakticky celý předělat
-   */
-
-  var resultCallback = function resultCallback(result) {
-    var events = JSON.parse(result);
-    console.log(events); // Renderování malého kalendáře
-
-    if (swpCal.anchorMiniCal) {
-      for (var i = 0; i < events.length; i++) {
-        var event = events[i];
-        /**
-         * 1. jednodenní akce
-         * 2. vícedenní akce
-         * 3. opakující se akce
-         * 4. (vícedenní opakující se akce?)
-         */
-
-        if (parseInt(event.eventDays) > 1) {
-          // console.log("multiple");
-          // console.log(event);
-          swpCal.addEventMultipleDays(event);
-        } else if (event.eventRepeat !== "0") {
-          // console.log("repeated");
-          // console.log(event);
-          swpCal.addEventRepeated(event);
-        } else if (parseInt(event.eventDays) === 1) {
-          // console.log("oneday");
-          // console.log(event);
-          swpCal.addEventOneDay(event);
-        } else {
-          console.error("Not sure what kind of event is it.");
-        }
-      }
-    } // Renderování planneru
-
-    /**
-     * if - planer placement je na místě
-     * @todo: checknout, jestli to náhodou už není vyrenderované
-     */
-
-
-    if (swpCal.anchorList) {
-      // render result to placeholders
-      if (!swpCal.listRendered) swpCal.renderList(events, swpCal.listNumEvents);
-    }
-  };
-};
-
-var setEventListeners = function setEventListeners() {
-  if (swpCal.anchorMiniCal) {
-    document.querySelector("#calendar li.next").addEventListener("click", ajax);
-    document.querySelector("#calendar li.prev").addEventListener("click", ajax);
-  }
-}; // Pokud jsem v admin módu, toto se nevykoná
-
-
-if (swpCal.anchorList || swpCal.anchorMiniCal) {
-  document.addEventListener("DOMContentLoaded", setEventListeners);
-  document.addEventListener("DOMContentLoaded", ajax);
+try {
+  module.exports = swpCal;
+} catch (error) {
+  console.log("");
 }
-
-swpCal.run(); // export { swpCal };

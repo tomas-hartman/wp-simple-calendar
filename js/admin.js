@@ -70,6 +70,69 @@ swpCal.adminGetNumDays = function () {
 }
 
 /**
+ * @todo Rozpracovat víc, co chci, platné by mělo být:
+ * - 10.1.2019  !! 1. října
+ * - 1.6.2019   !! 6. ledna
+ * - 2019-6-1      1. června
+ * - 2019-12-24    24. prosince
+ * - 24.12.2019 !! Invalid date
+ * 
+ * - 2019-02-31 !! 3. března
+ * - a ostatní, stringy spod.
+ * 
+ * 10.1.2019#1.6.2019#2019-6-1#2019-12-24#2019-02-31#24.12.2019
+ * 
+ * Pomocí regexu!
+ * 
+ * Zatím testuje pouze, jestli tam nebylo vyloženě neplatné datum, string apod.
+ * 
+ * @todo Vyřešit případ __31.2.2019__!
+ */
+swpCal.handleInputDate = function (value){
+    const regex1 = /(\d{4}-((10|11|12)|(([0]\d)|\d{1})))-(3[0-5]|[0-2]\d|\b[1-9]\b)/g; // 2019-12-05
+    const regex2 = /(3[0-5]|[0-2]\d|\b[1-9]\b).\s?((10|11|12)|(([0]\d)|\d{1})).\s?(\d{4})/g; // 12.6.2016
+
+    const format = this.calFormat;
+    let output = new Date(value);
+
+    if(value.match(regex1)){
+        // pracuj s 2019-12-15
+        value = value.split("-");
+        const lastDayOfMonth = new Date(parseInt(value[0]),parseInt(value[1]),0);
+        const dayFromValue = new Date(parseInt(value[0]),parseInt(value[1])-1,parseInt(value[2]));
+        if( dayFromValue > lastDayOfMonth ){
+            return this.getDateString(lastDayOfMonth);
+        }
+        return this.getDateString(value.toString());
+
+    } else if(value.match(regex2)){
+        // pracuj s 6.12.2019 a zjisti, jestli je to 6. prosince (cs) nebo 12. června (us)
+        value = value.replace(/\s/g, "");
+        value = value.split(".");
+        let lastDayOfMonth = "";
+        let dayFromValue = "";
+
+        if(format === "cs"){
+            lastDayOfMonth = new Date(parseInt(value[2]),parseInt(value[1]),0);
+            dayFromValue = new Date(parseInt(value[2]),parseInt(value[1])-1,parseInt(value[0]));
+        } else {
+            console.warn("handleInputDate: format !== CS, date output handled as US");
+
+            lastDayOfMonth = new Date(parseInt(value[2]),parseInt(value[0]),0);
+            dayFromValue = new Date(parseInt(value[2]),parseInt(value[0])-1,parseInt(value[1]));
+        }
+
+        if( dayFromValue > lastDayOfMonth ){
+            return this.getDateString(lastDayOfMonth);
+        }
+        return this.getDateString(dayFromValue);
+
+    } else if(output instanceof Date && !isNaN(output.valueOf())){ // tuhle podmínku promyslet, může jít o americké datum nebo tak něco
+        return value;
+    } else return this.getDateString(this.todayNorm); // když nic neklapne, je špatný datum a patří tam dnešní datum    
+}
+
+/**
  * @todo refaktor!
  * @param {MouseEvent} ev 
  */
@@ -78,7 +141,8 @@ swpCal.handleAdminEvents = function (ev) {
         case "swp-cal-event-date":
             this.adminGetCalendar(ev);
 
-            ev.target.addEventListener("focusout", () => {
+            ev.target.addEventListener("focusout", (ev) => {
+                ev.target.value = this.handleInputDate(ev.target.value);
                 this.adminGetNumDays();
             }, {once: true});
 
@@ -88,7 +152,8 @@ swpCal.handleAdminEvents = function (ev) {
             if(document.querySelector("#swp-cal-event-date-end").disabled) break;
             this.adminGetCalendar(ev);
 
-            ev.target.addEventListener("focusout", () => {
+            ev.target.addEventListener("focusout", (ev) => {
+                ev.target.value = this.handleInputDate(ev.target.value);
                 this.adminGetNumDays();
             }, {once: true});
 
@@ -182,13 +247,13 @@ swpCal.adminValidate = function(el) {
     }
 
     if(!eventStartElement.value.match(regexYear)){
-        const text = "Datum události je ve špatném formátu. Napište datum ve formátu 2019-11-04 nebo jej vyberte z kalendáře.";
+        const text = "Datum události je ve špatném formátu. Vyberte datum z kalendáře nebo jej napište ve formátu 2019-11-04.";
         this.adminValidationErr(text, eventStartElement);
         el.preventDefault ? el.preventDefault() : el.returnValue = false;
     } 
 
     if(!eventEndElement.disabled && !eventEndElement.value.match(regexYear)){
-        const text = "Datum konce události je ve špatném formátu. Napište datum ve formátu 2019-11-04 nebo jej vyberte z kalendáře.";
+        const text = "Datum konce události je ve špatném formátu. Vyberte datum z kalendáře nebo jej napište ve formátu 2019-11-04.";
         this.adminValidationErr(text, eventEndElement);
         el.preventDefault ? el.preventDefault() : el.returnValue = false;
     } 

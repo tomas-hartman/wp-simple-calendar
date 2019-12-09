@@ -20,6 +20,13 @@ const swpCal = {
     listNumEvents: 5,
     // listNumEvents: 12,
 
+    calFormat: "cs",
+    events: null,
+
+    getEvents () {
+        if(typeof simpleWPCalEvents !== 'undefined') this.events = JSON.parse(simpleWPCalEvents.events);
+    },
+
     /**
      * Helper funkce. Nastavuje základní proměnné pro jednotlivé funkce podle relativního měsíce.
      * @access init, refreshData()
@@ -90,7 +97,7 @@ const swpCal = {
     /**
      * Pomocná funkce pro getWeeks() - nevolat samostatně!
      * Vytvoří mi elementy pro jednotlivé dny, včetně popisků a zvýraznění
-     * @param {number} date číslo dne z kalendáře
+     * @param {number} originDate číslo dne z kalendáře
      * @param {*} params Parametry k jednotlivým dnům, zejména popisky událostí
      * @todo
      */
@@ -164,15 +171,10 @@ const swpCal = {
             checkElm.appendChild(li);
         } else {
             const span = this.createTooltip(elm);
-
-            // const span = document.createElement("span");
             const ul = document.createElement("ul");
-            // span.classList.add("day-events");
+
             ul.appendChild(li);
             span.appendChild(ul);
-
-            // elm.classList.add("event");
-            // elm.classList.add("tooltip");
 
             elm.appendChild(span);
         }
@@ -271,11 +273,13 @@ const swpCal = {
     fcnNext () {
         this.relMonth += 1;
         this.refreshData(this.relMonth);
+        this.renderContentAll();
     },
 
     fcnPrev () {
         this.relMonth -= 1;
         this.refreshData(this.relMonth);
+        this.renderContentAll();
     },
 
     addEventOneDay (event) {
@@ -442,40 +446,12 @@ const swpCal = {
     },
 
     /**
-     * Renders placeholder for events list
-     * @param {number} size 
-     */
-    getListPlaceholder (size){
-        const ulElm = document.createElement("ul");
-        ulElm.classList.add("swp-list");
-
-        for(let i=0;i<size;i++){
-            const liElm = document.createElement("li");
-            const divDate = document.createElement("div");
-            const divTitle = document.createElement("div");
-
-
-            liElm.classList.add(`swp-upcoming-event-${i}`);
-
-            divDate.classList.add("swp-list-date-placeholder");
-            divTitle.classList.add("swp-list-title-placeholder");
-
-            liElm.appendChild(divDate);
-            liElm.appendChild(divTitle);
-
-            ulElm.appendChild(liElm);
-        }
-
-        this.anchorList.appendChild(ulElm);
-    },
-
-    /**
      * 
      * @param {array} events výsledek XHR requestu
      * @param {number} size počet dní, pro které chci akci vykreslit -> tolikrát se maximálně může za sebou událost zobrazit
+     * @todo __Přepsat celou metodu a rozdělit ji na jednotlivé funkce__
      */
     renderList (events, size) {
-        // @todo pokud mám nastávajících událostí míň, než je size, pak vykreslit správně! 
         let container = document.createElement("ul");
         container.classList.add("swp-list");
         const upcomingEvents = [];
@@ -491,6 +467,8 @@ const swpCal = {
             let eventEndDate = "";
             let eventRepetitionEnd = "";
             
+            // PHASE 1: GETTING DATA READY //
+
             if(events[i].eventEnd && events[i].eventEnd !== "0"){
                 eventEndDate = new Date(events[i].eventEnd);
             } else {
@@ -502,13 +480,18 @@ const swpCal = {
                 eventRepetitionEnd = new Date(events[i].eventRepetitionEnd);
             }
 
-            // 1. obyč nadcházející jednorázové akce
+            // PHASE 2: PREPARING upcomingEvents // 
+            /**
+             * 1. obyč nadcházející jednorázové akce
+             */
             if(eventStartDate >= this.today && repeatMode === 0 && daysLen === 1){
                 upcomingEvents.push(events[i]);
             }
 
-            // 2. vícedenní akce @todo vícedenní opakované akce!
-            // dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
+            /**
+             * 2. vícedenní akce @todo vícedenní opakované akce!
+             * dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
+             */
             else if(daysLen > 1 && (eventStartDate >= this.today || eventEndDate >= this.today) && repeatMode === 0){
                 // případ kdy akce končí po dnešku, ale začíná někdy dříve - i ty potřebuju použít
                 if(eventStartDate < this.today && eventEndDate >= this.today){
@@ -520,8 +503,9 @@ const swpCal = {
                 upcomingEvents.push(this.createEventForList(events[i], eventStartDate, eventEndDate));
             } 
 
-            // 3. opakující se akce
             /**
+             * 3. opakující se akce
+             * 
              * @todo case 2 a case 3 jsou úplně totožné, rozdíl je v tom, že u jednoho se přičítá jednička ke dni, u druhého k roku
              * @todo case 1 je kromě offsetu v případě prvního výskytu hodně blízký dalším casům
              */
@@ -533,62 +517,58 @@ const swpCal = {
                          * @todo this.relmonth bude dělat chyby v tomhle případě! - mělo by být pokaždý nula, ne?
                          */
                         let dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
-                            for(let n=0;n<size;n++){ 
-                                if(eventRepetitionEnd !== "" && dayOfWeeklyEvent > eventRepetitionEnd) break;
-                                // console.log(dayOfWeeklyEvent);
-                                // console.log(this.todayNorm);
-                                if(dayOfWeeklyEvent >= this.today){
-                                    upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
-                                } else {
-                                    // Pokud opakovaná událost začíná v minulosti
-                                    /**
-                                     * tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce
-                                     * tady je potřeba 
-                                     */ 
-                                    let diff = this.today - dayOfWeeklyEvent;
-                                    let yearMs = 24*60*60*1000;
-                                    let daysOffset = Math.floor(diff/yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
-                                    let weeksOffset = Math.ceil(daysOffset/7); // rozdíl v týdnech - ten potřebuju, abych zachoval týdenní rozestupy
+                        
+                        for(let n=0;n<size;n++){ 
+                            if(eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
+                            if(eventRepetitionEnd !== "" && dayOfWeeklyEvent > eventRepetitionEnd) break; // safe break for events ending in the future
+                            if(dayOfWeeklyEvent >= this.today){
+                                upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
+                            } else {
+                                // Pokud opakovaná událost začíná v minulosti
+                                /**
+                                 * tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce
+                                 * tady je potřeba 
+                                 */ 
+                                let diff = this.today - dayOfWeeklyEvent;
+                                let yearMs = 24*60*60*1000;
+                                let daysOffset = Math.floor(diff/yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
+                                let weeksOffset = Math.ceil(daysOffset/7); // rozdíl v týdnech - ten potřebuju, abych zachoval týdenní rozestupy
 
-                                    dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7*weeksOffset);
-                                    upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
-                                }
-
-                                dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7);
+                                dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7*weeksOffset);
+                                upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
                             }
+
+                            dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7);
+                        }
                         break;
                         
                     case 2: // měsíční akce
-                            let dayOfEvent = eventStartDate;
+                        let eventRepetitionStart = eventStartDate;
+                        
+                        for(let n=0;n<size;n++){ 
+                            if(eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
                             
-                            for(let n=0;n<size;n++){ 
-                                if(eventRepetitionEnd !== "" && dayOfEvent > eventRepetitionEnd) break;
+                            if(eventRepetitionEnd !== "" && eventRepetitionStart > eventRepetitionEnd) break; // safe break for events ending in the future
 
-                                if(dayOfEvent < this.todayNorm){
-                                    dayOfEvent = new Date(this.today.getFullYear(), this.today.getMonth(), dayOfEvent.getDate());
-    
-                                    if(dayOfEvent < this.todayNorm){
-                                        dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
-                                    }
+                            if(eventRepetitionStart < this.todayNorm){
+                                eventRepetitionStart = new Date(this.today.getFullYear(), this.today.getMonth(), eventRepetitionStart.getDate());
+
+                                if(eventRepetitionStart < this.todayNorm){
+                                    eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
                                 }
-
-                                upcomingEvents.push(this.createEventForList(events[i], dayOfEvent));
-                                dayOfEvent = new Date(dayOfEvent.getFullYear(), dayOfEvent.getMonth() + 1, dayOfEvent.getDate());
                             }
+
+                            upcomingEvents.push(this.createEventForList(events[i], eventRepetitionStart));
+                            eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
+                        }
                         break;
 
-                    /**
-                     * @done Fix: tady je bug, kterej špatně vykreslí event!
-                     * Problém mají ty, které jsou konečné, protože se vykreslí (chybně) i jejich historické výskyty
-                     * Problém: nedostatečné ověření eventu.
-                     * Problém je v tom else. Problém bude i v tom for asi...
-                     * @done Fix: dayOfYearlyEvent === eventStartDate
-                     * @todo Fix: i v měsíci a zřejmě i v týdnu opravit!
-                     */
                     case 3: // roční akce
                         let dayOfYearlyEvent = eventStartDate;
                             
                         for(let n=0;n<size;n++){ 
+                            if(eventRepetitionEnd !== "" && eventRepetitionEnd < this.todayNorm) break;
+
                             if(eventRepetitionEnd !== "" && dayOfYearlyEvent > eventRepetitionEnd) break;
 
                             if(dayOfYearlyEvent < this.todayNorm){
@@ -607,18 +587,19 @@ const swpCal = {
                         break;
 
                     default:
-                        console.log(`event repeatMode not standard: ${repeatMode}`);
+                        console.warn(`Event repeatMode non-standard: ${repeatMode}`);
                         break;
                 }
+            } else {
+                // FALLBACK IF NOTHING WORKS OUT WELL
+                console.warn(`Event non-standard or broken data:`);
+                console.warn(events[i]);
             }
         }
 
         upcomingEvents.sort((b,a) => {
             return new Date(b.eventDate) - new Date(a.eventDate);
         });
-        
-        // console.log("allover:");
-        // console.log(upcomingEvents);
         
         /**
          * Renderování polí
@@ -627,6 +608,13 @@ const swpCal = {
         const isContainer = document.querySelector("ul.swp-list") ? true : false
         if(isContainer) container = document.querySelector("ul.swp-list");
         
+        if(upcomingEvents.length < size) size = upcomingEvents.length;
+        
+        if(upcomingEvents.length === 0){
+            this.anchorList.innerText = "Nejsou žádné nadcházející události.";
+            return;
+        } 
+
         for(let y=0; y<size; y++){
             
             let eventElm = this.createListItem(upcomingEvents[y], y);
@@ -635,10 +623,6 @@ const swpCal = {
                 document.querySelector(`ul.swp-list .swp-upcoming-event-${y}`).remove();
             }
             container.appendChild(eventElm);
-                        
-            
-            // container.innerHTML += upcomingEvents[y].title;
-            // container.innerHTML += "<br>";
         }
         this.anchorList.appendChild(container);
     },
@@ -661,7 +645,6 @@ const swpCal = {
      */
 
     createListItem (event, iter) {
-        // console.log(event);
         const date = event.eventDate.split("-");
         const year = date[0];
         const yearFits = this.today.getFullYear() === parseInt(year) ? true : false;
@@ -695,6 +678,8 @@ const swpCal = {
         
         divEvent.classList.add("swp-list-title");
         aElm.setAttribute("href", event.permalink);
+        aElm.setAttribute("title", event.title);
+        aElm.classList.add("truncate-overflow");
         aElm.innerText = event.title;
 
         div.appendChild(spanDate);
@@ -706,8 +691,7 @@ const swpCal = {
             spanYear.innerText = year;
             div.appendChild(spanYear);
         } 
-            
-        // div.appendChild(spanYear);
+
         divEvent.appendChild(aElm);
 
         li.appendChild(div);
@@ -735,18 +719,57 @@ const swpCal = {
         return;
     },
 
+    renderContentAll () {
+        let events = this.events;
+
+        // Renderování malého kalendáře
+        if(this.anchorMiniCal){
+            for(let i = 0; i < events.length;i++){
+                let event = events[i];
+    
+                /**
+                 * 1. jednodenní akce
+                 * 2. vícedenní akce
+                 * 3. opakující se akce
+                 * 4. (vícedenní opakující se akce?)
+                 */
+    
+                if(parseInt(event.eventDays) > 1 && !parseInt(event.eventRepeat) > 0){
+                    swpCal.addEventMultipleDays(event);
+                } else if(event.eventRepeat !== "0"){
+                    swpCal.addEventRepeated(event);
+                } else if(parseInt(event.eventDays) === 1){
+                    swpCal.addEventOneDay(event);
+                } else {
+                    console.warn("Not sure what kind of event is it.");
+                }
+            }
+        }
+
+        // Renderování planneru
+        if(this.anchorList){
+            // render result to placeholders
+            if(!this.listRendered) this.renderList(events, this.listNumEvents);
+        }
+    },
+
     run () {
+        this.getEvents();
         this.getMonths(this.relMonth);
 
-        if(this.anchorList){
-            // console.log("zaciname");
-            this.getListPlaceholder(this.listNumEvents);
-        }
+        /**
+         * @todo @nemazat Možnost přidat sem placeholder "události se načítají".
+         */
+        // if(this.anchorList){
+        //     // console.log("zaciname");
+        // } else {console.warn("chybí Anchor List")};
 
         if(this.anchorMiniCal) {
             this.getCalendar();       
             this.anchorMiniCal.appendChild(this.mainElm);     
-        }
+        } else {console.warn("chybí Anchor mini cal")};
+
+        this.renderContentAll();
     },
 
     /**
@@ -766,97 +789,10 @@ const swpCal = {
     }
 }
 
-const ajax = () => {
-    /**
-     * @todo Upravit hardcode, potenciální přepis a optimalizace
-     */
-    const dataSet = {
-        action: 'swp-cal-event',
-        year: 2019, //inactive
-        month: 10, //inactive
-        security: simpleWPCal.security
-    };
-    // toto by šlo přepsat lépe, ale podle toho můžu backendově filtrovat pouze "tento" měsíc, opakující se a vícedenní a tím si posílat míň dat
-    const data = `action=${dataSet.action}&year=${dataSet.year}&month=${dataSet.month}&security=${dataSet.security}`;
+// swpCal.run(); 
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", simpleWPCal.ajaxurl, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-
-    xhr.onload = function () {
-        if (xhr.status >= 200 && xhr.status < 400) {
-            var result = xhr.responseText;
-            resultCallback(result);
-            // console.log(result);
-        }
-    };
-
-    xhr.send(data);
-
-    /**
-     * Renderování přijatých dat
-     * @param {object} result 
-     * @todo Prakticky celý předělat
-     */
-    const resultCallback = (result) => {
-        const events = JSON.parse(result);
-
-        // Renderování malého kalendáře
-        if(swpCal.anchorMiniCal){
-            for(let i = 0; i < events.length;i++){
-                let event = events[i];
-    
-                /**
-                 * 1. jednodenní akce
-                 * 2. vícedenní akce
-                 * 3. opakující se akce
-                 * 4. (vícedenní opakující se akce?)
-                 */
-    
-                if(parseInt(event.eventDays) > 1 && !parseInt(event.eventRepeat) > 0){
-                    // console.log("multiple");
-                    // console.log(event);
-                    swpCal.addEventMultipleDays(event);
-                } else if(event.eventRepeat !== "0"){
-                    // console.log("repeated");
-                    // console.log(event);
-                    swpCal.addEventRepeated(event);
-                } else if(parseInt(event.eventDays) === 1){
-                    // console.log("oneday");
-                    // console.log(event);
-                    swpCal.addEventOneDay(event);
-                } else {
-                    console.error("Not sure what kind of event is it.");
-                }
-            }
-        }
-
-        // Renderování planneru
-        /**
-         * if - planer placement je na místě
-         * @todo: checknout, jestli to náhodou už není vyrenderované
-         */
-        if(swpCal.anchorList){
-            // render result to placeholders
-            if(!swpCal.listRendered) swpCal.renderList(events, swpCal.listNumEvents);
-        }
-
-    }
+try{
+    module.exports = swpCal ;
+} catch (error) {
+    console.log("");
 }
-
-const setEventListeners = () => {
-    if(swpCal.anchorMiniCal){
-        document.querySelector("#calendar li.next").addEventListener("click", ajax);
-        document.querySelector("#calendar li.prev").addEventListener("click", ajax);
-    }
-}
-
-// Pokud jsem v admin módu, toto se nevykoná
-if(swpCal.anchorList || swpCal.anchorMiniCal){
-    document.addEventListener("DOMContentLoaded", setEventListeners);
-    document.addEventListener("DOMContentLoaded", ajax);
-}
-
-swpCal.run(); 
-
-// export { swpCal };

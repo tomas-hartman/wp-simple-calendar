@@ -1,0 +1,20 @@
+{
+    "scripts": {
+        "test": "jest"
+    },
+    "jest": {
+        "transform": {
+            "^.+\\.jsx?$": "babel-jest"
+        }
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.7.5",
+        "@babel/core": "^7.7.5",
+        "@babel/preset-env": "^7.7.6",
+        "babel-jest": "^24.9.0",
+        "jest": "^24.9.0"
+    },
+    "dependencies": {
+        "@babel/polyfill": "^7.7.0"
+    }
+}
