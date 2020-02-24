@@ -1,20 +1,22 @@
 {
-    "scripts": {
-        "test": "jest"
-    },
-    "jest": {
-        "transform": {
-            "^.+\\.jsx?$": "babel-jest"
-        }
-    },
-    "devDependencies": {
-        "@babel/cli": "^7.7.5",
-        "@babel/core": "^7.7.5",
-        "@babel/preset-env": "^7.7.6",
-        "babel-jest": "^24.9.0",
-        "jest": "^24.9.0"
-    },
-    "dependencies": {
-        "@babel/polyfill": "^7.7.0"
+  "name": "simple-wp-calendar",
+  "version": "1.1.0-beta",
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
     }
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.7.0"
+  }
 }
