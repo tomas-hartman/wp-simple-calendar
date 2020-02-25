@@ -402,11 +402,6 @@ add_action( 'save_post', 'swp_cal_meta' );
 
 
 function swp_cal_admin_script_style( $hook ) {
-	// NOT VERY RELIABLE!
-	if(is_legacy_browser()){
-		wp_enqueue_script( 'polyfillRemove', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/remove.polyfill.js', array(), '1.0.0', true );
-	}
-	
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
 		wp_enqueue_script( 'polyfillRemove', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/remove.polyfill.js', array(), '1.0.0', true );
 		wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/script.js', array(), '1.0.0', true );
@@ -423,11 +418,6 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
 
 function swp_cal_scripts() {
 	$events = swp_cal_json();
-
-	// NOT VERY RELIABLE
-	if(is_legacy_browser()){
-		wp_enqueue_script( 'polyfillRemove', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/remove.polyfill.js', array(), '1.0.0', true );
-	}
 	
 	wp_enqueue_script( 'polyfillRemove', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/remove.polyfill.js', array(), '1.0.0', true );
 	wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/script.js', array(), '1.0.0', false ); // loads in header
@@ -617,22 +607,4 @@ function swp_cal_css() {
 	echo '<link rel="stylesheet" href="'.plugin_dir_url(__FILE__).$GLOBALS['PATH'].'css/style.css">';
 }
 add_action( 'wp_head', 'swp_cal_css' );
-
-
-function is_legacy_browser(){
-	$browser = get_browser();
-
-	if(($browser->browser == "IE" || $browser->browser == "MSIE") && version_compare($browser->version, "11.0") <= 0){
-		return true;
-	} elseif($browser->browser == "Edge" && version_compare($browser->version, "17.0") <= 0){
-		return true;
-	} elseif($browser->browser == "Chrome" && version_compare($browser->version, "69.0") <= 0){
-		return true;
-	} elseif($browser->browser == "Firefox" && version_compare($browser->version, "60.0") <= 0) {
-		return true;
-	} elseif($browser->browser == "Safari" && version_compare($browser->version, "11.1") <= 0) {
-		return true;
-	} else return false;
-}
-
 ?>
