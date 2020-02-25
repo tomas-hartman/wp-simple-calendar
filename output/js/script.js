@@ -1,9 +1,5 @@
 "use strict";
 
-require("core-js/stable");
-
-require("regenerator-runtime/runtime");
-
 var swpCal = {
   weekdayNames: ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"],
   monthNames: ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"],

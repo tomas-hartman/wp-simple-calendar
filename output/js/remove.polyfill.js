@@ -1,5 +1,3 @@
-"use strict";
-
 // polyfill
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
 (function (arr) {

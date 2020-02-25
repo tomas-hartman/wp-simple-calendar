@@ -9,6 +9,17 @@ Author URI: https://github.com/tomas-hartman/
 Text Domain: simple-wp-calendar
 */
 
+/**
+ * Path definition for stable and dev versions.
+ */
+$PATH = "";
+$DEV_PATH = "output/";
+$USE_DEV = true;
+
+if($USE_DEV){
+	$PATH = $DEV_PATH;
+}
+
 add_filter('widget_text', 'do_shortcode'); // Allows the shortcode to work in text widgets.
 
 /**
@@ -391,16 +402,16 @@ add_action( 'save_post', 'swp_cal_meta' );
 
 
 function swp_cal_admin_script_style( $hook ) {
-	$path = "js/";
-
+	// NOT VERY RELIABLE!
 	if(is_legacy_browser()){
-		$path = "js-legacy/";
+		wp_enqueue_script( 'polyfillRemove', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/remove.polyfill.js', array(), '1.0.0', true );
 	}
-
+	
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
-		wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', true );
-		wp_enqueue_script( 'simpleWPCalScriptAdmin', plugin_dir_url(__FILE__).$path.'admin.js', array(), '1.0.0', true );
-		wp_enqueue_style( 'style', plugin_dir_url(__FILE__).'output/css/style.css');
+		wp_enqueue_script( 'polyfillRemove', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/remove.polyfill.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/script.js', array(), '1.0.0', true );
+		wp_enqueue_script( 'simpleWPCalScriptAdmin', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/admin.js', array(), '1.0.0', true );
+		wp_enqueue_style( 'style', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'css/style.css');
 	}
 }
 add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
@@ -411,15 +422,16 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
  */
 
 function swp_cal_scripts() {
-	$path = "js/";
 	$events = swp_cal_json();
 
+	// NOT VERY RELIABLE
 	if(is_legacy_browser()){
-		$path = "js-legacy/";
+		wp_enqueue_script( 'polyfillRemove', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/remove.polyfill.js', array(), '1.0.0', true );
 	}
-
-	wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$path.'script.js', array(), '1.0.0', false ); // loads in header
-	wp_enqueue_script( 'simpleWPCalScriptRunner', plugin_dir_url(__FILE__).$path.'runner.js', array(), '1.0.0', true ); // runs loaded script from footer
+	
+	wp_enqueue_script( 'polyfillRemove', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/remove.polyfill.js', array(), '1.0.0', true );
+	wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/script.js', array(), '1.0.0', false ); // loads in header
+	wp_enqueue_script( 'simpleWPCalScriptRunner', plugin_dir_url(__FILE__).$GLOBALS['PATH'].'js/runner.js', array(), '1.0.0', true ); // runs loaded script from footer
 	wp_localize_script( 'simpleWPCalScript', 'simpleWPCal', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'security' => wp_create_nonce( 'simple-wp-calendar' ) ));
 	wp_localize_script( 'simpleWPCalScript', 'simpleWPCalEvents', array( 'events' => $events ));
 }
@@ -602,7 +614,7 @@ add_shortcode('swp-calendar-list', 'swp_cal_list');
  * Invoke styles and scripts
  */
 function swp_cal_css() {
-	echo '<link rel="stylesheet" href="'.plugin_dir_url(__FILE__).'output/css/style.css">';
+	echo '<link rel="stylesheet" href="'.plugin_dir_url(__FILE__).$GLOBALS['PATH'].'css/style.css">';
 }
 add_action( 'wp_head', 'swp_cal_css' );
 
