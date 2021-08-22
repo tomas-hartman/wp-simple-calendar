@@ -1,3 +1,6 @@
+
+import "../style/style.scss";
+
 const swpCal = {
     weekdayNames: ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"],
     monthNames: ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"],
@@ -789,7 +792,10 @@ const swpCal = {
     }
 }
 
-// swpCal.run(); 
+// console.log("Ahoj");
+swpCal.anchorMiniCal = document.getElementById("swp-cal-mini-main");
+swpCal.anchorList = document.getElementById("swp-cal-list-main");
+swpCal.run(); 
 
 try{
     module.exports = swpCal ;
