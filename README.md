@@ -50,3 +50,29 @@ This plugin currently do not offer any other languages than Czech and customary 
 - Firefox > 60
 - Chrome > 69
 - Safari > 11.1
+
+
+# VUE
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).

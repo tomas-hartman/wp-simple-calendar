@@ -265,11 +265,11 @@ const swpCal = {
 
     if (dayString.length === 1) {
       dayString = `0${dayString}`;
-    };
+    }
 
     if (monthString.length === 1) {
       monthString = `0${monthString}`;
-    };
+    }
 
     const dateString = `${newDate.getFullYear()}-${monthString}-${dayString}`;
 
@@ -333,7 +333,7 @@ const swpCal = {
           idDate = idDate.toString();
           if (idDate.length < 2) {
             idDate = `0${idDate}`;
-          };
+          }
 
           const elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${idDate}`);
           this.createEventElm(event, elm);
@@ -349,7 +349,7 @@ const swpCal = {
         let idDate = i.toString();
         if (idDate.length < 2) {
           idDate = `0${idDate}`;
-        };
+        }
 
         const elm = document.querySelector(`#swp-cal-mini-main #calendar .days #day-${idDate}`);
         this.createEventElm(event, elm);
@@ -796,7 +796,7 @@ const swpCal = {
       this.anchorMiniCal.appendChild(this.mainElm);
     } else {
       console.warn('chybí Anchor mini cal');
-    };
+    }
 
     this.renderContentAll();
   },

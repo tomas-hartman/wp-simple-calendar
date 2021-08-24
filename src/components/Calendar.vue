@@ -19,12 +19,15 @@
 </template>
 
 <script>
-module.exports = {
-  // el: '.weekdays',
-  data: () => {
+export default {
+  name: 'Calendar',
+  props: {
+    msg: String,
+  },
+  data() {
     return {
-      weekdays: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne']
-    }
-  }
-}
+      weekdays: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'],
+    };
+  },
+};
 </script>
