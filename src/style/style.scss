@@ -1,77 +1,92 @@
+// #swp-cal-mini-main {
+//   font-family: Avenir, Helvetica, Arial, sans-serif;
+//   -webkit-font-smoothing: antialiased;
+//   -moz-osx-font-smoothing: grayscale;
+//   // text-align: center;
+//   color: #2c3e50;
+//   // margin-top: 60px;
+// }
 
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+*,
+*:before,
+*:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+ul {
+  padding: 0;
 }
 
 /* body {font-family: Verdana, sans-serif;} */
 
-#calendar {
-    width: 270px;
-    font-size: 15px;
-    font-weight: 300;
-    // font-family: 'Open Sans', sans-serif;
-    margin-top: 5px;
+.swpc {
+  width: 270px;
+  font-size: 15px;
+  font-weight: 300;
+  // font-family: 'Open Sans', sans-serif;
+  margin-top: 5px;
+
+  ul {
+    list-style-type: none;
+    margin-left: 0;
+  }
+
+  /* Month header */
+  &-month-controller {
+    background: #2c3e50;
+    text-align: center;
+    margin-bottom: 10px;
+    height: 35px;
+    line-height: 35px;
+
+    /* Month list */
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    ul li {
+      color: white;
+      font-size: 18px;
+    }
+
+    /* Previous button inside month header */
+    .prev {
+      float: left;
+      cursor: pointer;
+      display: block;
+      width: 35px;
+      user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    /* Next button */
+    .next {
+      float: right;
+      cursor: pointer;
+      display: block;
+      width: 35px;
+      user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    .next:hover,
+    .prev:hover {
+      background-color: #34495e;
+    }
+  }
 }
 
-#calendar ul {
-  list-style-type: none;
-}
 
-/* Month header */
-.month {
-  background: #2c3e50;
-  text-align: center;
-  margin-bottom: 10px;
-  height: 35px;
-  line-height: 35px;
-}
-
-/* Month list */
-.month ul {
-  margin: 0;
-  padding: 0;
-}
-
-.month ul li {
-  color: white;
-  font-size: 18px;
-}
-
-/* Previous button inside month header */
-.month .prev {
-  float: left;
-  cursor: pointer;
-  display: block;
-  width: 35px;
-  user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-/* Next button */
-.month .next {
-  float: right;
-  cursor: pointer;
-  display: block;
-  width: 35px;
-  user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-.month .next:hover, .month .prev:hover {
-  background-color: #34495e;
-}
 
 /* Weekdays (Mon-Sun) */
 .weekdays {
   margin: 0;
-  background-color:#7f8c8d;
+  background-color: #7f8c8d;
 }
 
 /* Days (1-31) */
@@ -82,7 +97,9 @@
   cursor: default;
 }
 
-.weekdays li, .days li, .day-events #swp-cal-mini-main li {
+.weekdays li,
+.days li,
+.day-events #swp-cal-mini-main li {
   list-style-type: none;
   display: inline-block;
   width: calc(270px / 7);
@@ -90,7 +107,7 @@
   line-height: 32px;
 }
 
-.day-events #swp-cal-mini-main li{
+.day-events #swp-cal-mini-main li {
   padding: 0;
   margin: 0;
   color: black;
@@ -103,9 +120,6 @@
 .day-events #swp-cal-mini-main .month li.month-header {
   width: auto;
 }
-
-
-
 
 
 /* Highlight the "current" day */
@@ -127,17 +141,17 @@
   box-shadow: 0 4px #9b59b6 inset;
 }
 
-.days > li {
+.days>li {
   background-color: #bdc3c7;
 }
 
-.days > li > span {
+.days>li>span {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-.days > li.weekend {
+.days>li.weekend {
   background-color: rgba(127, 140, 141, 0.5);
 }
 
@@ -145,13 +159,13 @@
   background: #bdc3c7;
 }
 
-.datepicker .days li > span:hover {
+.datepicker .days li>span:hover {
   background-color: rgba(44, 62, 80, 0.220);
   cursor: pointer;
 }
 
 li.weekend {
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 li.weekend .event {
@@ -173,11 +187,12 @@ li.weekend .event {
 
   top: 100%;
   left: 50%;
-  margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  margin-left: -60px;
+  /* Use half of the width (120/2 = 60), to center the tooltip */
 
   padding: 5px 0;
   border-radius: 6px;
- 
+
   /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;
@@ -190,7 +205,8 @@ li.weekend .event {
 .tooltip .day-events::after {
   content: " ";
   position: absolute;
-  bottom: 100%; /* At the bottom of the tooltip */
+  bottom: 100%;
+  /* At the bottom of the tooltip */
   left: 50%;
   margin-left: -5px;
   border-width: 5px;
@@ -225,60 +241,96 @@ li.weekend .event {
  * @todo Najs to have, označení víkendů 
  */
 .weekend {
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 /*
 LIST
 */
 
-#swp-cal-list-main {
+#swpc-list-main {
   // font-family: 'Open Sans', sans-serif;
   font-weight: 400;
   font-size: 15px;
   margin-top: 5px;
   line-height: 1.4rem;
-}
 
-#swp-cal-list-main ul{
-  list-style: none;
-  padding: 0;
-}
+  ul {
+    list-style: none;
+    padding: 0;
+  }
 
-#swp-cal-list-main li{
-  display: flex;
-  height: 55px;
-  margin-bottom: 5px;
-}
+  li {
+    display: flex;
+    height: 55px;
+    margin-bottom: 5px;
 
-#swp-cal-list-main li .swp-list-date{
-  display: flex;
-  width: 55px;
-  flex-shrink: 0;
-  flex-direction: column;
+    .swp-list-date {
+      display: flex;
+      width: 55px;
+      flex-shrink: 0;
+      flex-direction: column;
+    }
+
+    .swp-list-title {
+      flex-grow: 1;
+      flex-shrink: 1;
+      display: flex;
+    }
+
+    .swp-list-title a {
+      text-decoration: none;
+      color: black;
+
+      flex-shrink: 1;
+      background-color: #bdc3c7;
+      box-shadow: 4px 0px #808080, 2px 2px 0px 2px #7F8C8D;
+      width: 100%;
+      padding: 6px 5px 1px 10px;
+      margin-left: 3px;
+      transition: 0.05s;
+    }
+
+    .swp-list-title a:hover {
+      box-shadow: none;
+      background-color: #bdc3c7;
+      margin-top: 4px;
+      margin-left: 7px;
+      margin-right: -4px;
+      margin-bottom: -2px;
+    }
+
+    .swp-list-day-month {
+      background-color: #ecf0f1;
+      box-shadow: 4px 0px #808080, 2px 2px 0px 2px #7F8C8D;
+      display: flex;
+      flex-grow: 1;
+      align-items: center;
+      justify-content: center;
+      margin-left: -5px;
+      margin-right: 5px;
+      padding: 3px;
+      flex-direction: column;
+    }
+
+    .swp-list-year {
+      background-color: #9b59b6;
+      font-size: small;
+      text-align: center;
+      margin-left: 5px;
+      margin-right: 1px;
+      margin-top: 4px;
+    }
+
+    .swp-list-year.time {
+      background-color: #2c3e4f;
+      color: #ecf0f1;
+    }
+  }
 }
 
 span.swp-till {
   line-height: 5px;
-}
-
-#swp-cal-list-main li .swp-list-title {
-  flex-grow: 1;
-  flex-shrink: 1;
-  display: flex;
-}
-
-#swp-cal-list-main li .swp-list-title a {
-  text-decoration: none;
-  color: black;
-
-  flex-shrink: 1;
-  background-color: #bdc3c7;
-  box-shadow: 4px 0px #808080, 2px 2px 0px 2px #7F8C8D;
-  width: 100%;
-  padding: 6px 5px 1px 10px;
-  margin-left: 3px;
-  transition: 0.05s;
 }
 
 .truncate-overflow {
@@ -288,43 +340,6 @@ span.swp-till {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-}
-
-
-#swp-cal-list-main li .swp-list-title a:hover {
-  box-shadow: none;
-  background-color: #bdc3c7;
-  margin-top: 4px;
-  margin-left: 7px;
-  margin-right: -4px;
-  margin-bottom: -2px;
-}
-
-#swp-cal-list-main li .swp-list-day-month{
-  background-color: #ecf0f1;
-  box-shadow: 4px 0px #808080, 2px 2px 0px 2px #7F8C8D;
-  display: flex;
-  flex-grow: 1;
-  align-items: center;
-  justify-content: center;
-  margin-left: -5px;
-  margin-right: 5px;
-  padding: 3px;
-  flex-direction: column;
-}
-
-#swp-cal-list-main li .swp-list-year {
-  background-color: #9b59b6;
-  font-size: small;
-  text-align: center;
-  margin-left: 5px;
-  margin-right: 1px;
-  margin-top: 4px;
-}
-
-#swp-cal-list-main li .swp-list-year.time {
-  background-color: #2c3e4f;
-  color: #ecf0f1;
 }
 
 .swp-list-date-placeholder {

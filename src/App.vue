@@ -1,5 +1,5 @@
 <template>
-    <Calendar msg="fuck?" />
+    <Calendar />
 </template>
 
 <script>

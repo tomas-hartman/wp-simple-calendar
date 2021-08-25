@@ -1,33 +1,34 @@
 <template>
-  <div class="swpc">
-    <div class="swpc-month-controller">
-      <ul>
-        <li class="prev">«</li>
-        <li class="next">»</li>
-        <li class="month-header">srpen 2021</li>
-      </ul>
-    </div>
+    <MonthController :month="month" :year="year" />
     <div class="swpc-body">
       <div class="weekdays">
-        <ul id="swp-cal-weekdays">
+        <ul class="swp-cal-weekdays">
           <li v-bind:key="weekday" v-for="weekday in weekdays">{{weekday}}</li>
         </ul>
       </div>
-      <div class="days"></div>
+      <Days />
     </div>
-  </div>
 </template>
 
 <script>
+import MonthController from './MonthController.vue';
+import Days from './Days.vue';
+
 export default {
   name: 'Calendar',
   props: {
-    msg: String,
+    // month: String,
   },
   data() {
     return {
       weekdays: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'],
+      month: 'srpen',
+      year: 2021,
     };
+  },
+  components: {
+    MonthController,
+    Days,
   },
 };
 </script>
