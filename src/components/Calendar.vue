@@ -6,7 +6,7 @@
           <li v-bind:key="weekday" v-for="weekday in weekdays">{{weekday}}</li>
         </ul>
       </div>
-      <Days />
+      <Days :month="month" :year="year" :data="data" />
     </div>
 </template>
 
@@ -17,14 +17,17 @@ import Days from './Days.vue';
 export default {
   name: 'Calendar',
   props: {
-    // month: String,
+    data: Array,
   },
   data() {
     return {
       weekdays: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'],
-      month: 'srpen',
+      month: 7,
       year: 2021,
     };
+  },
+  created() {
+    console.log(this.$props.data);
   },
   components: {
     MonthController,

@@ -20,7 +20,8 @@ module.exports = {
   ],
   'rules': {
     'max-len': ['error', {
-      'code': 120,
+      'code': 130,
     }],
+    'indent': ['error', 2],
   },
 };

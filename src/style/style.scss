@@ -130,29 +130,39 @@ ul {
 }
 
 /* Highlight event */
-.days li .event {
-  background-color: #9b59b6;
-  box-shadow: 0 4px #8e44ad inset;
-  display: block;
-}
-
-.days li .active.event {
-  background-color: #2c3e50;
-  box-shadow: 0 4px #9b59b6 inset;
-}
-
-.days>li {
+.days li {
   background-color: #bdc3c7;
+
+  &.weekend {
+    background-color: #7f8c8d80;
+    // background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .event {
+    background-color: #9b59b6;
+    box-shadow: 0 4px #8e44ad inset;
+    display: block;
+  }
+
+  .event.active {
+    background-color: #2c3e50;
+    box-shadow: 0 4px #9b59b6 inset;
+  }
+
+  span {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
 }
 
-.days>li>span {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
+// .weekend {
+//   background-color: rgba(0, 0, 0, 0.2);
+// }
 
-.days>li.weekend {
-  background-color: rgba(127, 140, 141, 0.5);
+li.weekend .event {
+  background-color: #8e44ad;
+  box-shadow: 0 4px #6b3483 inset;
 }
 
 .datepicker .days {
@@ -164,14 +174,7 @@ ul {
   cursor: pointer;
 }
 
-li.weekend {
-  background-color: rgba(0, 0, 0, 0.2);
-}
 
-li.weekend .event {
-  background-color: #8e44ad;
-  box-shadow: 0 4px #6b3483 inset;
-}
 
 .tooltip {
   position: relative;
@@ -237,12 +240,7 @@ li.weekend .event {
   width
 } */
 
-/*
- * @todo Najs to have, označení víkendů 
- */
-.weekend {
-  background-color: rgba(0, 0, 0, 0.2);
-}
+
 
 /*
 LIST
