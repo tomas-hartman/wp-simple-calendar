@@ -1,37 +1,35 @@
 <template>
-    <MonthController :month="month" :year="year" />
+    <MonthController :month="today.getMonth()" :year="today.getFullYear()" />
     <div class="swpc-body">
-      <div class="weekdays">
-        <ul class="swp-cal-weekdays">
-          <li v-bind:key="weekday" v-for="weekday in weekdays">{{weekday}}</li>
-        </ul>
-      </div>
-      <Days :month="month" :year="year" :data="data" />
+      <WeekdaysHeader />
+      <Days :data="monthData" />
     </div>
 </template>
 
 <script>
 import MonthController from './MonthController.vue';
+import WeekdaysHeader from './WeekdaysHeader.vue';
 import Days from './Days.vue';
+import getWeeks from '../js/getWeeks';
 
 export default {
   name: 'Calendar',
-  props: {
-    data: Array,
-  },
   data () {
     return {
-      weekdays: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'],
-      month: 7,
-      year: 2021,
+      today: new Date(),
+      /** This should be 1.X.20XY according to the relative month */
+      relativeMonth: new Date(),
+      monthOffset: 0,
+      monthData: getWeeks(this.monthOffset),
     };
   },
   created () {
-    console.log(this.weekdays, this.month, this.year);
+    // console.log(this.today, this.monthData);
   },
   components: {
     MonthController,
     Days,
+    WeekdaysHeader,
   },
 };
 </script>

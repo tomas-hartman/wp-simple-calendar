@@ -1,20 +1,14 @@
 <template>
-    <Calendar :data="sample" />
+    <Calendar />
 </template>
 
 <script>
 import Calendar from './components/Calendar.vue';
-import { sample } from './samples/data';
 
 export default {
   name: 'App',
   components: {
     Calendar,
-  },
-  data () {
-    return {
-      sample,
-    };
   },
   // updated() {
   //   console.log(sample);
