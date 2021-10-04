@@ -1,5 +1,5 @@
 const presets = [
-  '@babel/env',
+  // '@babel/env',
   '@vue/cli-plugin-babel/preset',
 ];
 

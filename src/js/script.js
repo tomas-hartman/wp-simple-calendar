@@ -39,7 +39,7 @@ const swpCal = {
   calFormat: 'cs',
   events: null,
 
-  getEvents() {
+  getEvents () {
     if (typeof simpleWPCalEvents !== 'undefined') this.events = JSON.parse(simpleWPCalEvents.events);
   },
 
@@ -52,7 +52,7 @@ const swpCal = {
    * @var numOfDays Počet dní v měsíci
    * @var daysArr Pomocné pole s daty jednotlivých dnů v měsíci
    */
-  getMonths(relMonth) {
+  getMonths (relMonth) {
     this.firstDayOfMonth = new Date(this.today.getFullYear(), this.today.getMonth() + relMonth);
     this.firstDayOfNextMonth = new Date(this.firstDayOfMonth.getFullYear(), this.firstDayOfMonth.getMonth() + 1);
     this.lastDayOfMonth = new Date(this.firstDayOfMonth.getFullYear(), this.firstDayOfMonth.getMonth() + 1, 0);
@@ -67,7 +67,7 @@ const swpCal = {
     }
   },
 
-  createHeaderWeekdays() {
+  createHeaderWeekdays () {
     // if(this.mainElm.querySelector("#swp-cal-weekdays")) return null;
 
     const ulWeekdays = document.createElement('ul');
@@ -89,14 +89,14 @@ const swpCal = {
    * @access refreshData() a init generování kalendáře
    * @param {Date} firstDayOfMonth
    */
-  createMonthTitle(firstDayOfMonth) {
+  createMonthTitle (firstDayOfMonth) {
     const month = this.monthNames[firstDayOfMonth.getMonth()];
     const year = firstDayOfMonth.getFullYear();
 
     return `${month} ${year}`;
   },
 
-  createHeaderMonth() {
+  createHeaderMonth () {
     const divMonth = document.createElement('div');
     divMonth.setAttribute('class', 'month');
 
@@ -118,7 +118,7 @@ const swpCal = {
    * @param {*} params Parametry k jednotlivým dnům, zejména popisky událostí
    * @todo
    */
-  createElm(originDate, params) {
+  createElm (originDate, params) {
     const elm = document.createElement('li');
     const span = document.createElement('span');
     let date = originDate;
@@ -148,7 +148,7 @@ const swpCal = {
     return elm;
   },
 
-  createTooltip(elm, width = null) {
+  createTooltip (elm, width = null) {
     // width: 270px;
     // margin-left: calc(-270px/2);
 
@@ -172,7 +172,7 @@ const swpCal = {
    * @todo opravit bug 2.11. --> po dvojkliku se zdvojí "Opakující se vícedenní akce"
    * @return Vytvoří HTML pro event a připojí ho k elm
    */
-  createEventElm(event, elm) {
+  createEventElm (event, elm) {
     const li = document.createElement('li');
     const a = document.createElement('a');
     a.setAttribute('href', event.permalink);
@@ -201,7 +201,7 @@ const swpCal = {
    * @param {object} event
    * @param {Date} date
    */
-  createEventForList(event, date, dateEnd) {
+  createEventForList (event, date, dateEnd) {
     const eventCopy = JSON.parse(JSON.stringify(event)); // ohack na kopii objektu
     eventCopy.eventDate = this.getDateString(date);
     if (dateEnd) eventCopy.eventEndDate = this.getDateString(dateEnd);
@@ -215,7 +215,7 @@ const swpCal = {
    * @returns DOM s vytvořenými elementy pro jednotlivé dny
    * @access main generování kalendáře a refreshData()
    */
-  getWeeks() {
+  getWeeks () {
     const days = document.createElement('ul');
     days.setAttribute('class', 'days');
 
@@ -258,7 +258,7 @@ const swpCal = {
      * @todo uplatnit na více místech, kde to potřebuju; možná nikde
      * @param {Date} date
      */
-  getDateString(date) {
+  getDateString (date) {
     const newDate = new Date(date);
     let dayString = newDate.getDate().toString();
     let monthString = (newDate.getMonth() + 1).toString();
@@ -277,7 +277,7 @@ const swpCal = {
   },
 
   // Posouvání v kalendáři dopředu a dozadu a jeho refreshe //
-  refreshData(relMonth) {
+  refreshData (relMonth) {
     const monthHeader = document.querySelector('#calendar li.month-header');
 
     this.getMonths(relMonth);
@@ -286,19 +286,19 @@ const swpCal = {
     this.mainElm.appendChild(this.getWeeks());
   },
 
-  fcnNext() {
+  fcnNext () {
     this.relMonth += 1;
     this.refreshData(this.relMonth);
     this.renderContentAll();
   },
 
-  fcnPrev() {
+  fcnPrev () {
     this.relMonth -= 1;
     this.refreshData(this.relMonth);
     this.renderContentAll();
   },
 
-  addEventOneDay(event) {
+  addEventOneDay (event) {
     const date = event.eventDate.split('-');
     const thisMonth = this.firstDayOfMonth.getMonth() + 1;
     const thisYear = this.firstDayOfMonth.getFullYear();
@@ -310,7 +310,7 @@ const swpCal = {
     }
   },
 
-  addEventMultipleDays(event, thisMonthStr) {
+  addEventMultipleDays (event, thisMonthStr) {
     /**
          * Dva edge casy: událost, která trvá do dalšího měsíce DONE
          * událost, která pokračuje z minulého měsíce DONE
@@ -357,7 +357,7 @@ const swpCal = {
     }
   },
 
-  addEventRepeated(event) {
+  addEventRepeated (event) {
     const thisMonth = this.firstDayOfMonth.getMonth() + 1;
     const date = event.eventDate.split('-');
     const firstDate = new Date(event.eventDate);
@@ -374,29 +374,29 @@ const swpCal = {
          * Check month -> show.
          */
     switch (parseInt(event.eventRepeat)) {
-      case 1:
-        addRepeatedWeekly();
-        break;
+    case 1:
+      addRepeatedWeekly();
+      break;
 
-      case 2:
-        addRepeatedMonthly();
-        break;
+    case 2:
+      addRepeatedMonthly();
+      break;
 
-      case 3:
-        addRepeatedYearly();
-        break;
+    case 3:
+      addRepeatedYearly();
+      break;
 
-      default:
-        console.error(`Error. Something went wrong with event "${event.title}". 
+    default:
+      console.error(`Error. Something went wrong with event "${event.title}". 
         Check the event from your wordpress admin interface.`);
-        break;
+      break;
     }
 
     /**
      * Jako jediná se může zobrazovat i před prvním datem akce (svátky, výročí,
      * navíc je to tak daleko že je to jedno) pokud je forever
      */
-    function addRepeatedYearly() {
+    function addRepeatedYearly () {
       if (parseInt(date[1]) === thisMonth) {
         const currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), date[2]);
 
@@ -412,7 +412,7 @@ const swpCal = {
     /**
      * Adds event that is repeated monthly
      */
-    function addRepeatedMonthly() {
+    function addRepeatedMonthly () {
       const currentEventDate = new Date(swpCal.firstDayOfMonth.getFullYear(), swpCal.firstDayOfMonth.getMonth(), date[2]);
 
       if (lastDate && currentEventDate > lastDate) return; // nezobrazujeme po datu konce
@@ -426,7 +426,7 @@ const swpCal = {
     /**
      * Adds event that is repeated weekly
      */
-    function addRepeatedWeekly() {
+    function addRepeatedWeekly () {
       /**
        * 2019-10-14 => pondělí, akce se bude opakovat každé pondělí. Pondělí je tedy 2019-10-14 + 7*n (1)
        * další měsíc:
@@ -481,7 +481,7 @@ const swpCal = {
      * tolikrát se maximálně může za sebou událost zobrazit
      * @todo __Přepsat celou metodu a rozdělit ji na jednotlivé funkce__
      */
-  renderList(events, size) {
+  renderList (events, size) {
     let container = document.createElement('ul');
     container.classList.add('swp-list');
     const upcomingEvents = [];
@@ -541,84 +541,84 @@ const swpCal = {
        */
       else if (repeatMode > 0) {
         switch (repeatMode) {
-          case 1: // týdně
-            /**
+        case 1: // týdně
+          /**
              * budu checkovat v jakej den se koná a přidám 'size' jejich instancí po datu today
              * @todo this.relmonth bude dělat chyby v tomhle případě! - mělo by být pokaždý nula, ne?
              */
-            let dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
+          let dayOfWeeklyEvent = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth() /* + this.relMonth */, eventStartDate.getDate());
 
-            for (let n = 0; n < size; n++) {
-              if (eventRepetitionEnd !== '' && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
-              if (eventRepetitionEnd !== '' && dayOfWeeklyEvent > eventRepetitionEnd) break; // safe break for events ending in the future
-              if (dayOfWeeklyEvent >= this.today) {
-                upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
-              } else {
-                // Pokud opakovaná událost začíná v minulosti
-                /**
+          for (let n = 0; n < size; n++) {
+            if (eventRepetitionEnd !== '' && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
+            if (eventRepetitionEnd !== '' && dayOfWeeklyEvent > eventRepetitionEnd) break; // safe break for events ending in the future
+            if (dayOfWeeklyEvent >= this.today) {
+              upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
+            } else {
+              // Pokud opakovaná událost začíná v minulosti
+              /**
                  * tady to je potřeba opravit o rozdíl mezi prvním dnem v týdnu/akce
                  * tady je potřeba
                  */
-                const diff = this.today - dayOfWeeklyEvent;
-                const yearMs = 24 * 60 * 60 * 1000;
-                const daysOffset = Math.floor(diff / yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
-                const weeksOffset = Math.ceil(daysOffset / 7); // rozdíl v týdnech - ten potřebuju, abych zachoval týdenní rozestupy
+              const diff = this.today - dayOfWeeklyEvent;
+              const yearMs = 24 * 60 * 60 * 1000;
+              const daysOffset = Math.floor(diff / yearMs); // rozdíl ve dnech - rozbíjelo by týdenní rozestupy
+              const weeksOffset = Math.ceil(daysOffset / 7); // rozdíl v týdnech - ten potřebuju, abych zachoval týdenní rozestupy
 
-                dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7 * weeksOffset);
-                upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
-              }
-
-              dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7);
+              dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7 * weeksOffset);
+              upcomingEvents.push(this.createEventForList(events[i], dayOfWeeklyEvent));
             }
-            break;
 
-          case 2: // měsíční akce
-            let eventRepetitionStart = eventStartDate;
+            dayOfWeeklyEvent = new Date(dayOfWeeklyEvent.getFullYear(), dayOfWeeklyEvent.getMonth(), dayOfWeeklyEvent.getDate() + 7);
+          }
+          break;
 
-            for (let n = 0; n < size; n++) {
-              if (eventRepetitionEnd !== '' && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
+        case 2: // měsíční akce
+          let eventRepetitionStart = eventStartDate;
 
-              if (eventRepetitionEnd !== '' && eventRepetitionStart > eventRepetitionEnd) break; // safe break for events ending in the future
+          for (let n = 0; n < size; n++) {
+            if (eventRepetitionEnd !== '' && eventRepetitionEnd < this.todayNorm) break; // break for events terminated already in the past
+
+            if (eventRepetitionEnd !== '' && eventRepetitionStart > eventRepetitionEnd) break; // safe break for events ending in the future
+
+            if (eventRepetitionStart < this.todayNorm) {
+              eventRepetitionStart = new Date(this.today.getFullYear(), this.today.getMonth(), eventRepetitionStart.getDate());
 
               if (eventRepetitionStart < this.todayNorm) {
-                eventRepetitionStart = new Date(this.today.getFullYear(), this.today.getMonth(), eventRepetitionStart.getDate());
-
-                if (eventRepetitionStart < this.todayNorm) {
-                  eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
-                }
+                eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
               }
-
-              upcomingEvents.push(this.createEventForList(events[i], eventRepetitionStart));
-              eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
             }
-            break;
 
-          case 3: // roční akce
-            let dayOfYearlyEvent = eventStartDate;
+            upcomingEvents.push(this.createEventForList(events[i], eventRepetitionStart));
+            eventRepetitionStart = new Date(eventRepetitionStart.getFullYear(), eventRepetitionStart.getMonth() + 1, eventRepetitionStart.getDate());
+          }
+          break;
 
-            for (let n = 0; n < size; n++) {
-              if (eventRepetitionEnd !== '' && eventRepetitionEnd < this.todayNorm) break;
+        case 3: // roční akce
+          let dayOfYearlyEvent = eventStartDate;
 
-              if (eventRepetitionEnd !== '' && dayOfYearlyEvent > eventRepetitionEnd) break;
+          for (let n = 0; n < size; n++) {
+            if (eventRepetitionEnd !== '' && eventRepetitionEnd < this.todayNorm) break;
 
+            if (eventRepetitionEnd !== '' && dayOfYearlyEvent > eventRepetitionEnd) break;
+
+            if (dayOfYearlyEvent < this.todayNorm) {
+              dayOfYearlyEvent = new Date(this.today.getFullYear(), dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
+
+              // pokud je stále ještě menší, pak jde o událost, která už letos proběhla a je třeba ji přeskočit
               if (dayOfYearlyEvent < this.todayNorm) {
-                dayOfYearlyEvent = new Date(this.today.getFullYear(), dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
-
-                // pokud je stále ještě menší, pak jde o událost, která už letos proběhla a je třeba ji přeskočit
-                if (dayOfYearlyEvent < this.todayNorm) {
-                  dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
-                }
+                dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
               }
-
-              upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
-              dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
             }
 
-            break;
+            upcomingEvents.push(this.createEventForList(events[i], dayOfYearlyEvent));
+            dayOfYearlyEvent = new Date(dayOfYearlyEvent.getFullYear() + 1, dayOfYearlyEvent.getMonth(), dayOfYearlyEvent.getDate());
+          }
 
-          default:
-            console.warn(`Event repeatMode non-standard: ${repeatMode}`);
-            break;
+          break;
+
+        default:
+          console.warn(`Event repeatMode non-standard: ${repeatMode}`);
+          break;
         }
       } else {
         // FALLBACK IF NOTHING WORKS OUT WELL
@@ -673,7 +673,7 @@ const swpCal = {
      * </li>
      */
 
-  createListItem(event, iter) {
+  createListItem (event, iter) {
     const date = event.eventDate.split('-');
     const year = date[0];
     const yearFits = this.today.getFullYear() === parseInt(year);
@@ -733,7 +733,7 @@ const swpCal = {
      * @todo zbytečně nepřidávat podruhé ty listenery
      * @todo možná půjde odstranit oprava proti zdvojování kalendáři v userovi!
      */
-  getCalendar() {
+  getCalendar () {
     this.mainElm.setAttribute('id', 'calendar');
     this.daysElm.setAttribute('class', 'days');
 
@@ -746,7 +746,7 @@ const swpCal = {
     this.mainElm.querySelector('#calendar li.prev').addEventListener('click', this);
   },
 
-  renderContentAll() {
+  renderContentAll () {
     const events = this.events;
 
     // Renderování malého kalendáře
@@ -780,7 +780,7 @@ const swpCal = {
     }
   },
 
-  run() {
+  run () {
     this.getEvents();
     this.getMonths(this.relMonth);
 
@@ -809,12 +809,12 @@ const swpCal = {
     const target = ev.target.className;
 
     switch (target) {
-      case 'next':
-        swpCal.fcnNext();
-        break;
-      case 'prev':
-        swpCal.fcnPrev();
-        break;
+    case 'next':
+      swpCal.fcnNext();
+      break;
+    case 'prev':
+      swpCal.fcnPrev();
+      break;
     }
   },
 };

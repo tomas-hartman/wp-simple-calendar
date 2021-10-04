@@ -19,15 +19,15 @@ export default {
   props: {
     data: Array,
   },
-  data() {
+  data () {
     return {
       weekdays: ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'],
       month: 7,
       year: 2021,
     };
   },
-  created() {
-    console.log(this.$props.data);
+  created () {
+    console.log(this.weekdays, this.month, this.year);
   },
   components: {
     MonthController,

@@ -10,7 +10,7 @@ export default {
   props: {
     dayNum: Number,
   },
-  data() {
+  data () {
     return {
       isWeekend: false,
     };

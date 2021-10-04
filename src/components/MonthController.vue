@@ -30,9 +30,9 @@ export default {
     month: Number,
     year: Number,
   },
-  data() {
+  data () {
     return {
-      monthName: monthNames[this.$props.month],
+      monthName: monthNames[this.month],
     };
   },
 };
