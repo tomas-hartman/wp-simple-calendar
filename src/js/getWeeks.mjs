@@ -1,10 +1,7 @@
-import getMonthMeta from './getMonths.mjs';
-
-const createDayMeta = (date, weekdayNum, isWeekend = false) => {
+const createDayMeta = (date, weekdayNum) => {
   return {
     date,
     weekdayNum,
-    isWeekend,
   };
 };
 
@@ -14,9 +11,7 @@ const createDayMeta = (date, weekdayNum, isWeekend = false) => {
  * @returns DOM s vytvořenými elementy pro jednotlivé dny
  * @access main generování kalendáře a refreshData()
  */
-export default function getWeeks () {
-  const { daysArr, firstDayOfMonth } = getMonthMeta(0);
-
+export default function getWeeks (numOfDays, firstDayOfMonth) {
   // const days = document.createElement('ul');
   // const daysArr = [];
   const days = [];
@@ -29,22 +24,22 @@ export default function getWeeks () {
     firstDay = 7;
   }
 
-  while (daysArr.length > 0) {
+  const arbitraryDaysArr = Array.from(Array(numOfDays).keys());
+
+  while (arbitraryDaysArr.length > 0) {
     for (let i = 1; i < 8; i++) {
       if (i >= firstDay && !firstWeekConst) { // Případ, kdy měsíc začíná o víkendu
-        const daysArrItem = daysArr.shift();
-        const isWeekend = (i === 6 || i === 7);
-        const dayElm = createDayMeta(daysArrItem, i, isWeekend);
+        const daysArrItem = arbitraryDaysArr.shift();
+        const dayElm = createDayMeta(daysArrItem + 1, i);
         firstWeekConst = true;
 
         days.push(dayElm); // RENDER FULL
         continue;
       }
 
-      if (firstWeekConst && daysArr.length > 0) {
-        const daysArrItem = daysArr.shift();
-        const isWeekend = (i === 6 || i === 7);
-        const dayElm = createDayMeta(daysArrItem, i, isWeekend);
+      if (firstWeekConst && arbitraryDaysArr.length > 0) {
+        const daysArrItem = arbitraryDaysArr.shift();
+        const dayElm = createDayMeta(daysArrItem + 1, i);
 
         days.push(dayElm); // RENDER FULL
         continue;
@@ -55,5 +50,3 @@ export default function getWeeks () {
   }
   return days;
 }
-
-// console.log(getWeeks());

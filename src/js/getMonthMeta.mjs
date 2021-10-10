@@ -9,14 +9,9 @@ export default function getMonthMeta (monthOffset) {
 
   // při přeměně času na zimní může mít jiný počet hodin @todo je správně floor?!
   const numOfDays = Math.floor((firstDayOfNextMonth - firstDayOfMonth) / (1000 * 60 * 60 * 24));
-  const daysArr = [];
-
-  for (let i = 1; i <= numOfDays; i++) {
-    daysArr.push(i);
-  }
 
   return {
-    firstDayOfMonth, firstDayOfNextMonth, lastDayOfMonth, lastDayOfPrevMonth, displayedMonth, daysArr,
+    firstDayOfMonth, firstDayOfNextMonth, lastDayOfMonth, lastDayOfPrevMonth, displayedMonth, numOfDays,
   };
 }
 

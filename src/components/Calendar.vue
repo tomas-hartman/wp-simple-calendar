@@ -1,8 +1,13 @@
 <template>
-    <MonthController :month="today.getMonth()" :year="today.getFullYear()" />
+    <MonthController
+      @decrease-month-offset="decreaseOffset"
+      @increase-month-offset="increaseOffset"
+      :month="relativeMonth.getMonth()"
+      :year="relativeMonth.getFullYear()"
+    />
     <div class="swpc-body">
       <WeekdaysHeader />
-      <Days :data="monthData" />
+      <Days :monthOffset="monthOffset" />
     </div>
 </template>
 
@@ -10,7 +15,6 @@
 import MonthController from './MonthController.vue';
 import WeekdaysHeader from './WeekdaysHeader.vue';
 import Days from './Days.vue';
-import getWeeks from '../js/getWeeks';
 
 export default {
   name: 'Calendar',
@@ -20,12 +24,21 @@ export default {
       /** This should be 1.X.20XY according to the relative month */
       relativeMonth: new Date(),
       monthOffset: 0,
-      monthData: getWeeks(this.monthOffset),
     };
   },
-  created () {
-    // console.log(this.today, this.monthData);
+  methods: {
+    decreaseOffset () {
+      this.monthOffset -= 1;
+      this.relativeMonth = new Date(this.today.getFullYear(), this.today.getMonth() + this.monthOffset, 1);
+    },
+    increaseOffset () {
+      this.monthOffset += 1;
+      this.relativeMonth = new Date(this.today.getFullYear(), this.today.getMonth() + this.monthOffset, 1);
+    },
   },
+  // created () {
+
+  // },
   components: {
     MonthController,
     Days,

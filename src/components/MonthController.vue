@@ -1,29 +1,14 @@
 <template>
   <div class="swpc-month-controller">
       <ul>
-        <li class="prev">«</li>
-        <li class="next">»</li>
-        <li class="month-header">{{monthName}} {{year}}</li>
+        <li @click="decreaseMonthOffset()" class="prev">«</li>
+        <li @click="increaseMonthOffset()" class="next">»</li>
+        <li class="month-header">{{monthNames[month]}} {{year}}</li>
       </ul>
     </div>
 </template>
 
 <script>
-const monthNames = [
-  'leden',
-  'únor',
-  'březen',
-  'duben',
-  'květen',
-  'červen',
-  'červenec',
-  'srpen',
-  'září',
-  'říjen',
-  'listopad',
-  'prosinec',
-];
-
 export default {
   name: 'MonthController',
   props: {
@@ -32,8 +17,29 @@ export default {
   },
   data () {
     return {
-      monthName: monthNames[this.month],
+      monthNames: [
+        'leden',
+        'únor',
+        'březen',
+        'duben',
+        'květen',
+        'červen',
+        'červenec',
+        'srpen',
+        'září',
+        'říjen',
+        'listopad',
+        'prosinec',
+      ],
     };
+  },
+  methods: {
+    decreaseMonthOffset () {
+      this.$emit('decrease-month-offset');
+    },
+    increaseMonthOffset () {
+      this.$emit('increase-month-offset');
+    },
   },
 };
 </script>
