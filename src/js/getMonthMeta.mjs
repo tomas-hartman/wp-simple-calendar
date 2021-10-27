@@ -15,6 +15,6 @@ export default function getMonthMeta (monthOffset) {
   };
 }
 
-// console.log(getMonthMeta(0));
+console.log(getMonthMeta(0));
 
 // module.exports = getMonthMeta;
