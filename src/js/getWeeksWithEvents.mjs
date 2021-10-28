@@ -1,6 +1,6 @@
-import { monthMeta } from '../samples/monthMeta.mjs';
-import { sample } from '../samples/data.mjs';
-import { getEventsData } from './prepareEvents.mjs';
+import { monthMeta } from '../samples/monthMeta';
+import { sample } from '../samples/data.js';
+import { getEventsData } from './getFormatedEventsData';
 
 // const eventsData = getEventsData(sample, 7);
 
@@ -11,6 +11,9 @@ import { getEventsData } from './prepareEvents.mjs';
  */
 export const getWeeksWithEvents = (firstDayOfMonth, weeksMeta, eventsData) => {
   const thisMonth = new Date(firstDayOfMonth);
+
+  // console.log(firstDayOfMonth);
+
   const year = thisMonth.getFullYear();
   const month = thisMonth.getMonth() + 1;
 
@@ -33,9 +36,9 @@ export const getWeeksWithEvents = (firstDayOfMonth, weeksMeta, eventsData) => {
     return dayMeta;
   });
 
-  console.log(merged);
+  // console.log(merged);
 
   return merged;
 };
 
-// console.log(getMonthMetaWithEvents(monthMeta, eventsData));
+// console.log(getWeeksWithEvents(monthMeta, eventsData));

@@ -29,6 +29,11 @@ module.exports = {
     indent: ['error', 2],
     semi: ['error', 'always'],
     'comma-dangle': ['error', 'always-multiline'],
+
+    // remove later
+
+    "no-case-declarations": "off",
+    "brace-style": "off",
   },
   overrides: [
     {

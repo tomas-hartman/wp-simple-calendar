@@ -7,7 +7,7 @@
     />
     <div class="swpc-body">
       <WeekdaysHeader />
-      <Days :monthOffset="monthOffset" />
+      <Days :monthOffset="monthOffset" :events="events" />
     </div>
 </template>
 
@@ -15,6 +15,8 @@
 import MonthController from './MonthController.vue';
 import WeekdaysHeader from './WeekdaysHeader.vue';
 import Days from './Days.vue';
+import { getFormatedEventsData } from '../js/getFormatedEventsData';
+import { sample } from '../samples/data';
 
 export default {
   name: 'Calendar',
@@ -24,6 +26,7 @@ export default {
       /** This should be 1.X.20XY according to the relative month */
       relativeMonth: new Date(),
       monthOffset: 0,
+      events: getFormatedEventsData(sample, 10),
     };
   },
   methods: {

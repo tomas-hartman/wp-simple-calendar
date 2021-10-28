@@ -34,10 +34,11 @@ export default {
   name: 'Days',
   props: {
     monthOffset: Number,
+    events: Object,
   },
   data () {
     return {
-      days: getCalendarData(this.monthOffset),
+      days: getCalendarData(this.monthOffset, this.events),
     };
   },
   watch: {
@@ -45,8 +46,8 @@ export default {
       this.days = getCalendarData(this.monthOffset);
     },
   },
-  // created () {
-  //   // console.log(this.data);
-  // },
+  created () {
+    console.log(this.days);
+  },
 };
 </script>

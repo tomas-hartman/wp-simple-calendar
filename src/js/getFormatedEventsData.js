@@ -1,44 +1,4 @@
-import { sample } from '../samples/data.mjs';
-
-const today = new Date();
-const todayNorm = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-
-/**
- * Konvertuje datum na date string, který používám v event.eventDate
- * @todo uplatnit na více místech, kde to potřebuju; možná nikde
- * @param {Date} date
- */
-const getDateString = (date) => {
-  const newDate = new Date(date);
-  let dayString = newDate.getDate().toString();
-  let monthString = (newDate.getMonth() + 1).toString();
-
-  if (dayString.length === 1) {
-    dayString = `0${dayString}`;
-  }
-
-  if (monthString.length === 1) {
-    monthString = `0${monthString}`;
-  }
-
-  const dateString = `${newDate.getFullYear()}-${monthString}-${dayString}`;
-
-  return dateString;
-};
-
-/**
-   * Funkce, která vrací kopii objektu s upraveným datem konání
-   * Vkládá se do objektu pro vytváření nadcházejících událostí
-   * @param {object} event
-   * @param {Date} date
-   */
-const createEventForList = (event, date, dateEnd) => {
-  const eventCopy = JSON.parse(JSON.stringify(event)); // ohack na kopii objektu
-  eventCopy.eventDate = getDateString(date);
-  if (dateEnd) eventCopy.eventEndDate = getDateString(dateEnd);
-
-  return eventCopy;
-};
+import { createEventForList } from './getFormatedEventsDataHelpers.mjs';
 
 /**
  *
@@ -47,11 +7,16 @@ const createEventForList = (event, date, dateEnd) => {
  * tolikrát se maximálně může za sebou událost zobrazit
  * @todo __Přepsat celou metodu a rozdělit ji na jednotlivé funkce__
  */
-export const getEventsData = (events, size) => {
+export const getFormatedEventsData = (events, size) => {
+  const today = new Date();
+  const todayNorm = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+
   // const container = document.createElement('ul');
   // container.classList.add('swp-list');
   const upcomingEvents = [];
   // this.listRendered = true;
+
+  // console.log(events);
 
   /**
    * Pole s akcemi
@@ -87,9 +52,9 @@ export const getEventsData = (events, size) => {
     }
 
     /**
-   * 2. vícedenní akce @todo vícedenní opakované akce!
-   * dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
-   */
+     * 2. vícedenní akce @todo vícedenní opakované akce!
+     * dva případy: vícedenní akce začíná zítra nebo vícedenní akce už běží
+     */
     else if (daysLen > 1 && (eventStartDate >= today || eventEndDate >= today) && repeatMode === 0) {
     // případ kdy akce končí po dnešku, ale začíná někdy dříve - i ty potřebuju použít
       if (eventStartDate < today && eventEndDate >= today) {
