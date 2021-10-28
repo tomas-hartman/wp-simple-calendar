@@ -17,240 +17,151 @@ export default {
 </script>
 
 <style lang="scss">
+@import "./src/style/colors.scss";
+
 .swpc {
-// #swp-cal-mini-main {
-  font-family: "Open Sans", Avenir, Helvetica, Arial, sans-serif;
+  --main-width: 320px;
+  --cell-height: 40px;
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  // text-align: center;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 18px;
   color: #2c3e50;
-  // margin-top: 60px;
-}
 
-*,
-*:before,
-*:after {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-ul {
-  padding: 0;
-}
-
-/* body {font-family: Verdana, sans-serif;} */
-
-.swpc {
-  width: 270px;
-  font-size: 15px;
-  // font-weight: 300;
-  // font-family: 'Open Sans', sans-serif;
+  width: var(--main-width);
   margin-top: 5px;
 
   ul {
+    padding: 0;
+    margin: 0;
     list-style-type: none;
     margin-left: 0;
   }
 
-  /* Month header */
-  &-month-controller {
-    background: #2c3e50;
+  li:not(.swpc-month-controller li):not(.events li) {
+    list-style-type: none;
+    display: inline-block;
+    width: calc(var(--main-width) / 7);
     text-align: center;
-    margin-bottom: 10px;
-    height: 35px;
-    line-height: 35px;
-
-    /* Month list */
-    ul {
-      margin: 0;
-      padding: 0;
-    }
-
-    ul li {
-      color: white;
-      font-size: 18px;
-    }
-
-    /* Previous button inside month header */
-    .prev {
-      float: left;
-      cursor: pointer;
-      display: block;
-      width: 35px;
-      user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-    }
-
-    /* Next button */
-    .next {
-      float: right;
-      cursor: pointer;
-      display: block;
-      width: 35px;
-      user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-    }
-
-    .next:hover,
-    .prev:hover {
-      background-color: #34495e;
-    }
+    line-height: var(--cell-height);
   }
 }
 
-/* Weekdays (Mon-Sun) */
-.weekdays {
-  margin: 0;
-  background-color: #7f8c8d;
-}
+// .swpc {
 
-/* Days (1-31) */
-.days {
-  padding: 0;
-  /* background: #bdc3c7; */
-  margin: 0;
-  cursor: default;
-}
+// /* Days (1-31) */
+// .days {
+//   padding: 0;
+//   /* background: #bdc3c7; */
+//   margin: 0;
+//   cursor: default;
+// }
 
-.weekdays li,
-.days li,
-.day-events #swp-cal-mini-main li {
-  list-style-type: none;
-  display: inline-block;
-  width: calc(270px / 7);
-  text-align: center;
-  line-height: 32px;
-}
+// .weekdays li,
+// .days li,
+// .day-events #swp-cal-mini-main li {
+//   list-style-type: none;
+//   display: inline-block;
+//   width: calc(var(--main-width) / 7);
+//   text-align: center;
+//   line-height: var(--cell-height);
+// }
 
-.day-events #swp-cal-mini-main li {
-  padding: 0;
-  margin: 0;
-  color: black;
-}
+// .day-events #swp-cal-mini-main li {
+//   padding: 0;
+//   margin: 0;
+//   color: black;
+// }
 
-.day-events #swp-cal-mini-main .month li {
-  color: #fff;
-}
+// .day-events #swp-cal-mini-main .month li {
+//   color: #fff;
+// }
 
-.day-events #swp-cal-mini-main .month li.month-header {
-  width: auto;
-}
+// .day-events #swp-cal-mini-main .month li.month-header {
+//   width: auto;
+// }
 
-/* Highlight the "current" day */
-.days li .active {
-  background: #2c3e50;
-  color: #bdc3c7 !important;
-  display: block;
-}
+// /* Highlight the "current" day */
+// .days li .active {
+//   background: #2c3e50;
+//   color: #bdc3c7 !important;
+//   display: block;
+// }
 
-/* Highlight event */
-.days li {
-  background-color: #bdc3c7;
+// .datepicker .days {
+//   background: #bdc3c7;
+// }
 
-  &.weekend {
-    // background-color: #7f8c8d80;
-    background-color: rgba(0, 0, 0, 0.2);
-  }
+// .datepicker .days li>span:hover {
+//   background-color: rgba(44, 62, 80, 0.220);
+//   cursor: pointer;
+// }
 
-  &.has-events {
-    background-color: #9b59b6;
-    box-shadow: 0 4px #8e44ad inset;
-    // display: block;
-  }
+// .tooltip {
+//   position: relative;
+//   display: inline-block;
+// }
 
-  &.has-events.active {
-    background-color: #2c3e50;
-    box-shadow: 0 4px #9b59b6 inset;
-  }
+// .tooltip .day-events {
+//   visibility: hidden;
+//   width: 120px;
+//   background-color: #23282d;
+//   color: #fff;
+//   text-align: center;
 
-  span {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-}
+//   top: 100%;
+//   left: 50%;
+//   margin-left: -60px;
+//   /* Use half of the width (120/2 = 60), to center the tooltip */
 
-// li.weekend .event
-li.weekend.has-events {
-  background-color: #8e44ad;
-  box-shadow: 0 4px #6b3483 inset;
-}
+//   padding: 5px 0;
+//   border-radius: 6px;
 
-.datepicker .days {
-  background: #bdc3c7;
-}
+//   /* Position the tooltip text - see examples below! */
+//   position: absolute;
+//   z-index: 1;
+// }
 
-.datepicker .days li>span:hover {
-  background-color: rgba(44, 62, 80, 0.220);
-  cursor: pointer;
-}
+// .tooltip:hover .day-events {
+//   visibility: visible;
+// }
 
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
+// .tooltip .day-events::after {
+//   content: " ";
+//   position: absolute;
+//   bottom: 100%;
+//   /* At the bottom of the tooltip */
+//   left: 50%;
+//   margin-left: -5px;
+//   border-width: 5px;
+//   border-style: solid;
+//   color: #6b3483;
+//   border-color: transparent transparent black transparent;
+// }
 
-.tooltip .day-events {
-  visibility: hidden;
-  width: 120px;
-  background-color: #23282d;
-  color: #fff;
-  text-align: center;
+// .tooltip .day-events a {
+//   color: #bdc3c7;
+//   text-decoration: none;
+// }
 
-  top: 100%;
-  left: 50%;
-  margin-left: -60px;
-  /* Use half of the width (120/2 = 60), to center the tooltip */
+// .tooltip .day-events a:hover {
+//   text-decoration: underline;
+// }
 
-  padding: 5px 0;
-  border-radius: 6px;
-
-  /* Position the tooltip text - see examples below! */
-  position: absolute;
-  z-index: 1;
-}
-
-.tooltip:hover .day-events {
-  visibility: visible;
-}
-
-.tooltip .day-events::after {
-  content: " ";
-  position: absolute;
-  bottom: 100%;
-  /* At the bottom of the tooltip */
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  color: #6b3483;
-  border-color: transparent transparent black transparent;
-}
-
-.tooltip .day-events a {
-  color: #bdc3c7;
-  text-decoration: none;
-}
-
-.tooltip .day-events a:hover {
-  text-decoration: underline;
-}
-
-.day-events li {
-  width: auto;
-  text-align: left;
-  padding: 0 10px;
-  line-height: normal;
-}
+// .day-events li {
+//   width: auto;
+//   text-align: left;
+//   padding: 0 10px;
+//   line-height: normal;
+// }
 
 /* .day-events #swp-cal-mini-main li {
   padding: auto;
   text-align: center;
   width
 } */
+// }
 
 /*
 LIST

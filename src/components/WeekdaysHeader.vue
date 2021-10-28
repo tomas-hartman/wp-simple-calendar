@@ -16,3 +16,22 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.swpc {
+  /* Weekdays (Mon-Sun) */
+  .weekdays {
+    margin: 0;
+    background-color: var(--concrete);
+    border-radius: 9px 9px 0 0;
+  }
+
+  .weekdays li:first-of-type {
+    border-radius: 9px 0 0 0;
+  }
+
+  .weekdays li:last-of-type {
+    border-radius: 0 9px 0 0;
+  }
+}
+</style>

@@ -3,7 +3,11 @@
     <li
       v-for="day in days.days"
       :key="day"
-      v-bind:class="[(day.weekdayNum === 6 || day.weekdayNum === 7) && 'weekend', (day.events?.length > 0) && 'has-events']"
+      v-bind:class="[
+        (day.weekdayNum === 6 || day.weekdayNum === 7) && 'weekend',
+        (day.events?.length > 0) && 'has-events',
+        isToday(new Date(this.days.firstDayOfMonth.getFullYear(), this.days.displayedMonth - 1, day.date)) && 'today'
+      ]"
     >
       <span class="dayInMonth">
       {{day.date}}
@@ -29,6 +33,7 @@
 
 <script>
 import { getCalendarData } from '../js/getCalendarData';
+import { isToday } from '../js/helpers';
 
 export default {
   name: 'Days',
@@ -46,9 +51,95 @@ export default {
       this.days = getCalendarData(this.monthOffset, this.events);
     },
   },
+  methods: {
+    isToday: isToday,
+  },
   created () {
     console.log(this.days);
     console.log(this.events);
   },
 };
 </script>
+
+<style lang="scss">
+.swpc {
+  .has-events {
+    position: relative;
+  }
+
+  .has-events:hover .events {
+    display: block;
+  }
+
+  .events {
+    display: none;
+    position: absolute;
+    // width: 150px;
+    z-index: 100;
+    background-color: var(--aluminium);
+    // width: auto;
+    max-width: var(--main-width);
+    font-size: 0.85em;
+    padding: 0.6rem;
+    text-align: left;
+    width: 200px;
+    padding-left: 1rem;
+    color: initial;
+  }
+
+  .event {
+    line-height: normal;
+    width: 100%;
+    list-style-type: disc;
+    display: inline-block;
+  }
+
+  .days > li {
+    background-color: var(--clouds-white);
+  }
+
+  .days .weekend {
+    background-color: var(--calendar-light-grey);
+  }
+
+  /* Highlight event */
+  // .days li {
+  // background-color: #bdc3c7;
+
+  // &.weekend {
+  //   // background-color: #7f8c8d80;
+  //   background-color: rgba(0, 0, 0, 0.2);
+  // }
+
+  .days {
+    padding: 9px 0;
+    background-color: rgba(var(--clouds-white-rgb), 0.4);
+    border-radius: 0 0 9px 9px;
+  }
+
+  .days .today {
+    background: #2c3e50;
+    color: #bdc3c7 !important;
+    display: block;
+  }
+
+  .days .has-events {
+    background-color: var(--purple-light);
+    box-shadow: 0 4px var(--purple) inset;
+    color: var(--clouds-white);
+    // display: block;
+  }
+
+  .days .has-events.today,
+  .days .has-events.today.weekend {
+    background-color: var(--navy-dark);
+    box-shadow: 0 4px var(--purple-light) inset;
+    color: var(--clouds-white-rgb);
+  }
+
+  .days .has-events.weekend {
+    background-color: var(--purple);
+    box-shadow: 0 4px var(--purple-dark) inset;
+  }
+}
+</style>
