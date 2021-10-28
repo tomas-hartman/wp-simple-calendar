@@ -1,18 +1,8 @@
-import { monthMeta } from '../samples/monthMeta';
-import { sample } from '../samples/data.js';
-import { getEventsData } from './getFormatedEventsData';
-
-// const eventsData = getEventsData(sample, 7);
-
-// console.log(getWeeks(numOfDays, firstDayOfMonth));
-
 /**
- * @todo This is completely wierd, but I want to make it work for now.
+ * @todo This is completely wierd and needs refactor, but I want to make it work for now.
  */
 export const getWeeksWithEvents = (firstDayOfMonth, weeksMeta, eventsData) => {
   const thisMonth = new Date(firstDayOfMonth);
-
-  // console.log(firstDayOfMonth);
 
   const year = thisMonth.getFullYear();
   const month = thisMonth.getMonth() + 1;
@@ -36,9 +26,5 @@ export const getWeeksWithEvents = (firstDayOfMonth, weeksMeta, eventsData) => {
     return dayMeta;
   });
 
-  // console.log(merged);
-
   return merged;
 };
-
-// console.log(getWeeksWithEvents(monthMeta, eventsData));

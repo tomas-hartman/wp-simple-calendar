@@ -12,10 +12,7 @@ const createDayMeta = (date, weekdayNum) => {
  * @access main generování kalendáře a refreshData()
  */
 export default function getWeeks (numOfDays, firstDayOfMonth) {
-  // const days = document.createElement('ul');
-  // const daysArr = [];
   const days = [];
-  // days.setAttribute('class', 'days');
 
   let firstWeekConst = false;
   let firstDay = firstDayOfMonth.getDay();

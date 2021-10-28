@@ -1,4 +1,4 @@
-import { sample } from '../samples/data';
+import { sample } from '../../samples/data';
 
 /**
  * Konvertuje datum na date string, který používám v event.eventDate

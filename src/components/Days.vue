@@ -3,13 +3,13 @@
     <li
       v-for="day in days.days"
       :key="day"
-      v-bind:class="[(day.weekdayNum === 6 || day.weekdayNum === 7) && 'weekend']"
+      v-bind:class="[(day.weekdayNum === 6 || day.weekdayNum === 7) && 'weekend', (day.events?.length > 0) && 'has-events']"
     >
       <span class="dayInMonth">
       {{day.date}}
       </span>
-      <ul class="event" v-if="day.events?.length">
-        <li v-for="event in day.events" :key="event">{{event.title}}</li>
+      <ul class="events" v-if="day.events?.length">
+        <li class="event" v-for="event in day.events" :key="event">{{event.title}}</li>
       </ul>
     </li>
 
@@ -43,11 +43,12 @@ export default {
   },
   watch: {
     monthOffset () {
-      this.days = getCalendarData(this.monthOffset);
+      this.days = getCalendarData(this.monthOffset, this.events);
     },
   },
   created () {
     console.log(this.days);
+    console.log(this.events);
   },
 };
 </script>

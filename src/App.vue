@@ -17,14 +17,15 @@ export default {
 </script>
 
 <style lang="scss">
+.swpc {
 // #swp-cal-mini-main {
-//   font-family: Avenir, Helvetica, Arial, sans-serif;
-//   -webkit-font-smoothing: antialiased;
-//   -moz-osx-font-smoothing: grayscale;
-//   // text-align: center;
-//   color: #2c3e50;
-//   // margin-top: 60px;
-// }
+  font-family: "Open Sans", Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  // text-align: center;
+  color: #2c3e50;
+  // margin-top: 60px;
+}
 
 *,
 *:before,
@@ -43,7 +44,7 @@ ul {
 .swpc {
   width: 270px;
   font-size: 15px;
-  font-weight: 300;
+  // font-weight: 300;
   // font-family: 'Open Sans', sans-serif;
   margin-top: 5px;
 
@@ -150,17 +151,17 @@ ul {
   background-color: #bdc3c7;
 
   &.weekend {
-    background-color: #7f8c8d80;
-    // background-color: rgba(0, 0, 0, 0.2);
+    // background-color: #7f8c8d80;
+    background-color: rgba(0, 0, 0, 0.2);
   }
 
-  .event {
+  &.has-events {
     background-color: #9b59b6;
     box-shadow: 0 4px #8e44ad inset;
-    display: block;
+    // display: block;
   }
 
-  .event.active {
+  &.has-events.active {
     background-color: #2c3e50;
     box-shadow: 0 4px #9b59b6 inset;
   }
@@ -172,11 +173,8 @@ ul {
   }
 }
 
-// .weekend {
-//   background-color: rgba(0, 0, 0, 0.2);
-// }
-
-li.weekend .event {
+// li.weekend .event
+li.weekend.has-events {
   background-color: #8e44ad;
   box-shadow: 0 4px #6b3483 inset;
 }
