@@ -13,9 +13,7 @@
       <span class="dayInMonth">
       {{day.date}}
       </span>
-      <ul class="events" v-if="day.events?.length">
-        <li class="event" v-for="event in day.events" :key="event">{{event.title}}</li>
-      </ul>
+      <EventDetail :events="day.events" />
     </li>
 
     <!-- <li>
@@ -35,9 +33,13 @@
 <script>
 import { getCalendarData } from '../js/getCalendarData';
 import { isToday } from '../js/helpers';
+import EventDetail from './EventDetail.vue';
 
 export default {
   name: 'Days',
+  components: {
+    EventDetail,
+  },
   props: {
     monthOffset: Number,
     events: Object,
@@ -70,29 +72,6 @@ export default {
 
   .has-events:hover .events {
     display: block;
-  }
-
-  .events {
-    display: none;
-    position: absolute;
-    // width: 150px;
-    z-index: 100;
-    background-color: var(--aluminium);
-    // width: auto;
-    max-width: var(--main-width);
-    font-size: 0.85em;
-    padding: 0.6rem;
-    text-align: left;
-    width: 200px;
-    padding-left: 1rem;
-    color: initial;
-  }
-
-  .event {
-    line-height: normal;
-    width: 100%;
-    list-style-type: disc;
-    display: inline-block;
   }
 
   .days > li {
