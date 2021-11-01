@@ -1,7 +1,11 @@
 export const isToday = (date) => {
   const today = new Date();
 
-  return date.getDate() === today.getDate() &&
-  date.getMonth() === today.getMonth() &&
-  date.getFullYear() === today.getFullYear();
+  return isSameDay(date, today);
+};
+
+export const isSameDay = (firstDay, secondDay) => {
+  return firstDay.getDate() === secondDay.getDate() &&
+  firstDay.getMonth() === secondDay.getMonth() &&
+  firstDay.getFullYear() === secondDay.getFullYear();
 };

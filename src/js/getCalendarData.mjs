@@ -4,8 +4,8 @@ import getWeeks from './getWeeks';
 
 export const getCalendarData = (monthOffset, eventsData) => {
   const monthMeta = getMonthMeta(monthOffset);
-  const { numOfDays, firstDayOfMonth } = monthMeta;
-  const weeksMeta = getWeeks(numOfDays, firstDayOfMonth);
+  const { firstDayOfMonth } = monthMeta;
+  const weeksMeta = getWeeks(monthMeta);
 
   return {
     ...monthMeta,

@@ -6,7 +6,8 @@
       v-bind:class="[
         (day.weekdayNum === 6 || day.weekdayNum === 7) && 'weekend',
         (day.events?.length > 0) && 'has-events',
-        isToday(new Date(this.days.firstDayOfMonth.getFullYear(), this.days.displayedMonth - 1, day.date)) && 'today'
+        isToday(day.dateObj) && 'today',
+        (day.monthType !== 'current') && 'bordering-month'
       ]"
     >
       <span class="dayInMonth">
@@ -98,8 +99,20 @@ export default {
     background-color: var(--clouds-white);
   }
 
+  .days > li:last-of-type {
+    border-radius: 0 0 9px 0;
+  }
+
+  .days > li:nth-last-of-type(7) {
+    border-radius: 0 0 0 9px;
+  }
+
   .days .weekend {
     background-color: var(--calendar-light-grey);
+  }
+
+  .days .bordering-month {
+    color: var(--silver);
   }
 
   /* Highlight event */
@@ -112,9 +125,9 @@ export default {
   // }
 
   .days {
-    padding: 9px 0;
-    background-color: rgba(var(--clouds-white-rgb), 0.4);
-    border-radius: 0 0 9px 9px;
+    // padding: 9px 0;
+    // background-color: rgba(var(--clouds-white-rgb), 0.4);
+    // border-radius: 0 0 9px 9px;
   }
 
   .days .today {
@@ -128,6 +141,20 @@ export default {
     box-shadow: 0 4px var(--purple) inset;
     color: var(--clouds-white);
     // display: block;
+  }
+
+  .days .has-events.bordering-month,
+  .days .has-events.bordering-month.today,
+  .days .bordering-month.today
+  {
+    color: var(--concrete);
+    background-color: var(--aluminium);
+    box-shadow: none;
+  }
+
+  .days .has-events.bordering-month,
+  .days .has-events.bordering-month.today {
+    box-shadow: 0 4px var(--concrete) inset;
   }
 
   .days .has-events.today,
