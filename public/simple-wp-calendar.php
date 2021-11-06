@@ -42,70 +42,6 @@ function swp_cal_post_type() {
 }
 add_action( 'init', 'swp_cal_post_type' );
 
-// Tohle je fajn a všechno, ale není to potřeba
-function get_custom_fields( $object, $field_name, $request ) {
-  $eventDate = get_post_custom_values('event-date', $object->id)[0];
-  $eventTime = get_post_custom_values('event-time', $object->id)[0];
-  $eventEnd = get_post_custom_values('event-end', $object->id)[0];
-  $eventDays = (int) get_post_custom_values('event-days', $object->id)[0];
-  $eventRepeat = (int) get_post_custom_values('event-repeat', $object->id)[0];
-  $eventRepetitionEnd = get_post_custom_values('event-repetition-end', $object->id)[0];
-  
-
-  $output = new \stdClass;
-  
-  $output->eventDate = $eventDate;
-  $output->eventTime = $eventTime;
-  $output->eventEnd = $eventEnd;
-  $output->eventDays = $eventDays;
-  $output->eventRepeat = $eventRepeat;
-  $output->eventRepetitionEnd = $eventRepetitionEnd;
-
-  return $output;
-}
-
-function add_custom_fields ()
-{
-  register_rest_field(
-    "swp-cal-event",
-    "eventMeta",
-    [
-      'get_callback' => 'get_custom_fields',
-      'update_callback' => null,
-      'schema' => null
-    ]
-    );
-}
-add_action( 'rest_api_init', 'add_custom_fields' );
-
-
-/**
- * This is our callback function that embeds our phrase in a WP_REST_Response
- */
-function prefix_get_endpoint_phrase() {
-
-  // rest_ensure_response() wraps the data we want to return into a WP_REST_Response, and ensures it will be properly returned.
-  return rest_ensure_response( 'Hello World, this is the WordPress REST API' );
-}
-
-/**
-* This function is where we register our routes for our example endpoint.
-*/
-function swp_cal_register_route() 
-{
-  register_rest_route(
-    'swpc/v1', 
-    '/events', 
-    [
-      // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
-      'methods'  => WP_REST_Server::READABLE,
-      // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
-      'callback' => 'swp_cal_json',
-    ] 
-  );
-}
-add_action( 'rest_api_init', 'swp_cal_register_route' );
-
 /**
  * Activation and migration from event-list-cal
  * https://wordpress.stackexchange.com/questions/97026/how-do-i-safely-change-the-name-of-a-custom-post-type
@@ -533,6 +469,9 @@ function swp_cal_scripts()
 }
 add_action( 'wp_enqueue_scripts', 'swp_cal_scripts' );
 
+
+/** REST API */
+
 function swp_cal_json() 
 {
 	// check_ajax_referer( 'simple-wp-calendar', 'security' );
@@ -579,6 +518,24 @@ function swp_cal_json()
 
 	return $events;
 }
+
+/**
+ * This function is where we register our routes for our example endpoint.
+ */
+function swp_cal_register_route() 
+{
+  register_rest_route(
+    'swpc/v1', 
+    '/events', 
+    [
+      // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
+      'methods'  => WP_REST_Server::READABLE,
+      // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
+      'callback' => 'swp_cal_json',
+    ] 
+  );
+}
+add_action( 'rest_api_init', 'swp_cal_register_route' );
 
 /* class SWPCalEvent {
 	private $options;
