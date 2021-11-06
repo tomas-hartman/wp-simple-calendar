@@ -495,6 +495,7 @@ function swp_cal_json()
 		$eventEnd = get_post_custom_values('event-end')[0];
 		$eventRepetitionEnd = get_post_custom_values('event-repetition-end')[0];
     $excerpt = get_the_excerpt();
+    $categories = get_the_category();
 
     $eventRepeatSchedule = 0;
 
@@ -512,6 +513,7 @@ function swp_cal_json()
     $event->eventRepetitionEnd = $eventRepetitionEnd;
     $event->excerpt = $excerpt;
     $event->eventRepeatSchedule = $eventRepeatSchedule;
+    $event->categories = $categories;
     
     array_push($events, $event);
 	endwhile;
