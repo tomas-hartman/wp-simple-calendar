@@ -354,7 +354,7 @@ function swp_cal_add_metabox_longer( $post )
 <?php
 }
 
-function swp_cal_meta( $post_id ) 
+function swp_cal_meta_save( $post_id ) 
 {
 	if ( 'swp-cal-event' != $_POST['post_type'] ) { // event-list-cal: toto bude potřeba upravit
 		return;
@@ -369,11 +369,11 @@ function swp_cal_meta( $post_id )
 	}
 
 	if ( isset( $_POST['swp-cal-event-date'] ) ) {
-		update_post_meta( $post_id, 'event-date', $_POST['swp-cal-event-date']  );
+    update_post_meta( $post_id, 'event-date', $_POST['swp-cal-event-date']);
 	}
-	if ( isset( $_POST['swp-cal-event-time'] ) ) {
-		update_post_meta( $post_id, 'event-time', $_POST['swp-cal-event-time'] );
-	}
+  if ( isset( $_POST['swp-cal-event-time'] ) ) {
+    update_post_meta( $post_id, 'event-time', $_POST['swp-cal-event-time']);
+  } 
 	
 	if ( isset( $_POST['swp-cal-event-date'] ) && isset( $_POST['swp-cal-event-date-end'] ) && $_POST['swp-cal-event-date-end'] != 0 ) {
 		// PHP 5.3+
@@ -385,8 +385,8 @@ function swp_cal_meta( $post_id )
 		update_post_meta( $post_id, 'event-repetition-end', $_POST['swp-cal-event-date-end'] );
 		update_post_meta( $post_id, 'event-days', $days + 1 ); // +1 proto, aby jednodenní akce neměla délku "0 dní"; včetně 1. dne
 	} else if ($_POST['swp-cal-event-date-end'] == 0) {
-		update_post_meta( $post_id, 'event-end', "" );
-		update_post_meta( $post_id, 'event-repetition-end', "" );
+		update_post_meta( $post_id, 'event-end', null );
+		update_post_meta( $post_id, 'event-repetition-end', null );
 		update_post_meta( $post_id, 'event-days', 1 );
 	}
 	
@@ -395,7 +395,7 @@ function swp_cal_meta( $post_id )
 	} else {
 		if($_POST['swp-cal-event-repeat'] == 1) {
 
-			update_post_meta( $post_id, 'event-repeat', $_POST['swp-cal-event-repeat-schedule'] );
+			update_post_meta( $post_id, 'event-repeat', (int) $_POST['swp-cal-event-repeat-schedule'] );
 
 			if(isset($_POST['swp-cal-event-date-end']) && $_POST['swp-cal-event-date-end'] != 0 ) {
 				$first = new DateTime($_POST['swp-cal-event-date']);
@@ -406,13 +406,13 @@ function swp_cal_meta( $post_id )
 				update_post_meta( $post_id, 'event-repetition-end', $_POST['swp-cal-event-date-end'] );
 			} else {
 				update_post_meta( $post_id, 'event-days', 1 );
-				update_post_meta( $post_id, 'event-repetition-end', "" );
+				update_post_meta( $post_id, 'event-repetition-end', null );
 			}
 
 		}
 	}
 }
-add_action( 'save_post', 'swp_cal_meta' );
+add_action( 'save_post', 'swp_cal_meta_save' );
 
 /** @todo admin */
 function swp_cal_admin_script_style( $hook ) 
@@ -430,7 +430,7 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
  */
 function swp_cal_css() 
 {
-  $element = '<link rel="stylesheet" href="'.plugin_dir_url(__FILE__).'css/app.36b7054a.css">';
+  $element = '<link rel="stylesheet" href="'.plugin_dir_url(__FILE__).'css/app.css">';
 	echo $element;
 }
 add_action( 'wp_head', 'swp_cal_css' );
@@ -443,7 +443,7 @@ function swp_cal_scripts()
 {
   wp_enqueue_script(
     'simpleWPCalScriptChunks',
-    plugin_dir_url(__FILE__).'chunk-vendors.js',
+    plugin_dir_url(__FILE__).'js/chunk-vendors.js',
     [],
     '1.0.0', 
     true
@@ -452,7 +452,7 @@ function swp_cal_scripts()
   // loads in header
 	wp_enqueue_script(
     'simpleWPCalScriptApp',
-    plugin_dir_url(__FILE__).'app.js',
+    plugin_dir_url(__FILE__).'js/app.js',
     [],
     '1.0.0', 
     true

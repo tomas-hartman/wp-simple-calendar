@@ -15,8 +15,8 @@
 import MonthController from './MonthController.vue';
 import WeekdaysHeader from './WeekdaysHeader.vue';
 import Days from './Days.vue';
+import axios from 'axios';
 import { getFormatedEventsData } from '../js/getFormatedEventsData';
-import { sample } from '../samples/data';
 
 export default {
   name: 'Calendar',
@@ -26,7 +26,7 @@ export default {
       /** This should be 1.X.20XY according to the relative month */
       relativeMonth: new Date(),
       monthOffset: 0,
-      events: getFormatedEventsData(sample, 10),
+      events: [],
     };
   },
   methods: {
@@ -39,9 +39,21 @@ export default {
       this.relativeMonth = new Date(this.today.getFullYear(), this.today.getMonth() + this.monthOffset, 1);
     },
   },
-  // created () {
+  async mounted () {
+    if (process.env.NODE_ENV !== 'production') {
+      const { dataRest } = await import(
+        /* webpackChunkName: "chunk-sample-data" */
+        '../samples/data_rest'
+      );
 
-  // },
+      this.events = getFormatedEventsData(dataRest, 10);
+      return;
+    }
+
+    const { data } = await axios.get('http://wpsc.local/wp-json/swpc/v1/events');
+
+    this.events = getFormatedEventsData(data, 10);
+  },
   components: {
     MonthController,
     Days,

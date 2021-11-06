@@ -53,6 +53,9 @@ export default {
     monthOffset () {
       this.days = getCalendarData(this.monthOffset, this.events);
     },
+    events () {
+      this.days = getCalendarData(this.monthOffset, this.events);
+    },
   },
   methods: {
     isToday: isToday,

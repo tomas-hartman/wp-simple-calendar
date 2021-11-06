@@ -52,7 +52,6 @@ export default {
     text-align: center;
     margin-bottom: 10px;
     height: var(--cell-height);
-    line-height: var(--cell-height);
     border-radius: 9px;
 
     /* Month list */
@@ -64,6 +63,7 @@ export default {
     li {
       color: white;
       font-size: 18px;
+      line-height: var(--cell-height) !important;
       // width: unset !important;
     }
 

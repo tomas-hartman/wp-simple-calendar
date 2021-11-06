@@ -1,8 +1,5 @@
 module.exports = {
-  configureWebpack: config => {
-    config.output.filename = '[name].js';
-    config.output.chunkFilename = '[name].js';
-  },
+  filenameHashing: process.env.NODE_ENV !== 'production',
   css: {
     requireModuleExtension: false,
     loaderOptions: {

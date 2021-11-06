@@ -20,7 +20,7 @@ export default {
 @import "./src/style/colors.scss";
 
 .swpc {
-  --main-width: 320px;
+  --main-width: 322px; // 46 * 7
   --cell-height: 40px;
 
   -webkit-font-smoothing: antialiased;
