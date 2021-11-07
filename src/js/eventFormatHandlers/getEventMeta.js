@@ -25,7 +25,7 @@ export const getEventMeta = (rawEvent, today, todayNorm) => {
       return new Date(rawEvent.eventRepetitionEnd);
     }
 
-    return '';
+    return ''; // null
   };
 
   const eventEndDate = prepareEventEndDate(rawEvent);

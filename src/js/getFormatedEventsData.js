@@ -1,5 +1,6 @@
 import { getEventMeta } from './eventFormatHandlers/getEventMeta';
 import { handleMultipleDayEvent } from './eventFormatHandlers/handleMultipleDayEvent';
+import { handleMultipleDayListEvent } from './eventFormatHandlers/handleMultipleDayListEvent';
 import { handleOneOffEvent } from './eventFormatHandlers/handleOneOffEvent';
 import { handleRepeatingEvent } from './eventFormatHandlers/handleRepeatingEvent';
 
@@ -9,7 +10,7 @@ import { handleRepeatingEvent } from './eventFormatHandlers/handleRepeatingEvent
  * @param {number} size počet dní, pro které chci akci vykreslit ->
  * tolikrát se maximálně může za sebou událost zobrazit
  */
-export const getFormatedEventsData = (events, size) => {
+export const getFormatedEventsData = (events, size, forList = false) => {
   /** @todo what do do with these? */
   const today = new Date();
   const todayNorm = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
@@ -29,13 +30,23 @@ export const getFormatedEventsData = (events, size) => {
 
     /** 1. obyč nadcházející jednorázové akce */
     if (repeatMode === 0 && daysLen === 1) {
-      handleOneOffEvent(upcomingEvents, events[i], eventIsExpired);
+      handleOneOffEvent(upcomingEvents, events[i], eventIsExpired, forList);
       continue;
     }
 
-    /** 2. vícedenní akce */
+    /**
+     * 2. vícedenní akce
+     * Callbacks for calendar and list are different
+     */
     if (repeatMode === 0 && daysLen > 1) {
-      handleMultipleDayEvent(upcomingEvents, events[i], eventMeta);
+      // For calendar:
+      if (!forList) {
+        handleMultipleDayEvent(upcomingEvents, events[i], eventMeta);
+        continue;
+      }
+
+      // For event list:
+      handleMultipleDayListEvent(upcomingEvents, events[i], eventMeta);
       continue;
     }
 
@@ -50,7 +61,15 @@ export const getFormatedEventsData = (events, size) => {
     console.warn(events[i]);
   }
 
-  return upcomingEvents;
-};
+  /** PHASE 3: OUTPUT */
 
-// console.log(getEventsData(sample, 7));
+  // For calendar:
+  if (!forList) return upcomingEvents;
+
+  // For event list:
+  upcomingEvents.sort((b, a) => {
+    return new Date(b.eventDate) - new Date(a.eventDate);
+  });
+
+  return upcomingEvents.slice(0, size);
+};

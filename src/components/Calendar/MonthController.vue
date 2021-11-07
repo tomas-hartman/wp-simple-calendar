@@ -50,7 +50,7 @@ export default {
   &-month-controller {
     background: #2c3e50;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     height: var(--cell-height);
     border-radius: 9px;
 

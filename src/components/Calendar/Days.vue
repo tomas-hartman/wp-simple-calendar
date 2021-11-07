@@ -31,8 +31,8 @@
 </template>
 
 <script>
-import { getCalendarData } from '../js/getCalendarData';
-import { isToday } from '../js/helpers';
+import { getCalendarData } from '../../js/getCalendarData';
+import { isToday } from '../../js/helpers';
 import EventDetail from './EventDetail.vue';
 
 export default {

@@ -16,7 +16,7 @@ import MonthController from './MonthController.vue';
 import WeekdaysHeader from './WeekdaysHeader.vue';
 import Days from './Days.vue';
 import axios from 'axios';
-import { getFormatedEventsData } from '../js/getFormatedEventsData';
+import { getFormatedEventsData } from '../../js/getFormatedEventsData';
 
 export default {
   name: 'Calendar',
@@ -43,7 +43,7 @@ export default {
     if (process.env.NODE_ENV !== 'production') {
       const { dataRest } = await import(
         /* webpackChunkName: "chunk-sample-data" */
-        '../samples/data_rest.mjs'
+        '../../samples/data_rest'
       );
 
       this.events = getFormatedEventsData(dataRest, 10);
