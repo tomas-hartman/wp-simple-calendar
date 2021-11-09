@@ -9,3 +9,9 @@ export const isSameDay = (firstDay, secondDay) => {
   firstDay.getMonth() === secondDay.getMonth() &&
   firstDay.getFullYear() === secondDay.getFullYear();
 };
+
+export const formatDate = (date) => {
+  const formatedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+  return formatedDate;
+};
