@@ -356,17 +356,44 @@ add_action( 'add_meta_boxes', 'swp_cal_metabox' );
 
 function swp_cal_add_metabox( $post ) 
 {
-  echo "<div class='swpc-admin-general' />";
+  wp_nonce_field( basename( __FILE__ ), 'swp-cal-nonce' );
+
+  $event_date = get_post_meta( $post->ID, 'event-date', true );
+	$event_time = get_post_meta( $post->ID, 'event-time', true );
+	$event_end = get_post_meta( $post->ID, 'event-end', true);
+	$event_days = get_post_meta( $post->ID, 'event-days', true);
+
+  $metaData = [
+    "eventDate" => $event_date,
+    "eventTime" => $event_time,
+    "eventEnd" => $event_end,
+    "eventDays" => (int) $event_days
+  ];
+  $metaData = json_encode($metaData);
+
+  echo "
+    <div id='validate'><ul></ul></div>
+    <div class='swpc-admin-general' data-meta=$metaData></div>
+  ";
 }
 
 function swp_cal_add_metabox_longer( $post ) 
 {
-  echo "<div class='swpc-admin-repetition' />";
+  wp_nonce_field( basename( __FILE__ ), 'swp-cal-nonce' );
+
+  $event_repeat = get_post_meta( $post->ID, 'event-repeat', true );
+
+  $metaData = [
+    "eventRepeat" => (int) $event_repeat,
+  ];
+  $metaData = json_encode($metaData);
+
+  echo "<div class='swpc-admin-repetition' data-meta=$metaData></div>";
 }
 
 function swp_cal_meta_save( $post_id ) 
 {
-	if ( 'swp-cal-event' != $_POST['post_type'] ) { // event-list-cal: toto bude potřeba upravit
+	if ( $_POST['post_type'] != 'swp-cal-event' ) { // event-list-cal: toto bude potřeba upravit
 		return;
 	}
 

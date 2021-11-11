@@ -1,5 +1,5 @@
 <template>
-  <div id="validate"><ul></ul></div>
+<div class="swp-cal-general-div">
   <div>
     <label
       for="swp-cal-event-date-end-chck"
@@ -54,11 +54,15 @@
       :value="eventTime"
     />
   </div>
+</div>
 </template>
 
 <script>
 import { formatDate } from './js/helpers';
 import { adminGetDaysLength } from './js/admin';
+
+const parent = document.querySelector('.swpc-admin-general');
+const metaData = parent?.dataset.meta ? JSON.parse(parent.dataset.meta) : {};
 
 /**
  * @todo add verification
@@ -68,11 +72,11 @@ export default {
   name: 'AdminGeneral',
   data () {
     return {
-      isMultipleDay: false,
-      eventDaysLength: 1,
-      eventStart: formatDate(new Date()),
-      eventEnd: '',
-      eventTime: '',
+      isMultipleDay: metaData?.eventDays > 1 || false,
+      eventDaysLength: metaData.eventDays || 1,
+      eventStart: metaData.eventDate || formatDate(new Date()),
+      eventEnd: metaData.eventEnd || '',
+      eventTime: metaData.eventTime || '',
     };
   },
   watch: {

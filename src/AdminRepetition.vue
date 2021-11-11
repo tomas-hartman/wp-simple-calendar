@@ -39,15 +39,15 @@
 </template>
 
 <script>
-/**
- * @todo add fetch data from existing event
- */
+const parent = document.querySelector('.swpc-admin-repetition');
+const metaData = parent?.dataset.meta ? JSON.parse(parent.dataset.meta) : {};
+
 export default {
   name: 'AdminRepetition',
   data () {
     return {
-      repetitionCheck: false,
-      selected: '1',
+      repetitionCheck: metaData.eventRepeat > 0 || false,
+      selected: metaData.eventRepeat || '1',
     };
   },
 };
