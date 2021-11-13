@@ -10,8 +10,6 @@ export const handleMultipleDayListEvent = (eventPool, rawData, eventMeta) => {
 
   // případ kdy akce končí po dnešku, ale začíná někdy dříve - i ty potřebuju použít
   if (eventStartDate < today && eventEndDate >= today) {
-    console.log(eventStartDate);
-    console.log(eventEndDate);
     eventPool.push(createEventForList(rawData, eventStartDate, eventEndDate));
     return;
   }

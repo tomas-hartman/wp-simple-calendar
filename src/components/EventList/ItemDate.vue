@@ -88,6 +88,7 @@ export default {
   .has-more-days {
     font-size: 0.9rem;
     text-align: center;
+    line-height: 1.2em;
   }
 }
 </style>

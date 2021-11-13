@@ -11,4 +11,14 @@ module.exports = {
       },
     },
   },
+  chainWebpack: config => {
+    config.entryPoints.delete('app');
+
+    config.entry('admin')
+      .add('./src/admin.ts')
+      .end()
+      .entry('public')
+      .add('./src/client.ts')
+      .end();
+  },
 };

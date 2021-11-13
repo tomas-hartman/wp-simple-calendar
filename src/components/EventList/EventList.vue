@@ -25,21 +25,26 @@ export default {
       events: [],
     };
   },
+  props: {
+    listLength: Number,
+  },
   async mounted () {
+    const listItemLength = this.listLength < 1 ? 5 : this.listLength;
+
     if (process.env.NODE_ENV !== 'production') {
       const { dataRest } = await import(
         /* webpackChunkName: "chunk-sample-data" */
         '../../samples/data_rest'
       );
 
-      const data = getFormatedEventsData(dataRest, 5, true);
+      const data = getFormatedEventsData(dataRest, listItemLength, true);
       this.events = data;
       return;
     }
 
     const { data } = await axios.get('http://wpsc.local/wp-json/swpc/v1/events');
 
-    this.events = getFormatedEventsData(data, 5, true);
+    this.events = getFormatedEventsData(data, listItemLength, true);
   },
 };
 </script>

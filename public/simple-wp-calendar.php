@@ -253,107 +253,6 @@ function swp_cal_metabox()
 }
 add_action( 'add_meta_boxes', 'swp_cal_metabox' );
 
-/* function swp_cal_add_metabox( $post ) 
-{
-	wp_nonce_field( basename( __FILE__ ), 'swp-cal-nonce' );
-
-	$event_date = get_post_meta( $post->ID, 'event-date', true );
-	$event_time = get_post_meta( $post->ID, 'event-time', true );
-	$event_end = get_post_meta( $post->ID, 'event-end', true);
-	$event_days = get_post_meta( $post->ID, 'event-days', true);
-	
-  $is_disabled = "";
-	
-	if(!isset($event_end) || $event_end == ""){
-		$is_disabled = "disabled";
-	} else $is_disabled = "";
-
-	if(empty($event_date)) {
-		$event_date = date('Y-m-d', time());
-	}
-	// if(empty($event_end)) {
-	// 	$event_end = date('Y-m-d', time());
-	// }
-	if(empty($event_days)) {
-		$event_days = 1;
-	}
-	if(!empty($event_end) || $event_end != 0) {
-		$checked = ' checked="checked"';
-	} else {
-		$checked = '';
-	}
-
-?>
-	<div id="validate"><ul><ul></div>
-	<div>
-    	<label for="swp-cal-event-date-end-chck" style="width: 100px; display: inline-block;"><?php _e( 'Vícedenní událost', 'simple-wp-calendar' ); ?></label>
-    	<input id="swp-cal-event-date-end-chck" type="checkbox" name="swp-cal-event-date-end-chck" value="1" <?php echo $checked?>>
-  	</div>
-	<div>
-		<label for="swp-cal-event-date" style="width: 100px; display: inline-block;"><?php _e( 'Datum události *', 'simple-wp-calendar' ); ?></label>
-		<span class="event-date">
-			<input id="swp-cal-event-date" type="text" name="swp-cal-event-date" placeholder="YYYY-MM-DD" value="<?php echo $event_date; ?>">
-		</span>
-		<label for="swp-cal-event-date-end"><?php _e( 'Datum konce události', 'simple-wp-calendar' ); ?></label>
-		<span class = event-end-date>
-			<input id="swp-cal-event-date-end" type="text" name="swp-cal-event-date-end" placeholder="<?php _e( 'Jednodenní událost', 'simple-wp-calendar' ); ?>" value="<?php echo $event_end; ?>" <?php echo $is_disabled?>> <!-- TBD -->
-		</span>
-		<span><?php _e( 'Počet dní', 'simple-wp-calendar' ); ?> <span id="swp-cal-event-num-days"><?php echo $event_days; ?><span></span>
-  	</div>
-  	<div style="padding-top: 1em;">
-    	<label for="swp-cal-event-time" style="width: 100px; display: inline-block;"><?php _e( 'Čas události', 'simple-wp-calendar' ); ?></label>
-    	<input id="swp-cal-event-time" type="text" name="swp-cal-event-time" placeholder="<?php _e( '13:00-14:30, 15:25', 'simple-wp-calendar' ); ?>" value="<?php echo $event_time; ?>">
-  	</div>
-
-<?php
-} */
-
-/* function swp_cal_add_metabox_longer( $post ) 
-{
-	wp_nonce_field( basename( __FILE__ ), 'swp-cal-nonce' );
-
-	$event_repeat = get_post_meta( $post->ID, 'event-repeat', true );
-	$is_disabled = "";
-	
-	$weekly = '';
-	$monthly = '';
-	$yearly = ' selected="selected"';
-
-	if($event_repeat > 0) {
-		$checked = ' checked="checked"';
-		$event_schedule = $event_repeat;
-		if($event_schedule == 1) {
-			$weekly = ' selected="selected"';
-			$yearly = '';
-		} elseif($event_schedule == 2) {
-			$monthly = ' selected="selected"';
-			$yearly = '';
-		}
-	} else {
-		$checked = '';
-		$is_disabled = "disabled";
-	}
-?>
-	<!-- <div id="swp-cal-days-div">
-		<label for="swp-cal-event-days" style="width: 100px; display: inline-block;"><?php //_e( 'Dny trvání události', 'simple-wp-calendar' ); ?></label>
-		<input id="swp-cal-event-days" type="number" name="swp-cal-event-days" min="1" max="31" value="<?php //echo $event_days; ?>">
-	</div>
-	<div id="swp-cal-repeat-div" style="padding-top: 1em;">
-		<label for="swp-cal-event-repeat" style="width: 100px; display: inline-block;"><?php _e( 'Opakovat událost?', 'simple-wp-calendar' ); ?></label>
-		<input id="swp-cal-event-repeat-chck" type="checkbox" name="swp-cal-event-repeat" value="1"<?php echo $checked; ?>>
-		<div id="swp-cal-repeat-schedule" style="display: inline-block;">
-			<label for="swp-cal-event-repeat-schedule" style="width: 100px; display: none;"><?php _e( 'Jak často', 'simple-wp-calendar' ); ?></label>
-			<select id="swp-cal-event-repeat-schedule" name="swp-cal-event-repeat-schedule" <?php echo $is_disabled; ?>>
-				<option value="1"<?php echo $weekly; ?>><?php _e( 'Týdně', 'simple-wp-calendar' ); ?></option>
-				<option value="2"<?php echo $monthly; ?>><?php _e( 'Měsíčně', 'simple-wp-calendar' ); ?></option>
-				<option value="3"<?php echo $yearly; ?>><?php _e( 'Ročně', 'simple-wp-calendar' ); ?></option>
-			</select>
-		</div>
-		<span style="font-style: italic;"><?php _e( 'Pozn. pokud má událost výše nastavené \'datum konce\', událost se po tomto datu přestane opakovat.', 'simple-wp-calendar' ); ?></span>
-	</div>
-<?php
-} */
-
 function swp_cal_add_metabox( $post ) 
 {
   wp_nonce_field( basename( __FILE__ ), 'swp-cal-nonce' );
@@ -456,10 +355,8 @@ function swp_cal_admin_script_style( $hook )
 {
 	if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
 		wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).'js/chunk-vendors.js', [], '1.0.0', true );
-		wp_enqueue_script( 'simpleWPCalScriptAdmin', plugin_dir_url(__FILE__).'js/app.js', [], '1.0.0', true );
-		// wp_enqueue_script( 'simpleWPCalScript', plugin_dir_url(__FILE__).'script.js', [], '1.0.0', true );
-		// wp_enqueue_script( 'simpleWPCalScriptAdmin', plugin_dir_url(__FILE__).'admin.js', [], '1.0.0', true );
-		// wp_enqueue_style( 'style', plugin_dir_url(__FILE__).'css/style.css');
+		wp_enqueue_script( 'simpleWPCalScriptAdmin', plugin_dir_url(__FILE__).'js/admin.js', [], '1.0.0', true );
+		wp_enqueue_style( 'style', plugin_dir_url(__FILE__).'css/admin.css');
 	}
 }
 add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
@@ -469,7 +366,7 @@ add_action( 'admin_enqueue_scripts', 'swp_cal_admin_script_style' );
  */
 function swp_cal_css() 
 {
-  $element = '<link rel="stylesheet" href="'.plugin_dir_url(__FILE__).'css/app.css">';
+  $element = '<link rel="stylesheet" href="'.plugin_dir_url(__FILE__).'css/public.css">';
 	echo $element;
 }
 add_action( 'wp_head', 'swp_cal_css' );
@@ -480,22 +377,10 @@ add_action( 'wp_head', 'swp_cal_css' );
 
 function swp_cal_scripts() 
 {
-  wp_enqueue_script(
-    'simpleWPCalScriptChunks',
-    plugin_dir_url(__FILE__).'js/chunk-vendors.js',
-    [],
-    '1.0.0', 
-    true
-  );
+  wp_enqueue_script('simpleWPCalScriptChunks', plugin_dir_url(__FILE__).'js/chunk-vendors.js', [], '1.0.0', true);
 
   // loads in header
-	wp_enqueue_script(
-    'simpleWPCalScriptApp',
-    plugin_dir_url(__FILE__).'js/app.js',
-    [],
-    '1.0.0', 
-    true
-  );
+	wp_enqueue_script('simpleWPCalScriptApp', plugin_dir_url(__FILE__).'js/public.js', [], '1.0.0', true);
 
 	wp_localize_script(
     'simpleWPCalScriptApp', 
@@ -660,9 +545,6 @@ if( is_admin() ) {
 } */
 
 
-/**
- * @todo Bude třeba předělat i pro ten malej kalendářík s výpisem událostí
- */
 function swp_cal_mini() 
 {
   $output = '<div class="swpc"></div>';
@@ -670,9 +552,15 @@ function swp_cal_mini()
 }
 add_shortcode('swpc-calendar', 'swp_cal_mini');
 
-function swp_cal_list() 
+function swp_cal_list($atts) 
 {    
-	$output = '<div class="swpc-list"></div>';
+  $length = 0; // default
+
+  if(isset($atts["length"])) {
+    $length = $atts["length"];
+  }
+
+	$output = "<div class='swpc-list' data-length='$length'></div>";
 
   return $output;
 }

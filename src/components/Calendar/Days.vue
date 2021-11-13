@@ -60,10 +60,10 @@ export default {
   methods: {
     isToday: isToday,
   },
-  created () {
-    console.log(this.days);
-    console.log(this.events);
-  },
+  // created () {
+  //   console.log(this.days);
+  //   console.log(this.events);
+  // },
 };
 </script>
 

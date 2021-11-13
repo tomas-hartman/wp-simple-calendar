@@ -1,29 +1,27 @@
 <template>
   <div class="swpc-list-event-description">
-      <div
-      class="swpc-list-event-category"
-        v-if="event.categories.length > 0"
-      >
-        <div
-          class="swpc-list-event-category-item theme-default"
-          v-for="category in event.categories"
-          v-bind:key="category.slug"
-          v-bind:class="[
-            `theme-${category.slug}`
-          ]"
-        />
-      </div>
-      <div class="swpc-list-event-description-text swpc-list-event-text">
-        <a :href="event.permalink">{{event.title}}</a>
-      </div>
+    <div
+    class="swpc-list-event-category"
+      v-if="event.categories.length > 0"
+    >
+      <ItemTags :event="event" />
     </div>
+    <div class="swpc-list-event-description-text swpc-list-event-text">
+      <a :href="event.permalink">{{event.title}}</a>
+    </div>
+  </div>
 </template>
 
 <script>
+import ItemTags from './ItemTags.vue';
+
 export default {
   name: 'ItemDescription',
   props: {
     event: Object,
+  },
+  components: {
+    ItemTags,
   },
 };
 </script>
@@ -66,20 +64,19 @@ export default {
   color: var(--clouds-white);
 }
 
+a.themed-a {
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .swpc-list-event {
   &-category {
     height: 100%;
     display: flex;
-  }
-
-  &-category-item {
-    width: 6px;
-    margin: 6px;
-    border-radius: 5px;
-
-    & + & {
-      margin-left: -2px;
-    }
   }
 
   &-category + &-description-text {
