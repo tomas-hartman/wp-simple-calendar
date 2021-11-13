@@ -29,7 +29,7 @@ export default {
     listLength: Number,
   },
   async mounted () {
-    const listItemLength = this.listLength < 1 ? 5 : this.listLength;
+    const listItemLength = (!this.listLength || this.listLength < 1) ? 5 : this.listLength;
 
     if (process.env.NODE_ENV !== 'production') {
       const { dataRest } = await import(

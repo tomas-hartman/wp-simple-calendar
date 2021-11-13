@@ -66,7 +66,7 @@ export default {
 
 a.themed-a {
   text-decoration: none;
-  color: inherit;
+  color: inherit !important;
 
   &:hover {
     text-decoration: underline;

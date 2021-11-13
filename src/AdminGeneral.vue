@@ -38,7 +38,6 @@
         v-model="eventEnd"
         :disabled="!isMultipleDay"
       />
-      <!-- TBD -->
     </span>
     <span>Počet dní <span id="swp-cal-event-num-days">{{eventDaysLength}}</span></span>
   </div>
