@@ -4,7 +4,7 @@ Plugin Name: WordPress calendar by Tomas Hartman
 Plugin URI: https://github.com/tomas-hartman/wp-simple-calendar
 Description: Inspired by discontinued Event List Calendar made by Ryan Fait, that I originally used for my project. Unlike the older one, this calendar's rendering module is based on pure javascript and tries to avoid jQuery. Invokes by shortcode: swp_cal_mini and swp_cal_list. Nothing more yet. Installation: If you ever used Event list calendar in the past, this plug-in automatically imports its data to be used with SWP Calendar. After activation of SWP Calendar, please, deactivate Event list calendar as there are known incompatibility issues.   
 Author: Tomas Hartman
-Version: 2.1-dev
+Version: 2.0
 Author URI: https://github.com/tomas-hartman/
 Text Domain: simple-wp-calendar
 */
@@ -462,88 +462,6 @@ function swp_cal_register_route()
   );
 }
 add_action( 'rest_api_init', 'swp_cal_register_route' );
-
-/* class SWPCalEvent {
-	private $options;
-
-	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'add_plugin_pages_swp' ) );
-		add_action( 'admin_init', array( $this, 'page_init_swp' ) );
-	}
-
-	public function add_plugin_pages_swp() {
-
-		add_submenu_page(
-			'edit.php?post_type=swp-cal-event',
-			'Nastavení bgbg',
-			'O plugssssinu',
-			'swp_manage_options',
-			'about',
-			array( $this, 'swp_create_about_page' )
-		);
-		add_submenu_page(
-			'edit.php?post_type=swp-cal-event',
-			'Nastavení bgbg',
-			'Nastavení bgbg',
-			'swp_manage_options',
-			'settings',
-			array( $this, 'swp_create_settings_page' )
-		);
-	}
-
-	public function page_init_swp() {
-
-		register_setting(
-			'swp-cal-settings', // Option group
-			'swp-cal-settings', // Option name
-			array( $this, 'sanitize' ) // Sanitize
-		);
-
-		add_settings_section(
-			'event_list_cal_date_format_section', // ID
-			'Nastavení formátu data', // Title
-			array( $this, 'print_date_info' ), // Callback
-			'swp-cal-settings' // Page
-		);
-
-		add_settings_field(
-			'event_list_cal_upcoming_date_format', // ID
-			'Datum nadcházejících událostí', // Title 
-			array( $this, 'event_list_cal_upcoming_date_format_callback' ), // Callback
-			'swp-cal-settings', // Page
-			'swp_event_list_cal_date_format_section' // Section		   
-		);
-
-		add_settings_field(
-			'event_list_cal_single_date_format', 
-			'Formát stránky s jednotlivými akcemi', 
-			array( $this, 'event_list_cal_single_date_format_callback' ), 
-			'swp-cal-settings', 
-			'swp_event_list_cal_date_format_section'
-		);
-
-		add_settings_section(
-			'swp_event_list_cal_theme_section', // ID
-			'Vzhled kalendáře', // Title
-			array( $this, 'print_theme_info' ), // Callback
-			'swp-cal-settings' // Page
-		);
-
-		add_settings_field(
-			'swp_event_list_cal_theme', // ID
-			'Zvolte téma', // Title 
-			array( $this, 'event_list_cal_theme_callback' ), // Callback
-			'swp-cal-settings', // Page
-			'swp_event_list_cal_theme_section' // Section		   
-		);
-
-	}
-}
-
-if( is_admin() ) {
-	$my_settings = new SWPCalEvent();
-} */
-
 
 function swp_cal_mini() 
 {
