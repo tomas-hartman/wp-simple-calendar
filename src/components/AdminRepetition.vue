@@ -13,7 +13,7 @@
       value="1"
       v-model="repetitionCheck"
     />
-    <div id="swp-cal-repeat-schedule" style="display: inline-block">
+    <div id="swp-cal-repeat-schedule" style="display: inline-block" v-if="repetitionCheck">
       <label
         for="swp-cal-event-repeat-schedule"
         style="width: 100px; display: none"
@@ -31,7 +31,7 @@
         <option value="3">Ročně</option>
       </select>
     </div>
-    <span class="note">
+    <span class="note" v-if="repetitionCheck">
       Pozn. pokud má událost výše nastavené "datum konce", událost se po tomto
       datu přestane opakovat.
     </span>
@@ -56,5 +56,7 @@ export default {
 <style lang="scss" scoped>
   .note {
     font-style: italic;
+    display: block;
+    margin-top: 0.8em;
   }
 </style>

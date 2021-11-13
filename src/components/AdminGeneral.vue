@@ -15,11 +15,9 @@
       v-model="isMultipleDay"
     />
   </div>
-  <div>
-    <label for="swp-cal-event-date" style="width: 100px; display: inline-block;">
-      Datum události *
-    </label>
+  <div class="form-section">
     <span class="event-date">
+      <label for="swp-cal-event-date">Datum události &#42;</label>
       <input
         id="swp-cal-event-date"
         type="text"
@@ -28,8 +26,8 @@
         :value="eventStart"
       />
     </span>
-    <label for="swp-cal-event-date-end">Datum konce události</label>
-    <span class="event-end-date">
+    <span class="event-end-date" v-if="isMultipleDay">
+      <label for="swp-cal-event-date-end">Datum konce události</label>
       <input
         id="swp-cal-event-date-end"
         type="text"
@@ -39,7 +37,7 @@
         :disabled="!isMultipleDay"
       />
     </span>
-    <span>Počet dní <span id="swp-cal-event-num-days">{{eventDaysLength}}</span></span>
+    <span v-if="isMultipleDay">Počet dní <span id="swp-cal-event-num-days">{{eventDaysLength}}</span></span>
   </div>
   <div style="padding-top: 1em;">
     <label for="swp-cal-event-time" style="width: 100px; display: inline-block;">
@@ -57,15 +55,14 @@
 </template>
 
 <script>
-import { formatDate } from './js/helpers';
-import { adminGetDaysLength } from './js/admin';
+import { formatDate } from '../js/helpers';
+import { adminGetDaysLength } from '../js/helpersAdmin';
 
 const parent = document.querySelector('.swpc-admin-general');
 const metaData = parent?.dataset.meta ? JSON.parse(parent.dataset.meta) : {};
 
 /**
  * @todo add verification
- * @todo use event data if update!
  */
 export default {
   name: 'AdminGeneral',
@@ -102,8 +99,26 @@ export default {
 
       this.eventDaysLength = adminGetDaysLength(eventStartDate, eventEndDate);
     },
+    eventStart: function () {
+      if (!this.eventEnd) return;
+
+      const eventStartDate = new Date(this.eventStart);
+      const eventEndDate = new Date(this.eventEnd);
+
+      this.eventDaysLength = adminGetDaysLength(eventStartDate, eventEndDate);
+    },
   },
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+  .form-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8em;
+  }
+
+  label {
+    margin-right: 0.4em;
+  }
+</style>

@@ -1,3 +1,9 @@
+import { validateEventDate } from './adminValidation/validateEventDate';
+import { validateEventEnd } from './adminValidation/validateEventEnd';
+import { validateEventLength } from './adminValidation/validateEventLength';
+import { validateEventTime } from './adminValidation/validateEventTime';
+import { validateTitle } from './adminValidation/validateTitle';
+
 /**
  * @todo Rozpracovat víc, co chci, platné by mělo být:
  * - 10.1.2019  !! 1. října
@@ -67,15 +73,10 @@ export const adminGetDaysLength = (eventStart, eventEnd) => {
   return daysOffset;
 };
 
-// const anchorAdminMetabox = document.getElementById('swp-cal-metabox');
-
-// if(anchorAdminMetabox) {
-
-// }
 /**
  * @todo Upravit, aby se nerenderovalo x-krát, možná upravit, aby se vytvářelo přes PHP
  */
-const createAdminValidationErr = (text, origin, renderFrame = true) => {
+export const createAdminValidationErr = (text, origin, renderFrame = true) => {
   const placeholder = document.querySelector('.wp-header-end');
   const messageDiv = document.createElement('div');
   messageDiv.id = 'message';
@@ -96,12 +97,13 @@ const createAdminValidationErr = (text, origin, renderFrame = true) => {
   origin.style.backgroundColor = 'rgba(170, 0, 0, 0.1)';
 };
 
-export const adminValidate = (el) => {
+export const adminValidate = (clickEvent) => {
   const eventEndElement = document.querySelector('#swp-cal-event-date-end');
   const eventStartElement = document.querySelector('#swp-cal-event-date');
   const numOfDaysElm = document.querySelector('#swp-cal-event-num-days');
   const hoursElement = document.querySelector('#swp-cal-event-time');
   const titleElement = document.getElementsByName('post_title')[0];
+  const eventDateEndCheckElement = document.querySelector('#swp-cal-event-date-end-chck');
   const validateErrors = document.querySelectorAll('.notice.validation-error');
 
   validateErrors.forEach((notice) => {
@@ -111,39 +113,9 @@ export const adminValidate = (el) => {
   const regexYear = /(\d{4}-(0\d|(10|11|12))-(0[1-9]|[1-2]\d|(30|31)))|(^$)/g;
   const regexHour = /((\D\d|1\d|2[0-3]):[0-5]\d-(\d{1}|1\d|2[0-3]):[0-5]\d|(\D\d|1\d|2[0-3]):[0-5]\d)|(^$)/g;
 
-  if (titleElement.value.trim() === '') {
-    const text = 'Vyplňte název události.';
-    createAdminValidationErr(text, titleElement);
-    el.preventDefault ? el.preventDefault() : el.returnValue = false;
-  }
-
-  if (!eventStartElement.value.match(regexYear)) {
-    const text = 'Datum události je ve špatném formátu. Vyberte datum z kalendáře nebo jej napište ve formátu 2019-11-04.';
-    createAdminValidationErr(text, eventStartElement);
-    el.preventDefault ? el.preventDefault() : el.returnValue = false;
-  }
-
-  if (!eventEndElement.disabled && !eventEndElement.value.match(regexYear)) {
-    const text = 'Datum konce události je ve špatném formátu. Vyberte datum z kalendáře nebo jej napište ve formátu 2019-11-04.';
-    createAdminValidationErr(text, eventEndElement);
-    el.preventDefault ? el.preventDefault() : el.returnValue = false;
-  }
-
-  if (numOfDaysElm.innerText === 'NaN' || parseInt(numOfDaysElm.innerText) < 1) {
-    if (document.querySelector('#swp-cal-event-date-end-chck').checked && parseInt(numOfDaysElm.innerText) <= 1) {
-      const text = 'Počet dní je neplatný. Vícedenní událost nemůže končit v minulosti ani ve stejný den, kdy začala.';
-      createAdminValidationErr(text, numOfDaysElm, false);
-    } else {
-      const text = 'Počet dní je neplatný. Zkontrolujte formát data události.';
-      createAdminValidationErr(text, numOfDaysElm, false);
-    }
-
-    el.preventDefault ? el.preventDefault() : el.returnValue = false;
-  }
-
-  if (!hoursElement.value === '' || !hoursElement.value.match(regexHour)) {
-    const text = 'Čas události je ve špatném formátu. Zadejte čas ve formátu 8:45, 18:00 nebo rozmezí 12:30-13:10.';
-    createAdminValidationErr(text, hoursElement);
-    el.preventDefault ? el.preventDefault() : el.returnValue = false;
-  }
+  validateTitle(clickEvent, titleElement);
+  validateEventDate(clickEvent, eventStartElement, regexYear);
+  validateEventEnd(clickEvent, eventEndElement, regexYear);
+  validateEventLength(clickEvent, eventDateEndCheckElement, eventStartElement, eventEndElement);
+  validateEventTime(clickEvent, hoursElement, regexHour);
 };

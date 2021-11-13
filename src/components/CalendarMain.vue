@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import Calendar from './components/Calendar/Calendar.vue';
+import Calendar from './Calendar/Calendar.vue';
 
 export default {
   name: 'App',
@@ -44,121 +44,6 @@ export default {
     line-height: var(--cell-height);
   }
 }
-
-// .swpc {
-
-// /* Days (1-31) */
-// .days {
-//   padding: 0;
-//   /* background: #bdc3c7; */
-//   margin: 0;
-//   cursor: default;
-// }
-
-// .weekdays li,
-// .days li,
-// .day-events #swp-cal-mini-main li {
-//   list-style-type: none;
-//   display: inline-block;
-//   width: calc(var(--main-width) / 7);
-//   text-align: center;
-//   line-height: var(--cell-height);
-// }
-
-// .day-events #swp-cal-mini-main li {
-//   padding: 0;
-//   margin: 0;
-//   color: black;
-// }
-
-// .day-events #swp-cal-mini-main .month li {
-//   color: #fff;
-// }
-
-// .day-events #swp-cal-mini-main .month li.month-header {
-//   width: auto;
-// }
-
-// /* Highlight the "current" day */
-// .days li .active {
-//   background: #2c3e50;
-//   color: #bdc3c7 !important;
-//   display: block;
-// }
-
-// .datepicker .days {
-//   background: #bdc3c7;
-// }
-
-// .datepicker .days li>span:hover {
-//   background-color: rgba(44, 62, 80, 0.220);
-//   cursor: pointer;
-// }
-
-// .tooltip {
-//   position: relative;
-//   display: inline-block;
-// }
-
-// .tooltip .day-events {
-//   visibility: hidden;
-//   width: 120px;
-//   background-color: #23282d;
-//   color: #fff;
-//   text-align: center;
-
-//   top: 100%;
-//   left: 50%;
-//   margin-left: -60px;
-//   /* Use half of the width (120/2 = 60), to center the tooltip */
-
-//   padding: 5px 0;
-//   border-radius: 6px;
-
-//   /* Position the tooltip text - see examples below! */
-//   position: absolute;
-//   z-index: 1;
-// }
-
-// .tooltip:hover .day-events {
-//   visibility: visible;
-// }
-
-// .tooltip .day-events::after {
-//   content: " ";
-//   position: absolute;
-//   bottom: 100%;
-//   /* At the bottom of the tooltip */
-//   left: 50%;
-//   margin-left: -5px;
-//   border-width: 5px;
-//   border-style: solid;
-//   color: #6b3483;
-//   border-color: transparent transparent black transparent;
-// }
-
-// .tooltip .day-events a {
-//   color: #bdc3c7;
-//   text-decoration: none;
-// }
-
-// .tooltip .day-events a:hover {
-//   text-decoration: underline;
-// }
-
-// .day-events li {
-//   width: auto;
-//   text-align: left;
-//   padding: 0 10px;
-//   line-height: normal;
-// }
-
-/* .day-events #swp-cal-mini-main li {
-  padding: auto;
-  text-align: center;
-  width
-} */
-// }
 
 /*
 LIST
