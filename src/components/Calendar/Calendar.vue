@@ -50,7 +50,7 @@ export default {
       return;
     }
 
-    const { data } = await axios.get('http://wpsc.local/wp-json/swpc/v1/events');
+    const { data } = await axios.get('/wp-json/swpc/v1/events');
 
     this.events = getFormatedEventsData(data, 10);
   },
