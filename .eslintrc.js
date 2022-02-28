@@ -34,6 +34,7 @@ module.exports = {
 
     "no-case-declarations": "off",
     "brace-style": "off",
+    "vue/multi-word-component-names": "off"
   },
   overrides: [
     {
