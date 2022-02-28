@@ -292,9 +292,9 @@ function swp_cal_add_metabox_longer( $post )
 
 function swp_cal_meta_save( $post_id ) 
 {
-	if ( $_POST['post_type'] != 'swp-cal-event' ) { // event-list-cal: toto bude potřeba upravit
-		return;
-	}
+	// if ( $_GET['post_type'] != 'swp-cal-event' ) { // event-list-cal: toto bude potřeba upravit
+	// 	return;
+	// }
 
 	$is_autosave = wp_is_post_autosave( $post_id );
 	$is_revision = wp_is_post_revision( $post_id );
@@ -348,7 +348,8 @@ function swp_cal_meta_save( $post_id )
 		}
 	}
 }
-add_action( 'save_post', 'swp_cal_meta_save' );
+// add_action( 'save_post', 'swp_cal_meta_save' );
+add_action( 'save_post_swp-cal-event', 'swp_cal_meta_save' );
 
 /** @todo admin */
 function swp_cal_admin_script_style( $hook ) 

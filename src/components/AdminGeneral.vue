@@ -20,21 +20,24 @@
       <label for="swp-cal-event-date">Datum události &#42;</label>
       <input
         id="swp-cal-event-date"
-        type="text"
+        type="date"
         name="swp-cal-event-date"
         placeholder="YYYY-MM-DD"
         :value="eventStart"
+        required
+        pattern="\d{4}-\d{2}-\d{2}"
       />
     </span>
     <span class="event-end-date" v-if="isMultipleDay">
       <label for="swp-cal-event-date-end">Datum konce události</label>
       <input
         id="swp-cal-event-date-end"
-        type="text"
+        type="date"
         name="swp-cal-event-date-end"
         placeholder="Jednodenní událost"
         v-model="eventEnd"
         :disabled="!isMultipleDay"
+        pattern="\d{4}-\d{2}-\d{2}"
       />
     </span>
     <span v-if="isMultipleDay">Počet dní <span id="swp-cal-event-num-days">{{eventDaysLength}}</span></span>
@@ -45,7 +48,7 @@
     </label>
     <input
       id="swp-cal-event-time"
-      type="text"
+      type="time"
       name="swp-cal-event-time"
       placeholder="13:00-14:30, 15:25"
       :value="eventTime"
