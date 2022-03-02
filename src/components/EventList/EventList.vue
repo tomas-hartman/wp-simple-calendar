@@ -1,10 +1,16 @@
 <template>
   <div class="swpc-list">
-    <ul>
+    <ul v-if="events.length > 1">
       <EventItem
         v-for="event in events"
         :key="event.title"
         :event="event"
+      />
+    </ul>
+    <ul v-if="events.length < 1">
+      <EventItemPlacebolder
+        v-for="index in 5"
+        :key="index"
       />
     </ul>
   </div>
@@ -13,12 +19,14 @@
 <script>
 import axios from 'axios';
 import EventItem from './EventItem.vue';
+import EventItemPlacebolder from './EventItemPlaceholder.vue';
 import { getFormatedEventsData } from '@/js/getFormatedEventsData';
 
 export default {
   name: 'EventList',
   components: {
     EventItem,
+    EventItemPlacebolder,
   },
   data () {
     return {
