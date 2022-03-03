@@ -4,7 +4,8 @@
 export const getWeeksWithEvents = (firstDayOfMonth, weeksMeta, eventsData) => {
   const merged = weeksMeta.map((dayMeta) => {
     const { dateObj } = dayMeta;
-    const dateStr = `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}-${dateObj.getDate()}`;
+    const dateStr = dateObj.getFullYear() + '-' + ('0' + (dateObj.getMonth() + 1)).slice(-2) + '-' + ('0' + dateObj.getDate()).slice(-2);
+
     const monthMetaDateTime = new Date(dateStr).getTime();
 
     const eventsOfTheDay = eventsData.filter((event) => {

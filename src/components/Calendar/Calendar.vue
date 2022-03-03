@@ -47,6 +47,9 @@ export default {
       );
 
       this.events = getFormatedEventsData(dataRest, 10);
+
+      // const { data } = await axios.get('http://skolahradecns20.local/wp-json/swpc/v1/events');
+      // this.events = getFormatedEventsData(data, 10);
       return;
     }
 

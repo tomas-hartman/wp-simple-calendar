@@ -411,31 +411,35 @@ function swp_cal_json()
 	while ( $loop->have_posts() ) : $loop->the_post();
     $event = new \stdClass;
 		
-		$title = html_entity_decode(get_the_title());
-		$permalink = get_permalink($loop->ID);
-		$eventDate = get_post_custom_values('event-date')[0];
-		$eventTime = get_post_custom_values('event-time')[0];
-		$eventDays = (int) get_post_custom_values('event-days')[0];
-		$eventRepeat = (int) get_post_custom_values('event-repeat')[0];
-		$eventEnd = get_post_custom_values('event-end')[0];
-		$eventRepetitionEnd = get_post_custom_values('event-repetition-end')[0];
+    $title = html_entity_decode(get_the_title());
+    $permalink = get_permalink($loop->ID);
     $excerpt = get_the_excerpt();
     $categories = get_the_category();
+    
+    $postCustom = get_post_custom();
+    [
+      "event-date"            => $eventDate,
+      "event-time"            => $eventTime,
+      "event-end"             => $eventEnd,
+      "event-days"            => $eventDays,
+      "event-repeat"          => $eventRepeat
+      // "event-repetition-end"  => $eventRepetitionEnd,
+    ] = $postCustom;
 
     $eventRepeatSchedule = 0;
 
-    if($eventRepeat > 0) {
+    if($eventRepeat[0] > 0) {
       $eventRepeatSchedule = $eventRepeat[0];
     }
 
     $event->title = $title;
     $event->permalink = $permalink;
-    $event->eventDate = $eventDate;
-    $event->eventTime = $eventTime;
-    $event->eventDays = $eventDays;
-    $event->eventRepeat = $eventRepeat;
-    $event->eventEnd = $eventEnd;
-    $event->eventRepetitionEnd = $eventRepetitionEnd;
+    $event->eventDate = $eventDate[0];
+    $event->eventTime = $eventTime[0];
+    $event->eventDays = $eventDays[0];
+    $event->eventRepeat = $eventRepeat[0];
+    $event->eventEnd = $eventEnd[0];
+    // $event->eventRepetitionEnd = $eventRepetitionEnd[0];
     $event->excerpt = $excerpt;
     $event->eventRepeatSchedule = $eventRepeatSchedule;
     $event->categories = $categories;
