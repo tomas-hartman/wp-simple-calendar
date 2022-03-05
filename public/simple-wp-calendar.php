@@ -397,15 +397,32 @@ add_action( 'wp_enqueue_scripts', 'swp_cal_scripts' );
 
 /** REST API */
 
-function swp_cal_json() 
+function swp_cal_json(): array 
 {
 	// check_ajax_referer( 'simple-wp-calendar', 'security' );
 
-	$args = [
-    'post_type' => 'swp-cal-event', // Takhle se to jmenuje správně
-		'posts_per_page' => -1,
-  ];
-	$loop = new WP_Query( $args );
+  $results = swpc_get_preferred_categories(true);
+
+  $args = array(
+    'post_type' => 'swp-cal-event',
+    'post_status' => 'publish',
+    'posts_per_page' => -1,
+    'tax_query' => [
+      "relation" => "OR",
+      [
+        'taxonomy'  => "category",
+        'terms'     => $results,
+        'field'     => "id"
+      ],
+      [
+        'taxonomy'  => "category",
+        'terms'     => get_terms( "category", [ 'fields' => 'ids'  ] ),
+        'operator'  => 'NOT IN'
+      ],
+    ]
+  );
+  
+  $loop = new WP_Query($args);
 	$events = array();
 
 	while ( $loop->have_posts() ) : $loop->the_post();
@@ -489,4 +506,107 @@ function swp_cal_list($atts)
 }
 add_shortcode('swpc-list', 'swp_cal_list');
 
-?>
+/**
+ * Method Direcly copied from theme
+ * 
+ * excluded categories:
+ * ZŠ: mš
+ * MŠ: zš, šd
+ * 
+ * neexcludovat explicitně, jenom nedat do toho, co se má zobrazit
+ * tzn: zobrazit tyhle id, ale vynechat ID těch, oc nejsou v tu chvíli podstatný,
+ * to by mělo zachovat ty, kde jsou dvojitý a vzájemně se vylučujou
+ * 
+ * Vrací ve stringu seznam kategorií, které se mají zobrazovat na hlavní stránce 
+ * na základě preferencí uživatele (vše, články pro mš, články pro zš).
+ * 
+ * @return {string | Array<int>} string of category ids separeted by comma or array of ids
+ */
+function swpc_get_preferred_categories($returnArray = false): string | array
+{
+  $args = array(
+    'parent'   => 0,
+    'hide_empty' => 0,
+  );
+
+  $categories = get_categories($args);
+  $results = array();
+
+  $zsCategories = ["zš", "šd"];
+  $msCategories = ["mš"];
+
+  $cookieName = "skolahradecns-category-preference";
+
+  /** @var 0 | 1 | 2 all | zš | mš */
+  $cookiePref = isset($_COOKIE[$cookieName]) ? (int)$_COOKIE[$cookieName] : 0;
+
+  if ($cookiePref == 0) {
+    $categories = get_categories(); // do not limit all to any extent
+
+    foreach ($categories as $category) {
+      array_push($results, $category->term_id);
+    }
+  } elseif ($cookiePref == 1) {
+    foreach ($categories as $category) {
+      if (!in_array($category->cat_name, $msCategories)) {
+        array_push($results, $category->term_id);
+      }
+    }
+  } else {
+    foreach ($categories as $category) {
+      if (!in_array($category->cat_name, $zsCategories)) {
+        array_push($results, $category->term_id);
+      }
+    }
+  }
+
+
+  if($returnArray) {
+    return $results;
+  }
+
+  $results = join(",", $results);
+
+  return $results;
+}
+
+/** @todo this might be problematic if post have two categories that are mutually exclusive */
+// function swpc_get_preferably_excluded_categories()
+// {
+//   $args = array(
+//     'parent'   => 0,
+//     'hide_empty' => 0,
+//   );
+
+//   $categories = get_categories($args);
+//   $results = array();
+
+//   $cookieName = "skolahradecns-category-preference";
+
+//   /** @var 0 | 1 | 2 all | zš | mš */
+//   $cookiePref = isset($_COOKIE[$cookieName]) ? (int)$_COOKIE[$cookieName] : 0;
+
+//   if ($cookiePref == 0) {
+//     return [];
+//   } elseif ($cookiePref == 1) {
+//     return array_filter($categories, function ($category) {
+//       $msCategories = ["mš"];
+      
+//       if (in_array($category->cat_name, $msCategories)) {
+//         return $category->term_id;
+//       }
+//     });
+//   } else {
+//     return array_filter($categories, function ($category) {
+//       $zsCategories = ["zš", "šd"];
+
+//       if (in_array($category->cat_name, $zsCategories)) {
+//         return $category->term_id;
+//       }
+//     });
+//   }
+
+//   // $results = join(",", $results);
+
+//   // return $results;
+// }
