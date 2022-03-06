@@ -45,14 +45,14 @@ export default {
         '../../samples/data_rest'
       );
 
-      const data = getFormatedEventsData(dataRest, listItemLength, true);
+      // const data = getFormatedEventsData(dataRest, listItemLength, true);
 
-      this.events = data;
+      // this.events = data;
 
-      // const { data } = await axios.get('http://skolahradecns20.local/wp-json/swpc/v1/events');
-      // const eventsData = getFormatedEventsData(data, listItemLength, true);
+      const { data } = await axios.get('http://skolahradecns20.local/wp-json/swpc/v1/events');
+      const eventsData = getFormatedEventsData(data, listItemLength, true);
 
-      // this.events = eventsData;
+      this.events = eventsData;
       return;
     }
 
