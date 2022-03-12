@@ -15,7 +15,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit",
+    "bundle": "npm run build && dir-archiver --src ./dist --dest ./build/simple-wp-calendar_latest.zip"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
@@ -38,6 +39,7 @@
     "babel-jest": "^27.5.1",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.6.0",
+    "dir-archiver": "^1.2.0",
     "eslint": "^8.10.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",

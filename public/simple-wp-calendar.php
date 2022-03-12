@@ -522,7 +522,7 @@ add_shortcode('swpc-list', 'swp_cal_list');
  * 
  * @return {string | Array<int>} string of category ids separeted by comma or array of ids
  */
-function swpc_get_preferred_categories($returnArray = false): string | array
+function swpc_get_preferred_categories($returnArray = false)
 {
   $args = array(
     'parent'   => 0,
