@@ -20,7 +20,7 @@
 
     <div v-if="showTime" class="swpc-list-event-year">
       <div class="swpc-list-event-year-inner theme-navy">
-        {{event.eventTime}}
+        {{eventTime}}
       </div>
     </div>
 
@@ -36,6 +36,10 @@ const getShortenedDate = (dateStr) => {
   return `${date.getDate()}.${date.getMonth() + 1}.`;
 };
 
+const getShortenedTime = (eventTime) => {
+  return eventTime.split('-')[0];
+};
+
 export default {
   name: 'ItemDate',
   props: {
@@ -48,6 +52,7 @@ export default {
       isDifferentYear: false,
       hasMoreDays: !!this.event.eventEnd && this.event.eventEnd !== '0',
       showTime: !!this.event.eventTime,
+      eventTime: getShortenedTime(this.event.eventTime),
     };
   },
 };
